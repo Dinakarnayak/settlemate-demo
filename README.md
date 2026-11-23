@@ -8,12 +8,17 @@ An all-in-one daily-life app for international students in the UK. This reposito
 
 ## What's in the demo
 
-- **Home:** next arrival task, weekly work hours, money left this month, events and deals nearby
-- **Arrival checklist:** SIM, bank, eVisa/share code, GP, NI number, council tax, Railcard. Ticking tasks earns XP.
-- **Work hours tracker:** log shifts and get warnings before you reach your weekly term-time limit
-- **Money:** monthly budget, one-tap quick add, spending by category
-- **Discover:** student deals, home-country groceries, events and community groups
-- **Assistant:** a scripted chat for common "how do I…" questions about UK life
+- **Welcome tour:** pick your name and home country from 50+ countries (searchable)
+- **Feels like home:** greeting in your home language, UK and home clocks, money shown in your currency, plus food, community and embassy links for your country
+- **Today:** a student's day planner with lectures, a cheap lunch, a study block, shifts, how much you can spend today, and deadline countdowns
+- **Term dates:** uses the University of Leicester's published postgraduate dates to show the term, week number and next vacation, and whether your term-time work limit applies. 2026/27 is marked as estimated until the University publishes it.
+- **Arrival checklist:** SIM, bank, eVisa/share code, scams, GP, NI number, council tax, Railcard, with XP rewards
+- **Work hours:** shift log, weekly limit ring, vacation detection from term dates
+- **Money:** budget, quick add, spending chart, converter to your home currency
+- **Safe (Scam Shield):** paste any message to check for scam signs, five golden rules, common scams targeting international students, and where to report (Report Fraud, 7726, report@phishing.gov.uk, your bank, your university, your embassy)
+- **Discover:** verified deals, events, community groups and a "home away from home" section
+- **Account:** ride-app style profile with Help, Wallet and Term dates tiles, safety and visa check-ups, personal info, emergency contact and settings
+- **Assistant:** answers common questions and links to the official page
 
 ## Startup plan
 
@@ -40,9 +45,11 @@ For now, every card and link opens a trusted outside service instead of a built-
 | Community groups ("Find online") | Facebook group search |
 | Work tab | Student visa rules on gov.uk |
 | Money tab | MoneyHelper guides, transfer-fee comparison search |
+| Safe tab | Report Fraud, UKCISA scam guide, your embassy |
+| Home away from home | Google Maps food search, Facebook groups, embassy search, live exchange rate |
 | Assistant answers | The matching official page, or a web search |
 
-The Flutter app opens the same links with `url_launcher`.
+The Flutter app opens the same links with `url_launcher`. (The Flutter starter doesn't have the newest features yet: the welcome tour, Scam Shield, term dates, Today plan and account page.)
 
 ## Tech
 

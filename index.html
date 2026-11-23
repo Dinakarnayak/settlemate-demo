@@ -5,39 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SettleMate demo prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* VOICE: upbeat, warm, a little playful, like a friend who has already done this
-   IDEA: a sticker-covered student planner: bold colour tiles, progress rings, small rewards
+/* VOICE: upbeat and warm, but trustworthy where safety and money are involved
+   IDEA: a sticker-covered student planner that also guards you, with bold tiles, rings and a shield
    PICTURE: the working app in a phone, with coloured blobs behind it
-   COLOUR and TYPE: coral #ff5a3c lead, sunshine #ffc93c, electric blue #3d6bff, mint for completed; Fredoka headings, Plus Jakarta Sans body
+   COLOUR and TYPE: coral #ff5a3c lead, sunshine #ffc93c, electric blue #3d6bff, mint for done/safe; Fredoka headings, Plus Jakarta Sans body
    LAYOUT: modest title, phone centred; on phones the app fills the screen with a floating pill nav */
 :root{color-scheme:light dark;
 --bg:light-dark(#fff7f0,#0f1020);--app:light-dark(#fffdfa,#171a2e);--card:light-dark(#ffffff,#21253d);
---ink:light-dark(#1b1d2e,#f1f2fa);--mute:light-dark(#6b6f86,#a4a8c3);--line:light-dark(#f0e6dc,#2e3352);
+--ink:light-dark(#1b1d2e,#f1f2fa);--mute:light-dark(#62667d,#a4a8c3);--line:light-dark(#f0e6dc,#2e3352);
 --coral:#ff5a3c;--sun:#ffc93c;--blue:#3d6bff;--mint:#1fbf8f;--pink:#ff7eb6;
 --coralsoft:light-dark(#ffe6df,#3b2028);--sunsoft:light-dark(#fff2cc,#3a3220);--bluesoft:light-dark(#e3eaff,#1f2a55);--mintsoft:light-dark(#d9f7ec,#163a32);--pinksoft:light-dark(#ffe3ef,#3b1f33);
+--suntext:light-dark(#8a6100,#ffc93c);
 --shadow:0 6px 18px -8px light-dark(rgb(255 90 60/.35),rgb(0 0 0/.6))}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Plus Jakarta Sans",system-ui,sans-serif;overflow-x:clip}
-button,input,select{font:inherit;color:inherit}
-button{cursor:pointer}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active:not(:disabled),a.deal:active,a.event:active,.tile:active{transform:scale(.97)}
 :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 h1,h2,h3,.big,.disp{font-family:Fredoka,"Plus Jakarta Sans",sans-serif;font-weight:600}
 .top{max-width:1000px;margin:0 auto;padding:28px 20px 6px;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:end;justify-content:space-between}
 .top h1{margin:0;font-size:34px;line-height:1.05}
-.top p{margin:0;color:var(--mute);max-width:44ch}
+.top p{margin:0;color:var(--mute);max-width:46ch}
+.top a{color:var(--coral);font-weight:700}
 .stage{position:relative;display:flex;justify-content:center;padding:18px 16px 40px;isolation:isolate}
-.blob{position:absolute;border-radius:50%;filter:blur(2px);z-index:-1}
+.blob{position:absolute;border-radius:50%;z-index:-1}
 .phone{width:392px;height:800px;background:var(--app);border-radius:46px;border:10px solid #14152a;box-shadow:0 40px 80px -30px rgb(40 20 80/.45);display:flex;flex-direction:column;overflow:hidden;position:relative}
 .status{display:flex;justify-content:space-between;padding:10px 26px 2px;font-size:13px;font-weight:700}
-.screen{flex:1;overflow-y:auto;padding:8px 18px 110px;scrollbar-width:none}
+.screen{flex:1;overflow-y:auto;padding:8px 18px 112px;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
-.nav{position:absolute;left:14px;right:14px;bottom:14px;display:grid;grid-template-columns:repeat(5,1fr);background:var(--ink);border-radius:26px;padding:6px;box-shadow:0 12px 30px -10px rgb(0 0 0/.5);z-index:3}
-.nav button{background:none;border:0;display:grid;justify-items:center;gap:1px;font-size:11px;font-weight:600;color:light-dark(#b9bcd2,#5c6185);min-height:52px;border-radius:20px;padding:5px 0;transition:background .2s,color .2s}
+.screen.enter{animation:enter .28s ease-out}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}}
+.nav{position:absolute;left:12px;right:12px;bottom:14px;display:grid;grid-template-columns:repeat(6,1fr);background:var(--ink);border-radius:26px;padding:6px;box-shadow:0 12px 30px -10px rgb(0 0 0/.5);z-index:3}
+.nav button{background:none;border:0;display:grid;justify-items:center;gap:1px;font-size:10.5px;font-weight:700;color:light-dark(#b9bcd2,#5c6185);min-height:52px;border-radius:20px;padding:5px 0;transition:background .2s,color .2s}
 .nav button[aria-current=true]{background:var(--coral);color:#fff}
-.nav svg{width:22px;height:22px}
+.nav button.safe[aria-current=true]{background:var(--mint)}
+.nav svg{width:21px;height:21px}
 h2{font-size:28px;line-height:1.05;margin:6px 0 4px}
 h3{font-size:18px;margin:0 0 8px}
 .sub{color:var(--mute);margin:0 0 14px;font-size:15px}
@@ -45,30 +51,39 @@ h3{font-size:18px;margin:0 0 8px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .big{font-size:34px;line-height:1;white-space:nowrap}
 .small{font-size:13px;color:var(--mute)}
-.pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 11px;font-size:13px;font-weight:700;white-space:nowrap}
-.hello{display:flex;align-items:center;gap:12px;margin:6px 0 14px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 11px;font-size:13px;font-weight:700;white-space:nowrap;text-decoration:none;border:0}
+.hello{display:flex;align-items:center;gap:12px;margin:6px 0 12px}
 .avatar{flex:none;width:48px;height:48px;border-radius:16px;background:var(--sun);color:#1b1d2e;display:grid;place-items:center;font:700 20px Fredoka,sans-serif;transform:rotate(-6deg)}
+.clocks{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:12px}
+.clock{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 12px}
+.clock b{font:600 22px Fredoka,sans-serif;display:block;line-height:1.1}
 .hero{position:relative;overflow:hidden;background:var(--coral);color:#fff;border-radius:26px;padding:18px;margin-bottom:14px;display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:10px;align-items:center}
 .hero .disp{font-size:21px;line-height:1.15;margin:4px 0 12px}
-.hero small{opacity:.85;font-weight:600}
+.hero small{opacity:.9;font-weight:600}
 .ring{position:relative;width:96px;height:96px}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 22px Fredoka,sans-serif}
 .ring circle{transition:stroke-dasharray .6s}
-.btn{background:var(--coral);color:#fff;border:0;border-radius:16px;padding:10px 16px;min-height:44px;font-weight:700}
+.btn{background:var(--coral);color:#fff;border:0;border-radius:16px;padding:10px 16px;min-height:44px;font-weight:700;transition:transform .1s}
 .btn.w{background:#fff;color:var(--coral)}
 .btn.soft{background:var(--bluesoft);color:var(--blue)}
+.btn.ink{background:var(--ink);color:var(--app)}
+.btn.mint{background:var(--mint)}
+.btn.block{width:100%}
 .tiles{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:14px}
-.tile{border:0;text-align:left;border-radius:22px;padding:14px;display:grid;gap:4px;min-height:132px;align-content:space-between;color:#1b1d2e}
+.tile{border:0;text-align:left;border-radius:22px;padding:14px;display:grid;gap:4px;min-height:132px;align-content:space-between;color:#1b1d2e;transition:transform .1s}
 .tile .ic{width:38px;height:38px;border-radius:12px;background:rgb(255 255 255/.6);display:grid;place-items:center}
 .tile .ic svg{width:22px;height:22px}
 .tile .big{font-size:28px}
-.t-blue{background:#c9d6ff}.t-sun{background:#ffe08a}.t-mint{background:#b5efd9}.t-pink{background:#ffc9df}
+.t-blue{background:#c9d6ff}.t-sun{background:#ffe08a}
 .meter{height:10px;border-radius:6px;background:rgb(27 29 46/.12);overflow:hidden}
 .meter i{display:block;height:100%;border-radius:6px;background:#1b1d2e;transition:width .5s}
+.alertbar{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:0;border-radius:20px;padding:12px 14px;margin-bottom:14px;background:var(--ink);color:var(--app)}
+.alertbar .sh{flex:none;width:40px;height:40px;border-radius:14px;background:var(--mint);display:grid;place-items:center;color:#fff}
+.alertbar svg{width:22px;height:22px}
 .hscroll{display:flex;gap:12px;overflow-x:auto;margin:0 -18px 14px;padding:4px 18px 10px;scroll-snap-type:x mandatory;scrollbar-width:none}
 .hscroll::-webkit-scrollbar{display:none}
-.event{flex:none;width:200px;scroll-snap-align:start;border-radius:22px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.event{flex:none;width:200px;scroll-snap-align:start;border-radius:22px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);transition:transform .1s}
 .event .cover{height:86px;position:relative}
 .event .cover svg{position:absolute;inset:0;width:100%;height:100%}
 .event .body{padding:10px 12px 12px}
@@ -81,18 +96,20 @@ h3{font-size:18px;margin:0 0 8px}
 .xp{flex:none;font-size:12px;font-weight:800;color:var(--blue);background:var(--bluesoft);border-radius:10px;padding:3px 8px}
 .task.done .xp{color:var(--mint);background:transparent}
 form.add{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) auto;gap:8px}
-input,select{font-size:16px;border:1.5px solid var(--line);background:var(--app);border-radius:14px;padding:9px 11px;min-height:44px;width:100%}
+input,select,textarea{font-size:16px;border:1.5px solid var(--line);background:var(--app);border-radius:14px;padding:9px 11px;min-height:44px;width:100%}
+textarea{resize:vertical;min-height:96px;line-height:1.45}
 .list{list-style:none;margin:0;padding:0}
 .list li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px dashed var(--line)}
 .list li:last-child{border:0}
 .del{background:none;border:0;color:var(--mute);min-width:36px;min-height:36px;border-radius:12px}
 .alert{border-radius:16px;padding:11px 13px;font-size:14px;font-weight:600;margin-top:12px}
-.alert.r{background:var(--coralsoft);color:var(--coral)}.alert.y{background:var(--sunsoft);color:light-dark(#8a6100,#ffc93c)}.alert.g{background:var(--mintsoft);color:var(--mint)}
+.alert.r{background:var(--coralsoft);color:var(--coral)}.alert.y{background:var(--sunsoft);color:var(--suntext)}.alert.g{background:var(--mintsoft);color:var(--mint)}
 .gauge{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center}
 .gauge .ring{width:150px;height:150px}
 .gauge .ring b{font-size:34px;flex-direction:column;line-height:1}
 .gauge .ring b span{display:block;font:600 13px "Plus Jakarta Sans",sans-serif;color:var(--mute);margin-top:4px;text-align:center}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
 .chips button{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:7px 14px;min-height:42px;font-size:14px;font-weight:600}
 .chips button[aria-pressed=true]{background:var(--ink);color:var(--app);border-color:var(--ink)}
 .quick button{background:var(--sunsoft);border-color:transparent}
@@ -102,11 +119,43 @@ input,select{font-size:16px;border:1.5px solid var(--line);background:var(--app)
 .legend div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center}
 .legend i{width:12px;height:12px;border-radius:4px}
 .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700}
-.deal{display:flex;gap:12px;align-items:center;padding:9px 0}
+a.deal,a.event{color:inherit;text-decoration:none}a.event{display:block}
+a.deal:hover b,a.event:hover b{text-decoration:underline}
+.deal{display:flex;gap:12px;align-items:center;padding:9px 0;transition:transform .1s}
 .badge{flex:none;width:50px;height:50px;border-radius:16px;display:grid;place-items:center}
 .badge svg{width:26px;height:26px}
+.ver{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;color:var(--mint);margin-left:4px;vertical-align:1px}
+.ver svg{width:13px;height:13px}
 .group{display:flex;gap:12px;align-items:center}
 .gav{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font:700 16px Fredoka,sans-serif;color:#1b1d2e}
+.go{display:inline-block;margin-top:4px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;min-height:24px}
+.go:hover{text-decoration:underline}
+/* Safety */
+.shield{background:var(--mint);color:#fff;border-radius:26px;padding:18px;margin-bottom:14px;display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:10px;align-items:center}
+.shield .disp{font-size:22px;line-height:1.15;margin:2px 0 6px}
+.shield p{margin:0;font-size:14px;opacity:.95}
+.verdict{border-radius:18px;padding:14px;margin-top:12px}
+.verdict.r{background:var(--coralsoft)}.verdict.y{background:var(--sunsoft)}.verdict.g{background:var(--mintsoft)}
+.verdict h3{margin:0 0 6px;font-size:20px}
+.verdict.r h3{color:var(--coral)}.verdict.y h3{color:var(--suntext)}.verdict.g h3{color:var(--mint)}
+.flags{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.flags li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:14px}
+.flags li::before{content:"!";width:22px;height:22px;border-radius:8px;background:var(--coral);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px}
+.rules{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.rules li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;font-size:14px;align-items:start}
+.rules li span{width:30px;height:30px;border-radius:10px;background:var(--mintsoft);color:var(--mint);display:grid;place-items:center;font-weight:800}
+details.scam{border-bottom:1px dashed var(--line);padding:4px 0}
+details.scam:last-child{border:0}
+details.scam summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:48px;font-weight:700}
+details.scam summary::-webkit-details-marker{display:none}
+details.scam summary::after{content:"+";font:600 22px Fredoka,sans-serif;color:var(--coral);transition:transform .2s}
+details.scam[open] summary::after{transform:rotate(45deg)}
+details.scam p{margin:0 0 10px;font-size:14px;color:var(--mute)}
+.report{display:grid;gap:10px}
+.report > div{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
+.report .ri{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font:700 14px Fredoka,sans-serif}
+.copy{background:none;border:0;padding:0;color:var(--blue);font-weight:700;font-size:13px;min-height:24px}
+/* Assistant + overlays */
 .fab{position:absolute;right:20px;bottom:96px;height:52px;padding:0 18px 0 14px;border-radius:26px;background:var(--blue);color:#fff;border:0;display:flex;gap:8px;align-items:center;font-weight:700;box-shadow:0 12px 24px -8px rgb(61 107 255/.7);z-index:3}
 .fab svg{width:22px;height:22px}
 .sheet{position:absolute;inset:auto 0 0 0;height:80%;background:var(--app);border-radius:28px 28px 0 0;box-shadow:0 -10px 40px rgb(0 0 0/.25);display:flex;flex-direction:column;transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.9,.3,1.1);z-index:5}
@@ -116,35 +165,91 @@ input,select{font-size:16px;border:1.5px solid var(--line);background:var(--app)
 .m{max-width:85%;padding:10px 14px;border-radius:20px;font-size:15px}
 .m.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:6px}
 .m.bot{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.m a{color:var(--blue);font-weight:700}
+.m button{background:none;border:0;padding:0;color:var(--blue);font-weight:700}
 .sheet .chips{padding:4px 16px 8px}
 .sheet form{display:flex;gap:8px;padding:8px 16px 20px}
-.toast{position:absolute;left:50%;top:56px;transform:translate(-50%,-20px);opacity:0;background:var(--ink);color:var(--app);border-radius:20px;padding:9px 16px;font-weight:700;font-size:14px;white-space:nowrap;transition:.3s;z-index:6;pointer-events:none}
+.toast{position:absolute;left:50%;top:56px;transform:translate(-50%,-20px);opacity:0;background:var(--ink);color:var(--app);border-radius:20px;padding:9px 16px;font-weight:700;font-size:14px;white-space:nowrap;transition:.3s;z-index:9;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.conf{position:absolute;width:9px;height:14px;border-radius:3px;z-index:6;pointer-events:none;animation:fall 1.1s ease-out forwards}
+.conf{position:absolute;width:9px;height:14px;border-radius:3px;z-index:9;pointer-events:none;animation:fall 1.1s ease-out forwards}
 @keyframes fall{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
 @keyframes pop{50%{transform:scale(1.25)}}
-a.deal,a.event{color:inherit;text-decoration:none}a.event{display:block}a.deal:hover b,a.event:hover b{text-decoration:underline}
-.go{display:inline-block;margin-top:4px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;min-height:24px}
-.go:hover{text-decoration:underline}
-.m a{color:inherit;font-weight:700}
+.onb{position:absolute;inset:0;z-index:8;background:var(--app);display:flex;flex-direction:column;padding:28px 22px 26px;overflow-y:auto}
+.onb[hidden]{display:none}
+.onb .art{height:230px;border-radius:30px;background:var(--coral);position:relative;overflow:hidden;margin-bottom:22px;flex:none}
+.onb .art svg{position:absolute;inset:0;width:100%;height:100%}
+.onb h2{font-size:32px}
+.onb .dots{display:flex;gap:6px;justify-content:center;margin:auto 0 16px;padding-top:16px}
+.onb .dots i{width:8px;height:8px;border-radius:4px;background:var(--line);transition:width .3s}
+.onb .dots i.on{width:24px;background:var(--coral)}
+.countries{max-height:260px;overflow-y:auto;padding:2px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:4px 0 14px}
+.countries button{border:2px solid var(--line);background:var(--card);border-radius:18px;padding:12px;text-align:left;display:flex;gap:10px;align-items:center;min-height:56px;font-weight:700}
+.countries button[aria-pressed=true]{border-color:var(--coral);background:var(--coralsoft)}
+.countries .cc{flex:none;width:34px;height:34px;border-radius:11px;background:var(--sun);color:#1b1d2e;display:grid;place-items:center;font:700 13px Fredoka,sans-serif}
+label.f{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
+/* Account (ride-app style) + term calendar */
+.hav{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--sun);color:#1b1d2e;font:700 18px Fredoka,sans-serif;display:grid;place-items:center;margin-top:4px}
+.avatar{border:0}
+.acc-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0 18px}
+.acc-top h2{font-size:32px;margin:0}
+.acc-av{flex:none;width:68px;height:68px;border-radius:50%;background:var(--sun);color:#1b1d2e;display:grid;place-items:center;font:700 28px Fredoka,sans-serif}
+.acc-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.acc-tiles button{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 6px 12px;display:grid;justify-items:center;gap:6px;font-weight:700;font-size:14px;min-height:84px;transition:transform .1s}
+.acc-tiles svg{width:26px;height:26px}
+.promo{flex:none;width:250px;scroll-snap-align:start;border:0;border-radius:22px;padding:16px;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:10px;align-items:center;color:#1b1d2e;transition:transform .1s}
+.promo b{display:block;font:600 18px Fredoka,sans-serif;line-height:1.2}
+.promo .ring{width:56px;height:56px}
+.promo .ring b{font-size:13px}
+.menu{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:4px 6px;margin-bottom:14px}
+.menu button{width:100%;background:none;border:0;display:grid;grid-template-columns:40px minmax(0,1fr) 20px;gap:12px;align-items:center;text-align:left;padding:10px 8px;min-height:56px;border-bottom:1px solid var(--line);font-weight:600;transition:transform .1s}
+.menu button:last-child{border-bottom:0}
+.menu .mi{width:40px;height:40px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.menu .mi svg{width:20px;height:20px}
+.menu .chev{width:18px;height:18px;color:var(--mute)}
+.menu small{display:block;font-weight:500;color:var(--mute);font-size:13px}
+.back{background:none;border:0;padding:0;font-weight:700;color:var(--mute);min-height:40px}
+.termbar{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:10px 12px;margin-bottom:12px;transition:transform .1s}
+.termbar .ci{flex:none;width:40px;height:40px;border-radius:14px;background:var(--bluesoft);color:var(--blue);display:grid;place-items:center}
+.termbar svg{width:22px;height:22px}
+.cal{list-style:none;margin:0;padding:0}
+.cal li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:start;padding:11px 0;border-bottom:1px dashed var(--line)}
+.cal li:last-child{border:0}
+.cal li i{width:14px;height:14px;border-radius:5px;margin-top:4px}
+.cal li.now{background:var(--sunsoft);border-radius:14px;padding:11px 10px;margin:0 -10px;border:0}
+.tag{font-size:11px;font-weight:800;border-radius:8px;padding:2px 7px;white-space:nowrap}
+.tag.o{background:var(--mintsoft);color:var(--mint)}.tag.e{background:var(--sunsoft);color:var(--suntext)}
+.today{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.allow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--sunsoft);border-radius:16px;padding:10px 12px;margin:10px 0 6px;color:var(--ink)}
+.allow b{font:600 24px Fredoka,sans-serif;white-space:nowrap}
+.tl{list-style:none;margin:0;padding:0}
+.tl li>*{width:100%;display:grid;grid-template-columns:52px 12px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:none;border:0;padding:9px 6px;border-radius:14px;color:inherit;text-decoration:none;min-height:52px}
+.tl time{font:600 15px Fredoka,sans-serif;font-variant-numeric:tabular-nums}
+.tl i{width:12px;height:12px;border-radius:50%;justify-self:center}
+.tl li.past>*{opacity:.45}
+.tl li.past b{text-decoration:line-through}
+.tl li.next>*{background:var(--coralsoft)}
+.tl .nx{font-size:11px;font-weight:800;color:#fff;background:var(--coral);border-radius:8px;padding:2px 7px}
+.dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.dl div{background:var(--bg);border-radius:14px;padding:9px 10px}
+.dl b{display:block;font:600 22px Fredoka,sans-serif;line-height:1}
 .note{max-width:1000px;margin:0 auto;padding:0 20px 32px;color:var(--mute);font-size:13px;text-align:center}
 @media(max-width:600px){.top{padding-top:14px}.top h1{font-size:26px}.top p{font-size:14px}.stage{padding:6px 0 0}.blob{display:none}
-.phone{width:100%;height:calc(100dvh - 92px);min-height:620px;border:0;border-radius:0;box-shadow:none}.status{display:none}}
+.phone{width:100%;height:calc(100dvh - 96px);min-height:640px;border:0;border-radius:0;box-shadow:none}.status{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <header class="top">
   <h1>SettleMate: clickable demo</h1>
-  <p>Your UK student life in one app. Tick tasks to earn XP, log shifts, track spending and find your people. <a href="app/" style="color:var(--coral);font-weight:700">Open the installable app</a></p>
+  <p>Your UK student life in one app: arrival, work hours, money, scam protection and your community. <a href="app/">Open the installable app</a></p>
 </header>
 
 <div class="stage">
   <div class="blob" style="width:260px;height:260px;background:var(--sun);opacity:.55;left:calc(50% - 330px);top:60px"></div>
   <div class="blob" style="width:220px;height:220px;background:var(--pink);opacity:.45;left:calc(50% + 150px);top:360px"></div>
-  <div class="blob" style="width:160px;height:160px;background:var(--blue);opacity:.25;left:calc(50% - 280px);top:560px"></div>
+  <div class="blob" style="width:160px;height:160px;background:var(--mint);opacity:.35;left:calc(50% - 280px);top:560px"></div>
   <div class="phone" id="phone">
-    <div class="status"><span>9:41</span><span>Leicester · 7°C</span></div>
+    <div class="status"><span id="sbtime">9:41</span><span>Leicester</span></div>
     <main class="screen" id="screen" aria-live="polite"></main>
     <button class="fab" id="fab" aria-label="Ask the assistant">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 9l-4.5 3.8L17 19l-5-3-5 3 1.5-6.2L4 9l5.8-.7z"/></svg>Ask
@@ -157,24 +262,42 @@ a.deal,a.event{color:inherit;text-decoration:none}a.event{display:block}a.deal:h
       <div class="chips" id="sugg"></div>
       <form id="ask"><input id="q" placeholder="Ask anything about UK life…" aria-label="Your question"><button class="btn" style="background:var(--blue)">Send</button></form>
     </section>
-    <div class="toast" id="toast"></div>
+    <section class="onb" id="onb" aria-label="Welcome" hidden></section>
+    <div class="toast" id="toast" role="status"></div>
   </div>
 </div>
-<p class="note">Demo prototype with sample data. Rules shown are simplified. Always check your own visa conditions on gov.uk.</p>
+<p class="note">Demo prototype with sample data. Rules shown are simplified and exchange rates are rough samples. Always check your own visa conditions on gov.uk.</p>
 
 <script>
 {
+/* ---------- icons ---------- */
 const ic = {
   home:'<path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/>',
   arrival:'<path d="M3 17l7-2 4 4 7-14"/><circle cx="5" cy="6" r="2"/>',
   work:'<circle cx="12" cy="13" r="8"/><path d="M12 8v5l3 2M9 2h6"/>',
   money:'<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2M3 10h18"/>',
+  safe:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   discover:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
   cart:'<path d="M3 4h2l2.5 11h11L21 7H6.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
   bowl:'<path d="M3 11h18a9 9 0 0 1-18 0zM8 7c0-2 2-2 2-4M13 7c0-2 2-2 2-4"/>',
-  train:'<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/><circle cx="9" cy="14" r=".8"/><circle cx="15" cy="14" r=".8"/>',
-  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/>'
+  train:'<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  bell:'<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+  out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+  chev:'<path d="M9 6l6 6-6 6"/>',
+  cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+  gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-4-6-1s6 1 6 1c2-4 6-4 6-1s-6 1-6 1"/>'
 };
+const tabs = [['home','Home'],['arrival','Arrival'],['work','Work'],['money','Money'],['safe','Safe'],['discover','Discover']];
+
+/* ---------- link helpers ---------- */
 const gsearch = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
 const maps = q => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
 const ext = (href, text, cls='go') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener">${text}</a>`;
@@ -185,16 +308,77 @@ const taskLinks = {
   'Register with a GP': 'https://www.nhs.uk/service-search/find-a-gp',
   'Apply for a National Insurance number': 'https://www.gov.uk/apply-national-insurance-number',
   'Get council tax exemption': 'https://www.gov.uk/council-tax/discounts-for-full-time-students',
+  'Learn the top student scams': '#safe',
   'Buy a 16–25 Railcard': 'https://www.16-25railcard.co.uk'
 };
-const tabs = [['home','Home'],['arrival','Arrival'],['work','Work'],['money','Money'],['discover','Discover']];
 
+/* ---------- home countries ----------
+   hi = hello in a main home language. rate = rough sample £1 rate (only a few; others link to a live rate). */
+const countries = [
+  {c:'IN',n:'India',cur:'INR',sym:'₹',tz:'Asia/Kolkata',hi:'Namaste',rate:115},
+  {c:'CN',n:'China',cur:'CNY',sym:'¥',tz:'Asia/Shanghai',hi:'你好',rate:9.6},
+  {c:'NG',n:'Nigeria',cur:'NGN',sym:'₦',tz:'Africa/Lagos',hi:'',rate:2000},
+  {c:'PK',n:'Pakistan',cur:'PKR',sym:'Rs',tz:'Asia/Karachi',hi:'Assalam-o-Alaikum',rate:375},
+  {c:'NP',n:'Nepal',cur:'NPR',sym:'Rs',tz:'Asia/Kathmandu',hi:'Namaste',rate:185},
+  {c:'BD',n:'Bangladesh',cur:'BDT',sym:'৳',tz:'Asia/Dhaka',hi:''},
+  {c:'LK',n:'Sri Lanka',cur:'LKR',sym:'Rs',tz:'Asia/Colombo',hi:'Ayubowan'},
+  {c:'HK',n:'Hong Kong',cur:'HKD',sym:'HK$',tz:'Asia/Hong_Kong',hi:'你好'},
+  {c:'TW',n:'Taiwan',cur:'TWD',sym:'NT$',tz:'Asia/Taipei',hi:'你好'},
+  {c:'JP',n:'Japan',cur:'JPY',sym:'¥',tz:'Asia/Tokyo',hi:'こんにちは'},
+  {c:'KR',n:'South Korea',cur:'KRW',sym:'₩',tz:'Asia/Seoul',hi:'안녕하세요'},
+  {c:'VN',n:'Vietnam',cur:'VND',sym:'₫',tz:'Asia/Ho_Chi_Minh',hi:'Xin chào'},
+  {c:'TH',n:'Thailand',cur:'THB',sym:'฿',tz:'Asia/Bangkok',hi:'สวัสดี'},
+  {c:'MY',n:'Malaysia',cur:'MYR',sym:'RM',tz:'Asia/Kuala_Lumpur',hi:'Selamat datang'},
+  {c:'SG',n:'Singapore',cur:'SGD',sym:'S$',tz:'Asia/Singapore',hi:''},
+  {c:'ID',n:'Indonesia',cur:'IDR',sym:'Rp',tz:'Asia/Jakarta',hi:'Halo'},
+  {c:'PH',n:'Philippines',cur:'PHP',sym:'₱',tz:'Asia/Manila',hi:'Kumusta'},
+  {c:'SA',n:'Saudi Arabia',cur:'SAR',sym:'SR',tz:'Asia/Riyadh',hi:'مرحبا'},
+  {c:'AE',n:'United Arab Emirates',cur:'AED',sym:'AED',tz:'Asia/Dubai',hi:'مرحبا'},
+  {c:'QA',n:'Qatar',cur:'QAR',sym:'QR',tz:'Asia/Qatar',hi:'مرحبا'},
+  {c:'KW',n:'Kuwait',cur:'KWD',sym:'KD',tz:'Asia/Kuwait',hi:'مرحبا'},
+  {c:'EG',n:'Egypt',cur:'EGP',sym:'E£',tz:'Africa/Cairo',hi:'مرحبا'},
+  {c:'JO',n:'Jordan',cur:'JOD',sym:'JD',tz:'Asia/Amman',hi:'مرحبا'},
+  {c:'TR',n:'Türkiye',cur:'TRY',sym:'₺',tz:'Europe/Istanbul',hi:'Merhaba'},
+  {c:'IR',n:'Iran',cur:'IRR',sym:'IRR',tz:'Asia/Tehran',hi:'سلام'},
+  {c:'GH',n:'Ghana',cur:'GHS',sym:'GH₵',tz:'Africa/Accra',hi:'Akwaaba'},
+  {c:'KE',n:'Kenya',cur:'KES',sym:'KSh',tz:'Africa/Nairobi',hi:'Jambo'},
+  {c:'ZA',n:'South Africa',cur:'ZAR',sym:'R',tz:'Africa/Johannesburg',hi:'Sawubona'},
+  {c:'US',n:'United States',cur:'USD',sym:'$',tz:'America/New_York',hi:''},
+  {c:'CA',n:'Canada',cur:'CAD',sym:'C$',tz:'America/Toronto',hi:''},
+  {c:'MX',n:'Mexico',cur:'MXN',sym:'MX$',tz:'America/Mexico_City',hi:'Hola'},
+  {c:'BR',n:'Brazil',cur:'BRL',sym:'R$',tz:'America/Sao_Paulo',hi:'Olá'},
+  {c:'CO',n:'Colombia',cur:'COP',sym:'COL$',tz:'America/Bogota',hi:'Hola'},
+  {c:'CL',n:'Chile',cur:'CLP',sym:'CLP$',tz:'America/Santiago',hi:'Hola'},
+  {c:'AR',n:'Argentina',cur:'ARS',sym:'AR$',tz:'America/Argentina/Buenos_Aires',hi:'Hola'},
+  {c:'AU',n:'Australia',cur:'AUD',sym:'A$',tz:'Australia/Sydney',hi:'G’day'},
+  {c:'NZ',n:'New Zealand',cur:'NZD',sym:'NZ$',tz:'Pacific/Auckland',hi:'Kia ora'},
+  {c:'IE',n:'Ireland',cur:'EUR',sym:'€',tz:'Europe/Dublin',hi:'Dia duit'},
+  {c:'FR',n:'France',cur:'EUR',sym:'€',tz:'Europe/Paris',hi:'Bonjour'},
+  {c:'DE',n:'Germany',cur:'EUR',sym:'€',tz:'Europe/Berlin',hi:'Hallo'},
+  {c:'IT',n:'Italy',cur:'EUR',sym:'€',tz:'Europe/Rome',hi:'Ciao'},
+  {c:'ES',n:'Spain',cur:'EUR',sym:'€',tz:'Europe/Madrid',hi:'Hola'},
+  {c:'PT',n:'Portugal',cur:'EUR',sym:'€',tz:'Europe/Lisbon',hi:'Olá'},
+  {c:'NL',n:'Netherlands',cur:'EUR',sym:'€',tz:'Europe/Amsterdam',hi:'Hallo'},
+  {c:'GR',n:'Greece',cur:'EUR',sym:'€',tz:'Europe/Athens',hi:'Γεια σου'},
+  {c:'CY',n:'Cyprus',cur:'EUR',sym:'€',tz:'Asia/Nicosia',hi:'Γεια σου'},
+  {c:'PL',n:'Poland',cur:'PLN',sym:'zł',tz:'Europe/Warsaw',hi:'Cześć'},
+  {c:'RO',n:'Romania',cur:'RON',sym:'lei',tz:'Europe/Bucharest',hi:'Bună'},
+  {c:'UA',n:'Ukraine',cur:'UAH',sym:'₴',tz:'Europe/Kiev',hi:'Привіт'},
+  {c:'RU',n:'Russia',cur:'RUB',sym:'₽',tz:'Europe/Moscow',hi:'Привет'},
+  {c:'KZ',n:'Kazakhstan',cur:'KZT',sym:'₸',tz:'Asia/Almaty',hi:'Сәлем'},
+  {c:'UZ',n:'Uzbekistan',cur:'UZS',sym:'soʻm',tz:'Asia/Tashkent',hi:'Salom'},
+  {c:'OT',n:'Somewhere else',cur:'',sym:'',tz:'',hi:''}
+];
+
+/* ---------- state ---------- */
 const fresh = {
+  onboarded:false, step:0, name:'Dinakar', country:'IN',
   tab:'home', xp:20, streak:5,
   tasks:[
     {t:'Get a UK SIM card',d:'Pick a student plan, needed for bank codes',done:true},
     {t:'Open a UK bank account',d:'Bring your university enrolment letter',done:true},
     {t:'Check your eVisa and share code',d:'Sign in to your UKVI account and save a share code',done:false},
+    {t:'Learn the top student scams',d:'Two minutes in the Safe tab can save you thousands',done:false},
     {t:'Register with a GP',d:'Use the NHS "Find a GP" service near you',done:false},
     {t:'Apply for a National Insurance number',d:'Needed before you start a part-time job',done:false},
     {t:'Get council tax exemption',d:'Send your student certificate to the council',done:false},
@@ -204,28 +388,30 @@ const fresh = {
   shifts:[{j:'Warehouse',h:8,day:'Mon'},{j:'Café',h:5,day:'Wed'},{j:'Warehouse',h:4,day:'Fri'}],
   budget:650,
   spend:[{c:'Rent',a:380},{c:'Food',a:62.4},{c:'Transport',a:18},{c:'Fun',a:24},{c:'Send home',a:0}],
-  filter:'All',
-  joined:['Indian Students Leicester']
+  filter:'All', joined:['Indian Students Leicester'], scamText:'', checks:0,
+  uni:'University of Leicester', course:'MSc Artificial Intelligence with Industry', email:'', emName:'', emPhone:''
 };
+const KEY='settlemate-demo-v3';
 let S;
-try{ S = JSON.parse(localStorage.getItem('settlemate-demo-v2')) || JSON.parse(JSON.stringify(fresh)); }catch(e){ S = JSON.parse(JSON.stringify(fresh)); }
-const save = () => { try{ localStorage.setItem('settlemate-demo-v2', JSON.stringify(S)); }catch(e){} };
+try{ S = Object.assign(JSON.parse(JSON.stringify(fresh)), JSON.parse(localStorage.getItem(KEY)) || {}); }catch(e){ S = JSON.parse(JSON.stringify(fresh)); }
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 
+/* ---------- content ---------- */
 const catCol = ['#3d6bff','#ff5a3c','#ffc93c','#ff7eb6','#1fbf8f'];
 const deals = [
-  {n:'Patel Brothers Grocery',k:'Groceries',o:'10% off with student ID',w:'0.4 mi',i:'cart',c:'var(--coralsoft)',f:'var(--coral)'},
-  {n:'Golden Dragon Supermarket',k:'Groceries',o:'Rice 10kg £14.50',w:'0.9 mi',i:'cart',c:'var(--coralsoft)',f:'var(--coral)'},
-  {n:'Campus Kitchen',k:'Meals',o:'£3.50 lunch deal',w:'On campus',i:'bowl',c:'var(--sunsoft)',f:'#d99a00'},
+  {n:'Patel Brothers Grocery',k:'Groceries',o:'10% off with student ID',w:'0.4 mi',i:'cart',c:'var(--coralsoft)',f:'var(--coral)',v:1},
+  {n:'Golden Dragon Supermarket',k:'Groceries',o:'Rice 10kg £14.50',w:'0.9 mi',i:'cart',c:'var(--coralsoft)',f:'var(--coral)',v:1},
+  {n:'Campus Kitchen',k:'Meals',o:'£3.50 lunch deal',w:'On campus',i:'bowl',c:'var(--sunsoft)',f:'#d99a00',v:1},
   {n:'Spice Route Café',k:'Meals',o:'Thali £6, Mon–Thu',w:'0.6 mi',i:'bowl',c:'var(--sunsoft)',f:'#d99a00'},
-  {n:'16–25 Railcard',k:'Travel',o:'⅓ off rail fares',w:'Online',u:'https://www.16-25railcard.co.uk',i:'train',c:'var(--bluesoft)',f:'var(--blue)'},
-  {n:'City bus term pass',k:'Travel',o:'Student term ticket',w:'City buses',u:gsearch('Leicester student bus term ticket'),i:'train',c:'var(--bluesoft)',f:'var(--blue)'},
-  {n:'Money advice drop-in',k:'Help',o:'Free, at the student hub',w:'Campus',u:gsearch('University of Leicester student money advice'),i:'help',c:'var(--mintsoft)',f:'var(--mint)'}
+  {n:'16–25 Railcard',k:'Travel',o:'⅓ off rail fares',w:'Online',i:'train',c:'var(--bluesoft)',f:'var(--blue)',u:'https://www.16-25railcard.co.uk',v:1},
+  {n:'City bus term pass',k:'Travel',o:'Student term ticket',w:'City buses',i:'train',c:'var(--bluesoft)',f:'var(--blue)',u:gsearch('Leicester student bus term ticket')},
+  {n:'Money advice drop-in',k:'Help',o:'Free, at the student hub',w:'Campus',i:'help',c:'var(--mintsoft)',f:'var(--mint)',u:gsearch('University of Leicester student money advice'),v:1}
 ];
 const events = [
-  {t:'International welcome social',w:'Fri · 7pm · Students’ Union',u:'https://www.eventbrite.co.uk/d/united-kingdom--leicester/students/',a:'#ff5a3c',b:'#ffc93c'},
-  {t:'Free pizza study night',w:'Wed · 6pm · Library',u:gsearch('University of Leicester library events'),a:'#3d6bff',b:'#ff7eb6'},
-  {t:'Christmas market trip',w:'Sat · 11am · Meet at campus',u:gsearch('Leicester Christmas market'),a:'#1fbf8f',b:'#ffc93c'},
-  {t:'Five-a-side football',w:'Sun · 2pm · Sports park',u:maps('five a side football Leicester'),a:'#ff7eb6',b:'#3d6bff'}
+  {t:'International welcome social',w:'Fri · 7pm · Students’ Union',a:'#ff5a3c',b:'#ffc93c',u:'https://www.eventbrite.co.uk/d/united-kingdom--leicester/students/'},
+  {t:'Free pizza study night',w:'Wed · 6pm · Library',a:'#3d6bff',b:'#ff7eb6',u:gsearch('University of Leicester library events')},
+  {t:'Christmas market trip',w:'Sat · 11am · Meet at campus',a:'#1fbf8f',b:'#ffc93c',u:gsearch('Leicester Christmas market')},
+  {t:'Five-a-side football',w:'Sun · 2pm · Sports park',a:'#ff7eb6',b:'#3d6bff',u:maps('five a side football Leicester')}
 ];
 const groups = [
   {n:'Indian Students Leicester',m:1240,c:'#ffe08a'},{n:'Chinese Students Society',m:980,c:'#ffc9df'},
@@ -233,7 +419,100 @@ const groups = [
   {n:'MSc AI 2026 cohort',m:86,c:'#ffd2c7'},{n:'Sunday cricket',m:64,c:'#ffe08a'}
 ];
 
-const gbp = n => '£' + (Math.round(n*100)/100).toFixed(n % 1 ? 2 : 0);
+/* ---------- scam checker rules ---------- */
+const redFlags = [
+  {re:/home office|ukvi|immigration (officer|department)|\bpolice\b|hmrc|embassy|consulate|court/i, w:2, t:'Claims to be an official body', d:'Scammers often pose as the Home Office, police, HMRC or your embassy. Real officials won’t demand money from you by phone or message.'},
+  {re:/gift ?cards?|itunes|google play card|steam card|moneygram|western union|crypto|bitcoin|usdt|voucher/i, w:3, t:'Asks for gift cards, crypto or a money-transfer service', d:'No real organisation takes fines or fees in gift cards, crypto or MoneyGram.'},
+  {re:/urgent|immediately|right now|within \d+ ?(hours?|hrs?|minutes?|mins?)|today only|final (warning|notice)|deport|arrest|cancel+ed|will be cancel|suspended/i, w:2, t:'Puts you under time pressure or threatens you', d:'Threats of arrest, deportation or a cancelled visa are used to stop you thinking clearly.'},
+  {re:/don'?t tell|do not tell|tell no ?one|keep (this|it)? ?(a )?(secret|confidential)|stay on the (line|phone)|don'?t hang up/i, w:3, t:'Tells you to keep it secret', d:'Genuine officials never stop you from talking to your university, family or bank.'},
+  {re:/passport|\bbrp\b|share code|bank details|card (number|details)|\bpin\b|password|one[- ]?time (code|passcode)|\botp\b|security code|sort code|login details/i, w:2, t:'Asks for passport, codes or bank details', d:'Never share passwords, one-time codes or your full card or bank details, and only share ID through official services.'},
+  {re:/deposit|holding fee|advance rent|reserve (it|the room|the flat)|(abroad|overseas).{0,40}(show|view|keys)|can'?t show/i, w:3, t:'Wants money before you’ve viewed or signed for a home', d:'Rental scams ask for a deposit before you’ve seen the place or got a contract. Use a protected deposit scheme.'},
+  {re:/(job|work|sponsorship|placement|internship).{0,50}(fee|pay us|payment)|registration fee|training fee|visa sponsorship for £/i, w:2, t:'Charges you to get a job or sponsorship', d:'Real UK employers don’t charge you to apply for a job or get sponsored.'},
+  {re:/receive (money|£|funds)|transfer (it|money|the money) (on|back)|use your (bank )?account|easy money|quick cash|keep £?\d+ ?(as )?commission/i, w:3, t:'Asks you to move money through your account', d:'This is “money mule” activity. It’s a crime, and it can get your bank account closed and your visa put at risk.'},
+  {re:/bit\.ly|tinyurl|t\.co\/|https?:\/\/(?!www\.gov\.uk|www\.nhs\.uk)\S+/i, w:1, t:'Contains a link', d:'Don’t tap it. Go to the real website yourself by typing the address or using the official app.'},
+  {re:/you('ve| have)? won|prize|tax (refund|rebate)|free money|you are eligible for a refund|unpaid (parcel|delivery) fee/i, w:1, t:'Offers a prize, refund or asks for a small fee', d:'Surprise refunds and parcel fees are classic text-message (phishing) tricks.'}
+];
+const samples = [
+  ['Fake Home Office call','This is the Home Office. Your visa has an error and will be cancelled today. Pay a £950 fine now with gift cards. Do not tell anyone or you will be deported.'],
+  ['Room deposit','Hi! Lovely room near campus £450/month. I’m abroad so can’t show it, but send a £600 deposit by bank transfer today to reserve it.'],
+  ['“Easy money” job','Easy money for students! Receive £2,000 into your bank account and transfer it on. Keep £300 commission. No experience needed.'],
+  ['GP reminder','Your appointment at Victoria Park Health Centre is confirmed for Tuesday at 10:30. Reply C to cancel.']
+];
+const scams = [
+  ['Fake Home Office or UKVI calls','The caller says your visa has a problem and demands a “fine” straight away, often in gift cards or by MoneyGram. They may spoof a real-looking number. The Home Office won’t ask you to pay fees or fines over the phone. Hang up and talk to your university’s international student advisers.'],
+  ['Fake police or embassy calls','Someone claims you’re linked to a crime at home or in the UK, and tells you to keep it secret and move your money to a “safe account”. Hang up. Call your embassy or the police yourself on a number you look up.'],
+  ['Rental and deposit scams','A cheap room, a landlord who is “abroad”, and a deposit wanted before you’ve viewed it. View in person or by live video, get a written tenancy, and check your deposit goes into a government-backed protection scheme.'],
+  ['Money mule “jobs”','You’re offered easy cash to let money pass through your bank account. This is money laundering. You could lose your bank account, your credit record and your visa.'],
+  ['Job and sponsorship fees','Any “employer” asking you to pay for a job, training or visa sponsorship is almost certainly a scam.'],
+  ['Phishing texts and emails','Fake parcel fees, tax refunds or bank alerts with a link. Don’t tap the link. Open your bank or gov.uk app directly instead.']
+];
+
+/* ---------- term calendar ----------
+   2025/26: official University of Leicester dates (postgraduate taught vacations).
+   2026/27: estimated from the same pattern until the University publishes them. */
+const termSrc = 'https://le.ac.uk/about/info/term-semester-dates/postgraduates';
+const terms = [
+  {s:'2025-09-22',e:'2025-12-14',t:'term',l:'Term 1',o:1},
+  {s:'2025-12-15',e:'2026-01-04',t:'vac',l:'Christmas vacation',o:1},
+  {s:'2026-01-05',e:'2026-03-29',t:'term',l:'Term 2',o:1},
+  {s:'2026-03-30',e:'2026-04-12',t:'vac',l:'Easter vacation',o:1},
+  {s:'2026-04-13',e:'2026-06-07',t:'term',l:'Term 3',o:1},
+  {s:'2026-06-08',e:'2026-09-20',t:'vac',l:'Summer vacation (January starters, first year)',o:1},
+  {s:'2026-09-21',e:'2026-12-13',t:'term',l:'Term 1',o:0},
+  {s:'2026-12-14',e:'2027-01-03',t:'vac',l:'Christmas vacation',o:0},
+  {s:'2027-01-04',e:'2027-03-21',t:'term',l:'Term 2',o:0},
+  {s:'2027-03-22',e:'2027-04-04',t:'vac',l:'Easter vacation',o:0},
+  {s:'2027-04-05',e:'2027-06-06',t:'term',l:'Term 3',o:0}
+];
+const D = x => new Date(x+'T00:00:00');
+const today0 = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
+const daysBetween = (a,b) => Math.round((b-a)/864e5);
+const fmtD = x => D(x).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const fmtShort = x => D(x).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+function currentPeriod(){ const t=today0(); return terms.find(p=>D(p.s)<=t && t<=D(p.e)) || null; }
+function nextVac(){ const t=today0(); return terms.find(p=>p.t==='vac' && D(p.s)>t) || null; }
+function termInfo(){
+  const p=currentPeriod(), nv=nextVac(), t=today0();
+  if(!p) return {vac:false, title:'Term dates not published yet', sub:'Check with your university', p:null, nv:null};
+  if(p.t==='vac') return {vac:true, title:p.l, sub:`Until ${fmtShort(p.e)} · back in ${daysBetween(t,D(p.e))+1} days`, p, nv};
+  const wk=Math.floor(daysBetween(D(p.s),t)/7)+1;
+  return {vac:false, title:`${p.l} · Week ${wk}`, sub: nv?`${nv.l.split(' (')[0]} starts in ${daysBetween(t,D(nv.s))} days (${fmtShort(nv.s)})`:'No vacation dates published yet', p, nv};
+}
+
+/* ---------- a student's day (sample timetable) ---------- */
+const dayPlan = [
+  {t:'10:00',n:'Lecture: Machine Learning',w:'Ken Edwards Building',c:'var(--blue)',u:maps('Ken Edwards Building University of Leicester')},
+  {t:'12:30',n:'Lunch: £3.50 meal deal',w:'Campus Kitchen · saves about £4',c:'var(--sun)',go:'discover'},
+  {t:'14:00',n:'Study block: coursework',w:'David Wilson Library',c:'var(--pink)',u:maps('David Wilson Library University of Leicester')},
+  {t:'18:00',n:'Shift: Warehouse, 4h',w:'Counts toward your weekly limit',c:'var(--coral)',go:'work'},
+  {t:'21:30',n:'Log today’s spending',w:'Takes 10 seconds',c:'var(--mint)',go:'money'}
+];
+const deadlines = [
+  {n:'Coursework report',d:'2026-12-04'},
+  {n:'Class test',d:'2026-12-07'},
+  {n:'Tuition fees',d:'2027-01-15'}
+];
+function todayCard(){
+  const now=timeIn('Europe/London'), t=today0();
+  const nextIdx=dayPlan.findIndex(x=>x.t>now);
+  const end=new Date(t.getFullYear(),t.getMonth()+1,0), daysLeft=daysBetween(t,end)+1;
+  const allowance=Math.max(0,(S.budget-spent())/daysLeft);
+  const dl=deadlines.map(x=>({...x,n2:daysBetween(t,D(x.d))})).filter(x=>x.n2>=0).slice(0,3);
+  const label=t.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'});
+  return `<section class="today" aria-label="Today"><div class="row"><h3 style="margin:0">Today</h3><span class="small" style="font-weight:600">${label}</span></div>
+    <div class="allow"><span style="font-size:14px;font-weight:600">You can spend today<br><span class="small">${daysLeft} day${daysLeft===1?'':'s'} left this month</span></span><b>${gbp(allowance)}</b></div>
+    <ul class="tl">${dayPlan.map((x,i)=>{const cls=nextIdx===-1||i<nextIdx?'past':i===nextIdx?'next':'';
+      const inner=`<time>${x.t}</time><i style="background:${x.c}"></i><span><b>${x.n}</b><br><span class="small">${x.w}</span></span>${cls==='next'?'<span class="nx">Next</span>':'<span></span>'}`;
+      return `<li class="${cls}">${x.go?`<button data-go="${x.go}">${inner}</button>`:`<a href="${x.u}" target="_blank" rel="noopener">${inner}</a>`}</li>`}).join('')}</ul>
+    ${dl.length?`<div class="small" style="margin-top:10px;font-weight:700">Coming up</div><div class="dl">${dl.map(x=>`<div><b>${x.n2}d</b><span class="small">${x.n}</span></div>`).join('')}</div>`:''}
+    <div class="small" style="margin-top:8px">Sample timetable. In the full app this syncs with your university timetable.</div></section>`;
+}
+
+/* ---------- helpers ---------- */
+const country = () => countries.find(c=>c.c===S.country) || countries[0];
+const gbp = n => (n<0?'−':'') + '£' + (Math.round(Math.abs(n)*100)/100).toFixed(Math.abs(n) % 1 ? 2 : 0);
+const homeMoney = n => { const c=country(); if(!c.rate) return ''; const v=Math.round(n*c.rate); return '≈ ' + c.sym + v.toLocaleString('en-GB'); };
+const rateUrl = c => gsearch('1 GBP to '+c.cur);
 const hours = () => S.shifts.reduce((a,s)=>a+s.h,0);
 const spent = () => S.spend.reduce((a,s)=>a+s.a,0);
 const doneCount = () => S.tasks.filter(t=>t.done).length;
@@ -242,48 +521,68 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 const svg = (k,stroke='currentColor') => `<svg viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic[k]}</svg>`;
 const ring = (p,col,track,w=10) => `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="${track}" stroke-width="${w}"/><circle cx="50" cy="50" r="42" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(.01,Math.min(100,p))} 100"/></svg>`;
 const cover = e => `<svg viewBox="0 0 200 86" preserveAspectRatio="xMidYMid slice"><rect width="200" height="86" fill="${e.a}"/><circle cx="160" cy="20" r="38" fill="${e.b}"/><circle cx="40" cy="96" r="44" fill="${e.b}" opacity=".55"/><path d="M0 70 Q50 50 100 66 T200 60 V86 H0z" fill="#fff" opacity=".25"/><circle cx="110" cy="34" r="6" fill="#fff" opacity=".8"/></svg>`;
+const timeIn = tz => { try{ return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz}).format(new Date()); }catch(e){ return '--:--'; } };
+const greeting = () => { const h=+timeIn('Europe/London').slice(0,2); return h<12?'Good morning':h<18?'Good afternoon':'Good evening'; };
+const eventCard = e => `<a class="event" href="${e.u}" target="_blank" rel="noopener"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w} ↗</span></div></a>`;
+const verified = `<span class="ver">${svg('check')}Verified</span>`;
 
+function scanText(t){
+  const hits = redFlags.filter(f=>f.re.test(t));
+  const score = hits.reduce((a,f)=>a+f.w,0);
+  return {hits, level: score>=3?'r':score>=1?'y':'g'};
+}
+
+/* ---------- views ---------- */
 const views = {
   home(){
-    const h=hours(), left=S.budget-spent(), next=S.tasks.find(t=>!t.done), pct=doneCount()/S.tasks.length*100;
-    return `<div class="hello"><div class="avatar">D</div><div style="flex:1"><div class="small">Good morning</div><h2 style="margin:0;font-size:24px">Hey Dinakar!</h2></div>
-      <span class="pill" style="background:var(--sunsoft);color:light-dark(#8a6100,#ffc93c)">${S.streak}-day streak</span></div>
-    <div class="row" style="margin:-4px 0 12px"><span class="pill" style="background:var(--bluesoft);color:var(--blue)">Level ${level()} · ${S.xp} XP</span>
-      <div class="meter" style="flex:1;background:var(--line)"><i style="width:${S.xp%50*2}%;background:var(--blue)"></i></div><span class="small">${50-S.xp%50} XP to next level</span></div>
+    const h=hours(), left=S.budget-spent(), next=S.tasks.find(t=>!t.done), pct=doneCount()/S.tasks.length*100, c=country();
+    return `<div class="hello"><button class="avatar" data-go="account" aria-label="Your account">${esc(S.name.slice(0,1).toUpperCase()||'S')}</button><div style="flex:1"><div class="small">${greeting()}${c.hi?' · hello from '+esc(c.n):''}</div><h2 style="margin:0;font-size:24px">${c.hi?esc(c.hi):'Hey'}, ${esc(S.name)}!</h2></div>
+      <span class="pill" style="background:var(--sunsoft);color:var(--suntext)">${S.streak}-day streak</span></div>
+    <div class="row" style="margin:-2px 0 12px"><span class="pill" style="background:var(--bluesoft);color:var(--blue)">Level ${level()} · ${S.xp} XP</span>
+      <div class="meter" style="flex:1;background:var(--line)"><i style="width:${S.xp%50*2}%;background:var(--blue)"></i></div><span class="small">${50-S.xp%50} XP to go</span></div>
+    ${c.tz?`<div class="clocks"><div class="clock"><span class="small">UK</span><b>${timeIn('Europe/London')}</b></div><div class="clock"><span class="small">Home · ${c.n}</span><b>${timeIn(c.tz)}</b></div></div>`:''}
+    ${(()=>{const ti=termInfo();return `<button class="termbar" data-go="terms"><span class="ci">${svg('cal')}</span><span style="flex:1"><b style="display:block">${ti.title}</b><span class="small">${ti.sub}</span></span><span aria-hidden="true">→</span></button>`})()}
+    ${todayCard()}
+    <button class="alertbar" data-go="safe"><span class="sh">${svg('safe')}</span><span style="flex:1"><b style="display:block">Scam alert</b><span style="font-size:13px;opacity:.85">Fake “Home Office” calls are asking students for fines. Learn the signs.</span></span><span aria-hidden="true">→</span></button>
     <div class="hero"><div><small>Next arrival task</small><div class="disp">${next?esc(next.t):'All settled in!'}</div>
       <button class="btn w" data-go="arrival">${next?'Let’s do it':'View checklist'}</button></div>
       <div class="ring">${ring(pct,'#fff','rgb(255 255 255/.3)',11)}<b>${doneCount()}/${S.tasks.length}</b></div></div>
     <div class="tiles">
       <button class="tile t-blue" data-go="work"><span class="ic">${svg('work')}</span><span><span class="big">${h}h</span><br><span style="font-size:13px;font-weight:600">${h>S.limit?'Over your limit!':(S.limit-h)+'h left this week'}</span></span>
         <span class="meter"><i style="width:${Math.min(100,h/S.limit*100)}%;${h>S.limit?'background:#ff5a3c':''}"></i></span></button>
-      <button class="tile t-sun" data-go="money"><span class="ic">${svg('money')}</span><span><span class="big">${gbp(left)}</span><br><span style="font-size:13px;font-weight:600">left this month</span></span>
+      <button class="tile t-sun" data-go="money"><span class="ic">${svg('money')}</span><span><span class="big">${gbp(left)}</span><br><span style="font-size:13px;font-weight:600">left this month ${c.rate?'· '+homeMoney(left):''}</span></span>
         <span class="meter"><i style="width:${Math.min(100,spent()/S.budget*100)}%"></i></span></button>
     </div>
     <div class="row"><h3>This week near you</h3><button class="btn soft" data-go="discover" style="min-height:36px;padding:6px 12px;font-size:14px">See all</button></div>
-    <div class="hscroll">${events.map(e=>`<a class="event" href="${e.u}" target="_blank" rel="noopener"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w}</span></div></a>`).join('')}</div>
+    <div class="hscroll">${events.map(eventCard).join('')}</div>
     <div class="card"><h3>Deals for you</h3>${deals.slice(0,3).map(dealRow).join('')}</div>
-    <div class="card" style="background:var(--pinksoft);border:0"><div class="row"><div><h3 style="margin:0 0 2px">Tuition instalment</h3><div class="small">Due 15 January · 53 days to go</div></div><a class="pill" style="background:var(--pink);color:#fff;text-decoration:none" href="${gsearch('University of Leicester pay tuition fees')}" target="_blank" rel="noopener">Pay fees ↗</a></div></div>`;
+    <div class="card" style="background:var(--pinksoft);border:0"><div class="row"><div><h3 style="margin:0 0 2px">Tuition instalment</h3><div class="small">Due 15 January</div></div>
+      <a class="pill" style="background:var(--pink);color:#fff" href="${gsearch('University of Leicester pay tuition fees')}" target="_blank" rel="noopener">Pay fees ↗</a></div></div>
+    <p class="small" style="text-align:center">Prototype with sample data. <button class="copy" data-reset="1">Restart the welcome tour</button></p>`;
   },
   arrival(){
     const pct=Math.round(doneCount()/S.tasks.length*100);
-    return `<h2>Arrival checklist</h2><p class="sub">Your first weeks in the UK, in the right order. Each task earns 10 XP.</p>
+    return `${head('Arrival checklist','Your first weeks in the UK, in the right order. Each task earns 10 XP.')}
     <div class="card" style="background:var(--mintsoft);border:0"><div class="row"><div><div class="big" style="color:var(--mint)">${pct}%</div><div class="small" style="font-weight:600">${pct===100?'You’re officially settled!':'settled in, keep going'}</div></div>
       <div class="ring" style="width:72px;height:72px">${ring(pct,'var(--mint)','rgb(31 191 143/.2)',12)}</div></div></div>
-    ${S.tasks.map((t,i)=>`<div class="task ${t.done?'done':''}">
+    ${S.tasks.map((t,i)=>{const l=taskLinks[t.t];return `<div class="task ${t.done?'done':''}">
       <button class="tick" data-tick="${i}" aria-pressed="${t.done}" aria-label="Mark ${esc(t.t)} ${t.done?'not done':'done'}">${t.done?'✓':''}</button>
-      <div style="flex:1"><b>${esc(t.t)}</b><div class="small">${esc(t.d)}</div>${taskLinks[t.t]?ext(taskLinks[t.t],'Open guide ↗'):''}</div><span class="xp">+10</span></div>`).join('')}`;
+      <div style="flex:1"><b>${esc(t.t)}</b><div class="small">${esc(t.d)}</div>${l?(l[0]==='#'?`<button class="copy go" data-go="${l.slice(1)}">Open Scam Shield →</button>`:ext(l,'Open guide ↗')):''}</div><span class="xp">+10</span></div>`}).join('')}`;
   },
   work(){
     const h=hours(), over=h>S.limit, near=!over&&h>=S.limit-3;
     const col = over?'var(--coral)':near?'var(--sun)':'var(--blue)';
-    return `<h2>Work hours</h2><p class="sub">This week, Monday to Sunday · term time</p>
+    const ti=termInfo();
+    return `${head('Work hours', ti.vac?'This week · university vacation':'This week, Monday to Sunday · term time')}
+    <button class="termbar" data-go="terms"><span class="ci">${svg('cal')}</span><span style="flex:1"><b style="display:block">${ti.title}</b><span class="small">${ti.sub}</span></span><span aria-hidden="true">→</span></button>
+    ${ti.vac?`<div class="alert g" style="margin:0 0 14px">It’s an official vacation period, so full-time work may be allowed on your visa. Check your own conditions before taking extra shifts.</div>`:''}
     <div class="card"><div class="gauge"><div class="ring">${ring(h/S.limit*100,col,'var(--line)',12)}<b>${h}h<span>of ${S.limit}h</span></b></div>
       <div><div class="small" style="font-weight:600">Weekly limit</div>
       <div class="chips" style="padding:4px 0">${[20,10].map(v=>`<button data-limit="${v}" aria-pressed="${S.limit===v}">${v}h</button>`).join('')}</div>
       <div class="small">${S.shifts.length} shift${S.shifts.length===1?'':'s'} logged</div></div></div>
-      ${over?`<div class="alert r">You're ${h-S.limit}h over your limit. Working over it can breach your visa conditions.</div>`:
+      ${ti.vac?'':over?`<div class="alert r">You're ${h-S.limit}h over your limit. Working over it can breach your visa conditions.</div>`:
         near?`<div class="alert y">Only ${S.limit-h}h left this week. Plan your next shift carefully.</div>`:
-        `<div class="alert g">You're safely within your limit.</div>`}
+        `<div class="alert g">You're safely within your limit.</div>`}${ti.vac?'':''}
     </div>
     <div class="card"><h3>Log a shift</h3>
       <form class="add" id="shiftForm"><input id="job" placeholder="Job" value="Warehouse" aria-label="Job name">
@@ -291,53 +590,165 @@ const views = {
       <ul class="list" style="margin-top:8px">${S.shifts.map((s,i)=>`<li><span class="group"><span class="gav" style="background:${s.j.toLowerCase().includes('caf')?'#ffe08a':'#c9d6ff'};width:36px;height:36px;border-radius:12px;font-size:13px">${esc(s.day)}</span><b>${esc(s.j)}</b></span>
         <span class="row"><span class="num">${s.h}h</span><button class="del" data-delshift="${i}" aria-label="Remove shift">✕</button></span></li>`).join('')}</ul>
     </div>
-    <p class="small">University holidays count as vacation, when full-time work may be allowed. Check your own visa.<br>${ext('https://www.gov.uk/student-visa','Student visa work rules on gov.uk ↗')}</p>`;
+    <div class="card" style="background:var(--coralsoft);border:0"><h3 style="color:var(--coral)">Job offer looks too good?</h3><div class="small">Real employers never charge you a fee or ask you to move money through your account.</div><button class="copy go" data-go="safe">Check it in Scam Shield →</button></div>
+    <p class="small">Vacation dates come from your university’s published term dates. Only official vacations count, so check your own visa.<br>${ext('https://www.gov.uk/student-visa','Student visa work rules on gov.uk ↗')}</p>`;
   },
   money(){
-    const sp=spent(), left=S.budget-sp;
+    const sp=spent(), left=S.budget-sp, c=country();
     let acc=0;
-    const arcs=S.spend.filter(s=>s.a>0).map(s=>{const i=S.spend.indexOf(s),p=s.a/Math.max(sp,1)*100,o=acc;acc+=p;
+    const arcs=S.spend.map((s,i)=>{ if(!(s.a>0)) return ''; const p=s.a/Math.max(sp,1)*100,o=acc; acc+=p;
       return `<circle cx="50" cy="50" r="40" fill="none" stroke="${catCol[i]}" stroke-width="16" pathLength="100" stroke-dasharray="${Math.max(p-1,.1)} ${100-Math.max(p-1,.1)}" stroke-dashoffset="${-o}"/>`}).join('');
-    return `<h2>Money</h2><p class="sub">November budget</p>
-    <div class="card" style="background:${left<0?'var(--coralsoft)':'#ffe08a'};border:0;color:#1b1d2e"><div class="row"><div><div style="font-size:13px;font-weight:600">Left to spend</div><div class="big" style="font-size:40px">${gbp(left)}</div></div>
+    return `${head('Money','This month’s budget')}
+    <div class="card" style="background:${left<0?'var(--coralsoft)':'#ffe08a'};border:0;color:#1b1d2e"><div class="row"><div><div style="font-size:13px;font-weight:600">Left to spend</div><div class="big" style="font-size:40px">${gbp(left)}</div>${c.rate?`<div style="font-size:13px;font-weight:600;margin-top:4px">${homeMoney(left)} ${c.cur}</div>`:''}</div>
       <label style="text-align:right;font-size:13px;font-weight:600">Budget<input id="budget" type="number" value="${S.budget}" style="width:96px;text-align:right;display:block;margin-top:2px;background:rgb(255 255 255/.7);border-color:transparent;color:#1b1d2e" aria-label="Monthly budget in pounds"></label></div>
       <div class="meter" style="margin-top:12px"><i style="width:${Math.min(100,sp/S.budget*100)}%"></i></div>
       <div style="font-size:13px;margin-top:6px;font-weight:600">${gbp(sp)} spent · about ${gbp(Math.max(0,left)/7)} a day for the next week</div></div>
     <div class="card"><h3>Quick add</h3><div class="chips quick">
-      ${[['Coffee',3,'Food'],['Meal deal',4,'Food'],['Groceries',20,'Food'],['Bus',2,'Transport'],['Cinema',8,'Fun']].map(([n,a,c])=>`<button data-quick="${c}|${a}">${n} £${a}</button>`).join('')}</div>
+      ${[['Coffee',3,'Food'],['Meal deal',4,'Food'],['Groceries',20,'Food'],['Bus',2,'Transport'],['Cinema',8,'Fun']].map(([n,a,cat])=>`<button data-quick="${cat}|${a}">${n} £${a}</button>`).join('')}</div>
       <form class="add" id="spendForm" style="margin-top:6px"><select id="cat" aria-label="Category">${S.spend.map(s=>`<option>${s.c}</option>`).join('')}</select>
       <input id="amt" type="number" min="0.01" step="0.01" value="5" aria-label="Amount in pounds"><button class="btn">Add</button></form></div>
-    <div class="card"><h3>Where it went</h3><div class="donut"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"/>${arcs}</svg>
+    <div class="card"><h3>Where it went</h3><div class="donut"><svg viewBox="0 0 100 100" role="img" aria-label="Spending by category"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"/>${arcs}</svg>
       <div class="legend">${S.spend.map((s,i)=>`<div><i style="background:${catCol[i]}"></i><span>${s.c}</span><span class="num">${gbp(s.a)}</span></div>`).join('')}</div></div></div>
-    <div class="card" style="background:var(--bluesoft);border:0"><h3 style="color:var(--blue)">Sending money home?</h3><div class="small">Compare rates and fees from regulated providers first. SettleMate never holds your money.</div>${ext('https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper ↗')} ${ext(gsearch('compare international money transfer fees UK'),'Compare transfer fees ↗')}</div>`;
+    ${!c.rate&&c.cur?`<div class="card"><h3>Pounds to ${c.cur}</h3><div class="small">See today’s rate for £1 in ${c.n}.</div>${ext(rateUrl(c),'Live exchange rate ↗')}</div>`:''}
+    ${c.rate?`<div class="card"><h3>Converter</h3><div class="row"><label style="flex:1">£ in the UK<input id="conv" type="number" value="100" aria-label="Amount in pounds"></label><div style="flex:1;text-align:right"><div class="small">${c.n} (${c.cur})</div><div class="big" style="font-size:26px" id="convOut">${homeMoney(100).replace('≈ ','')}</div></div></div><div class="small" style="margin-top:6px">Rough sample rate: £1 ≈ ${c.sym}${c.rate}. Check the live rate before sending money.</div>${ext(rateUrl(c),'Live exchange rate ↗')}</div>`:''}
+    <div class="card" style="background:var(--bluesoft);border:0"><h3 style="color:var(--blue)">Sending money home?</h3><div class="small">Compare rates and fees from FCA-regulated providers first. SettleMate never holds your money, and nobody legit will ask you to pay a “fine” by transfer.</div>
+      ${ext('https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper ↗')} ${ext(gsearch('compare international money transfer fees UK'),'Compare transfer fees ↗')}</div>`;
+  },
+  safe(){
+    const r = S.scamText.trim() ? scanText(S.scamText) : null;
+    const head = {r:'Likely a scam',y:'Be careful',g:'No common scam signs found'};
+    const act = {r:'Don’t reply, don’t pay and don’t tap any links. Block the sender, then talk to your university’s international advisers.',
+                 y:'Stop and check. Contact the organisation yourself using a number or website you find independently.',
+                 g:'Nothing matched our common patterns, but stay alert. If something still feels off, ask your university before acting.'};
+    return `<div class="shield"><div><small style="font-weight:700;opacity:.9">Scam Shield</small><div class="disp">Stay one step ahead of scammers</div><p>International students are a common target. Check any message before you act.</p></div>
+      <div class="ring" style="width:84px;height:84px">${ring(Math.min(100,S.checks*20+40),'#fff','rgb(255 255 255/.3)',11)}<b style="font-size:13px;text-align:center;line-height:1.1">${S.checks} check${S.checks===1?'':'s'}</b></div></div>
+    <div class="card"><h3>Check a message, call or offer</h3>
+      <label class="f" for="scamText">Paste the text, or describe the call</label>
+      <textarea id="scamText" placeholder="e.g. “This is the Home Office, pay your fine today…”">${esc(S.scamText)}</textarea>
+      <div class="small" style="margin:8px 0 4px;font-weight:600">Try an example</div>
+      <div class="chips">${samples.map((s,i)=>`<button data-sample="${i}">${s[0]}</button>`).join('')}</div>
+      <button class="btn mint block" id="scan" style="margin-top:4px">Check for scam signs</button>
+      ${r?`<div class="verdict ${r.level}" id="verdict"><h3>${head[r.level]}</h3><div style="font-size:14px">${act[r.level]}</div>
+        ${r.hits.length?`<ul class="flags">${r.hits.map(f=>`<li><span><b>${f.t}.</b> ${f.d}</span></li>`).join('')}</ul>`:''}</div>`:''}
+      <p class="small" style="margin:10px 0 0">This checker looks for common warning signs. It can’t guarantee a message is safe.</p>
+    </div>
+    <div class="card"><h3>Five golden rules</h3><ul class="rules">
+      <li><span>1</span><div><b>The Home Office won’t phone you for money.</b> Real officials never ask for fines or fees over the phone, and never in gift cards or crypto.</div></li>
+      <li><span>2</span><div><b>Never pay a deposit before you’ve viewed a home</b> and have a written tenancy.</div></li>
+      <li><span>3</span><div><b>Never share one-time codes, PINs or passwords</b>, even with “your bank”.</div></li>
+      <li><span>4</span><div><b>Never let anyone use your bank account.</b> Being a money mule is a crime.</div></li>
+      <li><span>5</span><div><b>Secrecy and panic are red flags.</b> Hang up, take a breath and ask your university.</div></li></ul></div>
+    <div class="card"><h3>Common scams targeting students</h3>${scams.map(s=>`<details class="scam"><summary>${s[0]}</summary><p>${s[1]}</p></details>`).join('')}</div>
+    <div class="card"><h3>Report it and get help</h3><div class="report">
+      <div><span class="ri" style="background:var(--coralsoft);color:var(--coral)">RF</span><div><b>Report Fraud</b><div class="small">The UK’s national fraud reporting service (replaced Action Fraud). Phone 0300 123 2040.</div>${ext('https://www.reportfraud.police.uk','Report online ↗')}</div></div>
+      <div><span class="ri" style="background:var(--sunsoft);color:var(--suntext)">7726</span><div><b>Scam text message?</b><div class="small">Forward it free to 7726 (spells “SPAM”). Then delete it.</div><button class="copy" data-copy="7726">Copy number</button></div></div>
+      <div><span class="ri" style="background:var(--bluesoft);color:var(--blue)">@</span><div><b>Scam email?</b><div class="small">Forward it to report@phishing.gov.uk</div><button class="copy" data-copy="report@phishing.gov.uk">Copy address</button></div></div>
+      <div><span class="ri" style="background:var(--mintsoft);color:var(--mint)">£</span><div><b>Sent money or bank details?</b><div class="small">Call your bank straight away using the number on the back of your card.</div></div></div>
+      <div><span class="ri" style="background:var(--pinksoft);color:var(--pink)">Uni</span><div><b>Your university’s international advisers</b><div class="small">Free, confidential help, especially for visa-related calls.</div>${ext(gsearch('University of Leicester international student advice'),'Find them ↗')}</div></div>
+      ${country().c!=='OT'?`<div><span class="ri" style="background:var(--sunsoft);color:var(--suntext)">${country().c}</span><div><b>${esc(country().n)} embassy or high commission</b><div class="small">For lost passports or if someone claims to call from your embassy, contact them yourself.</div>${ext(gsearch(country().n+' embassy high commission London'),'Find contact details ↗')}</div></div>`:''}
+      <div><span class="ri" style="background:var(--ink);color:var(--app)">999</span><div><b>In danger right now?</b><div class="small">Call 999. For non-emergencies, call police on 101.</div></div></div>
+    </div>${ext('https://www.ukcisa.org.uk/student-advice/life-in-the-uk/frauds-and-scams/','UKCISA guide to frauds and scams ↗')}</div>`;
+  },
+  account(){
+    const c=country(), safeDone=[S.checks>0, S.tasks.find(t=>t.t==='Learn the top student scams')?.done, !!S.emName, !!S.email, S.tasks.find(t=>t.t.startsWith('Check your eVisa'))?.done].filter(Boolean).length;
+    const rows=[['user','Personal info','Name, email','go:profile'],['cap','University and course',S.uni,'go:profile'],['cal','Term dates',termInfo().title,'go:terms'],
+      ['globe','Home country',c.n,'act:country'],['safe','Safety centre','Scam Shield and reporting','go:safe'],['phone','Emergency contacts',S.emName||'Not added yet','go:profile'],
+      ['bell','Notifications','Deadlines, work limit, term dates','act:notif'],['lock','Privacy','Your data stays on this device','act:privacy'],['info','About SettleMate','Prototype v0.3','act:about'],['out','Sign out','Restarts the demo','act:signout']];
+    return `<button class="back" data-go="home">← Home</button>
+    <div class="acc-top"><div><h2>${esc(S.name)}</h2><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><span class="pill" style="background:var(--card);border:1px solid var(--line);color:var(--ink)">★ Level ${level()}</span><span class="pill" style="background:var(--mintsoft);color:var(--mint)">${svg('check')} Verified student</span></div></div>
+      <div class="acc-av">${esc((S.name||'S').slice(0,1).toUpperCase())}</div></div>
+    <div class="acc-tiles"><button data-act="help">${svg('help')}Help</button><button data-go="money">${svg('money')}Wallet</button><button data-go="terms">${svg('cal')}Term dates</button></div>
+    <div class="hscroll">
+      <button class="promo" data-go="safe" style="background:#b5efd9"><span><b>Safety check-up</b><span style="font-size:13px;font-weight:600">Make your account scam-proof</span></span><span class="ring">${ring(safeDone/5*100,'#1fbf8f','rgb(255 255 255/.6)',12)}<b>${safeDone}/5</b></span></button>
+      <button class="promo" data-go="arrival" style="background:#ffe08a"><span><b>Visa check-up</b><span style="font-size:13px;font-weight:600">eVisa, share code and NI number</span></span><span class="ring">${ring(doneCount()/S.tasks.length*100,'#ff5a3c','rgb(255 255 255/.6)',12)}<b>${doneCount()}/${S.tasks.length}</b></span></button>
+      <button class="promo" data-act="invite" style="background:#c9d6ff"><span><b>Invite your flatmates</b><span style="font-size:13px;font-weight:600">Earn 25 XP for each friend</span></span><span class="ring" style="display:grid;place-items:center">${svg('gift')}</span></button>
+    </div>
+    <div class="menu">${rows.map(([i,t,sub,a])=>{const [k,v]=a.split(':');return `<button ${k==='go'?`data-go="${v}"`:`data-act="${v}"`}><span class="mi">${svg(i)}</span><span>${t}<small>${esc(sub)}</small></span><span class="chev">${svg('chev')}</span></button>`}).join('')}</div>
+    <p class="small" style="text-align:center">SettleMate prototype · sample data</p>`;
+  },
+  profile(){
+    const f=(id,label,val,type='text',ph='')=>`<label class="f" for="${id}" style="margin-top:12px">${label}</label><input id="${id}" data-field="${id}" type="${type}" value="${esc(val)}" placeholder="${ph}">`;
+    return `<button class="back" data-go="account">← Account</button><h2>Personal info</h2><p class="sub">Used to personalise reminders. Stored only on this device in the demo.</p>
+    <div class="card">${f('name','First name',S.name)}${f('email','Email',S.email,'email','you@student.le.ac.uk')}${f('uni','University',S.uni)}${f('course','Course',S.course)}</div>
+    <div class="card"><h3>Emergency contact</h3><div class="small">Someone we can show you quickly if you need help.</div>${f('emName','Name',S.emName,'text','e.g. Flatmate or family member')}${f('emPhone','Phone',S.emPhone,'tel','+44…')}</div>
+    <button class="btn block" data-act="saveprofile">Save</button>`;
+  },
+  terms(){
+    const ti=termInfo(), t=today0();
+    const years=[['2025/26',terms.filter(p=>p.o)],['2026/27 (estimated)',terms.filter(p=>!p.o)]];
+    return `<button class="back" data-go="account">← Account</button><h2>Term dates</h2><p class="sub">${esc(S.uni)} · postgraduate taught</p>
+    <div class="card" style="background:${ti.vac?'var(--mintsoft)':'var(--bluesoft)'};border:0"><div class="small" style="font-weight:700">Today</div><div class="big" style="font-size:26px;margin:4px 0">${ti.title}</div><div class="small">${ti.sub}</div>
+      <div class="small" style="margin-top:8px;font-weight:600">${ti.vac?'Vacation: full-time work may be allowed on your visa.':'Term time: your weekly work limit applies.'}</div></div>
+    ${years.map(([y,list])=>`<div class="card"><h3>${y}</h3><ul class="cal">${list.map(p=>{const now=D(p.s)<=t&&t<=D(p.e);return `<li class="${now?'now':''}"><i style="background:${p.t==='vac'?'var(--mint)':'var(--blue)'}"></i><span><b>${p.l}</b><br><span class="small">${fmtD(p.s)} – ${fmtD(p.e)}${now?' · you are here':''}</span></span><span class="tag ${p.o?'o':'e'}">${p.o?'Official':'Estimated'}</span></li>`}).join('')}</ul></div>`).join('')}
+    <p class="small">Dates for 2026/27 are estimated from last year’s pattern until the University publishes them. Some courses have different dates, so check with your department.<br>${ext(termSrc,'Official postgraduate vacation dates ↗')}</p>`;
   },
   discover(){
     const kinds=['All','Groceries','Meals','Travel','Help'];
     const list=deals.filter(d=>S.filter==='All'||d.k===S.filter);
-    return `<h2>Discover</h2><p class="sub">Deals, food, events and your people.</p>
+    const c=country(), home=c.c!=='OT';
+    const homeRows = home ? [
+      ['bowl','Food from '+c.n,'Restaurants and grocery shops near you',maps(c.n+' food Leicester')],
+      ['user',c.n+' students near you','Find your community',`https://www.facebook.com/search/groups/?q=${encodeURIComponent(c.n+' students Leicester')}`],
+      ['globe',c.n+' embassy or high commission','Passport, documents and emergencies',gsearch(c.n+' embassy high commission London')],
+      ['money','£1 in '+c.cur,'Today’s live exchange rate',rateUrl(c)]
+    ] : [];
+    return `${head('Discover','Deals, food, events and your people.')}
+    ${home?`<div class="card" style="background:var(--sunsoft);border:0"><div class="row"><h3 style="margin:0">Home away from home</h3><span class="cc" style="width:34px;height:34px;border-radius:11px;background:var(--sun);color:#1b1d2e;display:grid;place-items:center;font:700 13px Fredoka,sans-serif">${c.c}</span></div>
+      ${homeRows.map(([i,t,sub,u])=>`<a class="deal" href="${u}" target="_blank" rel="noopener"><div class="badge" style="background:var(--card)">${svg(i,'var(--coral)')}</div><div style="flex:1"><b>${esc(t)}</b><div class="small">${sub}</div></div><span class="small">↗</span></a>`).join('')}</div>`:''}
     <div class="chips">${kinds.map(k=>`<button data-filter="${k}" aria-pressed="${S.filter===k}">${k}</button>`).join('')}</div>
-    <div class="card">${list.map(dealRow).join('')}</div>
+    <div class="card">${list.map(dealRow).join('')}<div class="small" style="margin-top:6px">${verified} means a sample listing checked by the SettleMate team.</div></div>
     <h3>Events</h3>
-    <div class="hscroll">${events.map(e=>`<a class="event" href="${e.u}" target="_blank" rel="noopener"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w}</span></div></a>`).join('')}</div>
+    <div class="hscroll">${events.map(eventCard).join('')}</div>
     <h3>Find your people</h3>
-    <div class="card"><ul class="list">${groups.map(g=>{const j=S.joined.includes(g.n);return `<li><span class="group"><span class="gav" style="background:${g.c}">${g.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><span><b>${g.n}</b><br><span class="small">${g.m.toLocaleString()} members · </span>${ext('https://www.facebook.com/search/groups/?q='+encodeURIComponent(g.n),'Find online ↗')}</span></span>
-      <button class="btn ${j?'soft':''}" data-join="${esc(g.n)}" style="min-width:76px">${j?'Joined':'Join'}</button></li>`}).join('')}</ul></div>`;
+    <div class="card"><ul class="list">${groups.map(g=>{const j=S.joined.includes(g.n);return `<li><span class="group"><span class="gav" style="background:${g.c}">${g.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><span><b>${g.n}</b><br><span class="small">${g.m.toLocaleString('en-GB')} members · </span>${ext('https://www.facebook.com/search/groups/?q='+encodeURIComponent(g.n),'Find online ↗')}</span></span>
+      <button class="btn ${j?'soft':''}" data-join="${esc(g.n)}" style="min-width:76px">${j?'Joined':'Join'}</button></li>`}).join('')}</ul>
+      <div class="alert y" style="margin-top:8px">Buying or selling in groups? Meet in public, pay in person and never send money first.</div></div>`;
   }
 };
+function head(title, sub){
+  return `<div class="row" style="align-items:flex-start"><div><h2>${title}</h2><p class="sub">${sub}</p></div><button class="hav" data-go="account" aria-label="Your account">${esc((S.name||'S').slice(0,1).toUpperCase())}</button></div>`;
+}
 function dealRow(d){
-  return `<a class="deal" href="${d.u||maps(d.n+' Leicester')}" target="_blank" rel="noopener" aria-label="${esc(d.n)}, opens ${d.u?'website':'Google Maps'}"><div class="badge" style="background:${d.c}">${svg(d.i,d.f)}</div>
-  <div style="flex:1"><b>${esc(d.n)}</b><div class="small">${esc(d.o)}</div></div><span class="small" style="white-space:nowrap;font-weight:600">${d.w} ↗</span></a>`;
+  return `<a class="deal" href="${d.u||maps(d.n+' Leicester')}" target="_blank" rel="noopener"><div class="badge" style="background:${d.c}">${svg(d.i,d.f)}</div>
+  <div style="flex:1"><b>${esc(d.n)}</b>${d.v?verified:''}<div class="small">${esc(d.o)}</div></div><span class="small" style="white-space:nowrap;font-weight:600">${d.w} ↗</span></a>`;
 }
 
+/* ---------- onboarding ---------- */
+const onbArt = [
+  `<svg viewBox="0 0 340 230" preserveAspectRatio="xMidYMid slice"><rect width="340" height="230" fill="#ff5a3c"/><circle cx="270" cy="60" r="46" fill="#ffc93c"/><path d="M0 190 Q90 150 170 180 T340 170 V230 H0z" fill="#fff" opacity=".25"/><path d="M110 150 L170 100 L230 150 V200 H110z" fill="#fff"/><path d="M148 162 l14 14 28-30" fill="none" stroke="#ff5a3c" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="70" cy="70" r="10" fill="#fff" opacity=".7"/><circle cx="96" cy="44" r="5" fill="#fff" opacity=".6"/></svg>`,
+  `<svg viewBox="0 0 340 230" preserveAspectRatio="xMidYMid slice"><rect width="340" height="230" fill="#3d6bff"/><circle cx="170" cy="118" r="78" fill="#c9d6ff"/><path d="M110 90 q30 -20 50 0 t40 10 q20 10 30 -5 M100 130 q40 15 70 0 t60 5 M120 165 q30 10 50 -5" fill="none" stroke="#3d6bff" stroke-width="7" stroke-linecap="round"/><circle cx="230" cy="80" r="9" fill="#ff5a3c"/><path d="M230 89 v18" stroke="#ff5a3c" stroke-width="5" stroke-linecap="round"/><circle cx="125" cy="142" r="9" fill="#ffc93c"/><path d="M125 151 v18" stroke="#ffc93c" stroke-width="5" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 340 230" preserveAspectRatio="xMidYMid slice"><rect width="340" height="230" fill="#1fbf8f"/><circle cx="60" cy="50" r="30" fill="#b5efd9"/><path d="M170 35 l70 26 v52 c0 44 -30 70 -70 80 c-40 -10 -70 -36 -70 -80 v-52z" fill="#fff"/><path d="M140 118 l22 22 40 -44" fill="none" stroke="#1fbf8f" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+];
+function renderOnb(){
+  const o=document.getElementById('onb');
+  if(S.onboarded){ o.hidden=true; return; }
+  o.hidden=false;
+  const dots=`<div class="dots">${[0,1,2].map(i=>`<i class="${i===S.step?'on':''}"></i>`).join('')}</div>`;
+  let body='';
+  if(S.step===0) body=`<div class="art">${onbArt[0]}</div><h2>Welcome to SettleMate</h2><p class="sub">Everything you need for daily life in the UK: arrival, work hours, money, safety and your community, all in one app.</p>${dots}<button class="btn block" data-onb="next">Get started</button>`;
+  if(S.step===1) body=`<h2>Where’s home?</h2><p class="sub">SettleMate greets you in your language and shows your home time, currency and community.</p>
+    <label class="f" for="onbName">Your first name</label><input id="onbName" value="${esc(S.name)}" autocomplete="given-name" style="margin-bottom:14px">
+    <label class="f" for="onbSearch">Home country</label><input id="onbSearch" type="search" placeholder="Search ${countries.length-1}+ countries" autocomplete="off" style="margin-bottom:10px">
+    <div class="countries" id="clist">${countries.map(c=>`<button data-country="${c.c}" data-name="${c.n.toLowerCase()}" aria-pressed="${S.country===c.c}"><span class="cc">${c.c==='OT'?'…':c.c}</span>${c.n}</button>`).join('')}</div>
+    ${dots}<button class="btn block" data-onb="next">Continue</button>`;
+  if(S.step===2) body=`<div class="art">${onbArt[2]}</div><h2>You’re protected</h2><p class="sub">Scammers target international students. SettleMate’s Scam Shield helps you spot fake Home Office calls, rental scams and “easy money” jobs before they cost you.</p>${dots}<button class="btn block" data-onb="done">Let’s go</button>`;
+  o.innerHTML=`<div style="display:flex;justify-content:flex-end;min-height:28px">${S.step<2?'<button class="copy" data-onb="done">Skip</button>':''}</div>`+body;
+}
+
+/* ---------- render ---------- */
 const phone=document.getElementById('phone'), screen=document.getElementById('screen'), nav=document.getElementById('nav'), toastEl=document.getElementById('toast');
-function render(){
-  nav.innerHTML = tabs.map(([k,l])=>`<button data-go="${k}" aria-current="${S.tab===k}">${svg(k)}${l}</button>`).join('');
+function render(anim){
+  nav.innerHTML = tabs.map(([k,l])=>`<button data-go="${k}" class="${k}" aria-current="${S.tab===k}">${svg(k)}${l}</button>`).join('');
   screen.innerHTML = views[S.tab]();
+  if(anim){ screen.classList.remove('enter'); void screen.offsetWidth; screen.classList.add('enter'); }
+  renderOnb();
+  const sb=document.getElementById('sbtime'); if(sb) sb.textContent=timeIn('Europe/London');
   save();
 }
-function go(t){ S.tab=t; render(); screen.scrollTop=0; }
+function keepScroll(){ const st=screen.scrollTop; render(); screen.scrollTop=st; }
+function go(t){ if(!views[t]) return; S.tab=t; render(true); screen.scrollTop=0; }
 let tt;
-function toast(t){ toastEl.textContent=t; toastEl.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>toastEl.classList.remove('show'),1600); }
+function toast(t){ toastEl.textContent=t; toastEl.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>toastEl.classList.remove('show'),1700); }
 function confetti(x,y){
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const cols=['#ff5a3c','#ffc93c','#3d6bff','#1fbf8f','#ff7eb6'];
@@ -352,63 +763,116 @@ function addXp(n,msg){
   const lv=level(); S.xp=Math.max(0,S.xp+n);
   if(n>0) toast(level()>lv?`Level up! You're now level ${level()}`:`+${n} XP · ${msg}`);
 }
+async function copy(text){
+  try{ await navigator.clipboard.writeText(text); toast('Copied '+text); }catch(e){ toast(text); }
+}
 
 phone.addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.go) go(b.dataset.go);
-  else if(b.dataset.tick){
+  if(b.dataset.onb){
+    const n=document.getElementById('onbName'); if(n) S.name=n.value.trim()||'Friend';
+    if(b.dataset.onb==='next'){ S.step++; } else { S.onboarded=true; S.tab='home'; render(true); toast(`Welcome, ${S.name}!`); return; }
+    render(); return;
+  }
+  if(b.dataset.country){ const n=document.getElementById('onbName'); if(n) S.name=n.value.trim()||'Friend'; S.country=b.dataset.country; render(); return; }
+  if(b.dataset.reset){ try{ localStorage.removeItem(KEY); }catch(err){} S=JSON.parse(JSON.stringify(fresh)); render(true); return; }
+  if(b.dataset.go){ go(b.dataset.go); return; }
+  if(b.dataset.act){
+    const a=b.dataset.act;
+    if(a==='help'){ sheet.classList.add('open'); return; }
+    if(a==='country'){ S.onboarded=false; S.step=1; render(); return; }
+    if(a==='notif'){ toast('Reminders on: deadlines, work limit and term dates'); return; }
+    if(a==='privacy'){ toast('In this demo, your data stays on this device'); return; }
+    if(a==='about'){ toast('SettleMate prototype v0.3'); return; }
+    if(a==='invite'){ copy('Join me on SettleMate: https://dinakarnayak.github.io/settlemate-demo/app/'); return; }
+    if(a==='saveprofile'){ toast('Saved'); go('account'); return; }
+    if(a==='signout'){ try{ localStorage.removeItem(KEY); }catch(err){} S=JSON.parse(JSON.stringify(fresh)); render(true); return; }
+  }
+  if(b.dataset.copy){ copy(b.dataset.copy); return; }
+  if(b.dataset.tick){
     const t=S.tasks[+b.dataset.tick]; t.done=!t.done;
     if(t.done){ const r=b.getBoundingClientRect(), p=phone.getBoundingClientRect(); confetti(r.left-p.left+17,r.top-p.top+17); addXp(10,'task done'); } else S.xp=Math.max(0,S.xp-10);
-    const st=screen.scrollTop; render(); screen.scrollTop=st;
+    keepScroll(); return;
   }
-  else if(b.dataset.delshift){ S.shifts.splice(+b.dataset.delshift,1); render(); }
-  else if(b.dataset.limit){ S.limit=+b.dataset.limit; render(); }
-  else if(b.dataset.filter){ S.filter=b.dataset.filter; render(); }
-  else if(b.dataset.quick){ const [c,a]=b.dataset.quick.split('|'); S.spend.find(s=>s.c===c).a+=+a; toast(`Added £${a} to ${c}`); const st=screen.scrollTop; render(); screen.scrollTop=st; }
-  else if(b.dataset.join){ const n=b.dataset.join; if(S.joined.includes(n)) S.joined=S.joined.filter(x=>x!==n); else { S.joined=[...S.joined,n]; addXp(5,'joined a group'); } const st=screen.scrollTop; render(); screen.scrollTop=st; }
+  if(b.dataset.delshift){ S.shifts.splice(+b.dataset.delshift,1); keepScroll(); return; }
+  if(b.dataset.limit){ S.limit=+b.dataset.limit; keepScroll(); return; }
+  if(b.dataset.filter){ S.filter=b.dataset.filter; keepScroll(); return; }
+  if(b.dataset.quick){ const [c,a]=b.dataset.quick.split('|'); S.spend.find(s=>s.c===c).a+=+a; toast(`Added £${a} to ${c}`); keepScroll(); return; }
+  if(b.dataset.join){ const n=b.dataset.join; if(S.joined.includes(n)) S.joined=S.joined.filter(x=>x!==n); else { S.joined=[...S.joined,n]; addXp(5,'joined a group'); } keepScroll(); return; }
+  if(b.dataset.sample){ S.scamText=samples[+b.dataset.sample][1]; keepScroll(); return; }
+  if(b.id==='scan'){
+    const ta=document.getElementById('scamText'); S.scamText=ta.value;
+    if(!S.scamText.trim()){ toast('Paste a message first'); return; }
+    S.checks++; const r=scanText(S.scamText);
+    if(S.checks===1) addXp(10,'first scam check');
+    const learn=S.tasks.find(t=>t.t==='Learn the top student scams'); if(learn&&!learn.done){ learn.done=true; addXp(10,'task done'); }
+    keepScroll(); const v=document.getElementById('verdict'); if(v) v.scrollIntoView({block:'nearest',behavior:'smooth'});
+    if(r.level==='r') toast('Warning: this looks like a scam');
+    return;
+  }
 });
 screen.addEventListener('submit', e=>{
   e.preventDefault();
   if(e.target.id==='shiftForm'){
     const h=parseFloat(document.getElementById('hrs').value), j=document.getElementById('job').value.trim()||'Shift';
-    if(h>0){ const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; S.shifts.push({j,h,day:days[S.shifts.length%7]}); addXp(2,'shift logged'); render(); }
+    if(h>0){ const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; S.shifts.push({j,h,day:days[S.shifts.length%7]}); addXp(2,'shift logged'); keepScroll(); }
   }
   if(e.target.id==='spendForm'){
     const a=parseFloat(document.getElementById('amt').value), c=document.getElementById('cat').value;
-    if(a>0){ S.spend.find(s=>s.c===c).a+=a; toast(`Added ${gbp(a)} to ${c}`); render(); }
+    if(a>0){ S.spend.find(s=>s.c===c).a+=a; toast(`Added ${gbp(a)} to ${c}`); keepScroll(); }
   }
 });
+screen.addEventListener('input', e=>{
+  if(e.target.id==='scamText') S.scamText=e.target.value;
+  if(e.target.dataset.field) S[e.target.dataset.field]=e.target.value;
+  if(e.target.id==='conv'){ const v=parseFloat(e.target.value)||0; document.getElementById('convOut').textContent=homeMoney(v).replace('≈ ',''); }
+});
 screen.addEventListener('change', e=>{
-  if(e.target.id==='budget'){ const v=parseFloat(e.target.value); if(v>0){ S.budget=v; render(); } }
+  if(e.target.id==='budget'){ const v=parseFloat(e.target.value); if(v>0){ S.budget=v; keepScroll(); } }
 });
 
-/* Assistant (scripted demo answers) */
+document.getElementById('onb').addEventListener('input', e=>{
+  if(e.target.id!=='onbSearch') return;
+  const q=e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#clist button').forEach(b=>{ b.style.display = !q || b.dataset.name.includes(q) || b.dataset.country.toLowerCase()===q || b.dataset.country==='OT' ? '' : 'none'; });
+});
+
+/* ---------- assistant ---------- */
 const sheet=document.getElementById('sheet'), msgs=document.getElementById('msgs'), q=document.getElementById('q');
 const answers=[
+  [/scam|fraud|fake|suspicious|home office (call|phon)|fine|deport/i,'Sounds like it could be a scam. The Home Office won’t phone you asking for fines or fees. Don’t pay, don’t share details, and hang up. Paste the message into Scam Shield to check it.','#safe','Open Scam Shield'],
   [/gp|doctor|nhs|ill|sick/i,'Search "Find a GP" on the NHS website, pick a practice near your address and fill in their registration form. It’s free. For urgent advice, use NHS 111.','https://www.nhs.uk/service-search/find-a-gp','Find a GP on NHS'],
   [/hour|work|job|shift/i,'Most degree-level students can work up to 20 hours a week in term time. Your Work tab tracks every shift and warns you before you reach your limit.','https://www.gov.uk/student-visa','Student visa rules on gov.uk'],
   [/bank|account/i,'Most UK banks let students open an account online. You usually need your passport or eVisa and a letter from your university confirming your address.','https://www.moneyhelper.org.uk/en','Banking guides on MoneyHelper'],
-  [/ni|national insurance/i,'Apply for a National Insurance number on gov.uk. You can start work before it arrives, but tell your employer you’ve applied.','https://www.gov.uk/apply-national-insurance-number','Apply on gov.uk'],
+  [/\bni\b|national insurance/i,'Apply for a National Insurance number on gov.uk. You can start work before it arrives, but tell your employer you’ve applied.','https://www.gov.uk/apply-national-insurance-number','Apply on gov.uk'],
   [/visa|share code|evisa/i,'You can view your eVisa and get a share code for employers or landlords on gov.uk.','https://www.gov.uk/view-prove-immigration-status','View your eVisa'],
-  [/rail|train|travel|bus/i,'A 16–25 Railcard gives a third off most rail fares, and many city bus companies sell student term passes. See Discover → Travel.','https://www.16-25railcard.co.uk','Get a 16–25 Railcard'],
-  [/money|budget|send|transfer|cheap/i,'Set your monthly budget in the Money tab and use quick add for everyday spending. To send money home, compare a few regulated providers first.','https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper'],
+  [/rent|room|flat|landlord|deposit|house/i,'Always view a home in person or by live video, get a written tenancy, and make sure your deposit goes into a government-backed protection scheme. Never pay before viewing.','https://www.gov.uk/tenancy-deposit-protection','Tenancy deposit protection'],
+  [/today|plan|timetable|schedule|lecture|class/i,'Your Home tab shows today’s plan: lectures, a cheap lunch spot, a study block, any shift, and how much you can spend today without going over budget.','#home','Open today’s plan'],
+  [/term|semester|vacation|holiday|christmas|easter/i,'Your Term dates page shows the current term, week number and next vacation, based on your university’s published dates. Full-time work is only allowed in official vacations.','#terms','Open term dates'],
+  [/rail|train|travel|bus/i,'A 16–25 Railcard gives a third off most rail fares, and many city bus companies sell student term passes.','https://www.16-25railcard.co.uk','Get a 16–25 Railcard'],
+  [/money|budget|send|transfer|cheap/i,'Set your monthly budget in the Money tab. To send money home, compare a few FCA-regulated providers first.','https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper'],
   [/friend|lonely|people|society/i,'Try Discover → Find your people. Joining a society or a weekly event is the fastest way to make friends. Your university’s wellbeing team is there too if you’re struggling.','https://www.eventbrite.co.uk/d/united-kingdom--leicester/students/','Student events near you']
 ];
-const sugg=['How do I register with a GP?','How many hours can I work?','Cheapest way to travel?','How do I make friends?'];
+const sugg=['Is this Home Office call real?','How do I register with a GP?','How many hours can I work?','Is this room deposit safe?'];
 document.getElementById('sugg').innerHTML=sugg.map(s=>`<button data-ask="${s}">${s}</button>`).join('');
-function say(t,who,link){ msgs.insertAdjacentHTML('beforeend',`<div class="m ${who}">${esc(t)}${link?`<br><a href="${link[0]}" target="_blank" rel="noopener">${esc(link[1])} ↗</a>`:''}</div>`); msgs.scrollTop=msgs.scrollHeight; }
+function say(t,who,link){
+  const l = !link ? '' : link[0][0]==='#' ? `<br><button data-go="${link[0].slice(1)}">${esc(link[1])} →</button>` : `<br><a href="${link[0]}" target="_blank" rel="noopener">${esc(link[1])} ↗</a>`;
+  msgs.insertAdjacentHTML('beforeend',`<div class="m ${who}">${esc(t)}${l}</div>`); msgs.scrollTop=msgs.scrollHeight;
+}
 function ask(v){
   say(v,'me');
   const hit=answers.find(([r])=>r.test(v));
   setTimeout(()=>hit?say(hit[1],'bot',[hit[2],hit[3]]):say('I don’t have a demo answer for that yet. Here’s a web search to get you started.','bot',[gsearch(v+' UK international student'),'Search the web']),450);
 }
-say('Hi Dinakar! I can help with GP, banking, work hours, travel, money and making friends. What do you need?','bot');
+say('Hi! I can help with GP, banking, work hours, housing, money, making friends, and checking if something is a scam. What do you need?','bot');
 document.getElementById('sugg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) ask(b.dataset.ask); });
+msgs.addEventListener('click',e=>{ const b=e.target.closest('button[data-go]'); if(b){ e.stopPropagation(); sheet.classList.remove('open'); go(b.dataset.go); } });
 document.getElementById('fab').addEventListener('click',()=>{ sheet.classList.add('open'); q.focus(); });
 document.getElementById('close').addEventListener('click',()=>sheet.classList.remove('open'));
 document.getElementById('ask').addEventListener('submit',e=>{ e.preventDefault(); const v=q.value.trim(); if(!v) return; q.value=''; ask(v); });
 
 render();
+setInterval(()=>{ if(S.tab==='home' && !document.activeElement?.closest?.('#screen input')) keepScroll(); else { const sb=document.getElementById('sbtime'); if(sb) sb.textContent=timeIn('Europe/London'); } },60000);
 }
 </script>
 </body>
