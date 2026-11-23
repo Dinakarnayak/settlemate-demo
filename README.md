@@ -13,6 +13,10 @@ An all-in-one daily-life app for international students in the UK. This reposito
 - **Discover:** student deals, home-country groceries, events and community groups
 - **Assistant:** a scripted chat for common "how do I…" questions about UK life
 
+## Startup plan
+
+The full business plan (problem, market, business model, roadmap and visa considerations) is in [docs/startup-plan.md](docs/startup-plan.md).
+
 ## Tech
 
 A single static `index.html` file (HTML, CSS and vanilla JavaScript) with no build step. Progress is saved in the browser's `localStorage`.
