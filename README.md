@@ -28,6 +28,22 @@ The full business plan (problem, market, business model, roadmap and visa consid
 | `flutter/` | Flutter starter for Android and iOS with the same design (see `flutter/README.md`) |
 | `docs/startup-plan.md` | The startup plan |
 
+## Links to other apps and sites
+
+For now, every card and link opens a trusted outside service instead of a built-in feature:
+
+| In the app | Opens |
+|---|---|
+| Arrival tasks ("Open guide") | gov.uk (eVisa, NI number, council tax), NHS Find a GP, 16–25 Railcard, MoneyHelper |
+| Deals and grocery stores | Google Maps, or the provider's website |
+| Events | Eventbrite / web search |
+| Community groups ("Find online") | Facebook group search |
+| Work tab | Student visa rules on gov.uk |
+| Money tab | MoneyHelper guides, transfer-fee comparison search |
+| Assistant answers | The matching official page, or a web search |
+
+The Flutter app opens the same links with `url_launcher`.
+
 ## Tech
 
 The web demo and app are plain HTML, CSS and JavaScript with no build step. Progress is saved in the browser's `localStorage`. Open `index.html` or `app/index.html` in a browser to run them locally.

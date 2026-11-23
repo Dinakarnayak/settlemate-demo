@@ -133,6 +133,7 @@ class HomeScreen extends StatelessWidget {
                 when: AppState.events[i].when,
                 a: eventColours[i][0],
                 b: eventColours[i][1],
+                url: AppState.events[i].url,
               ),
           ],
         ),
@@ -153,7 +154,10 @@ class HomeScreen extends StatelessWidget {
               const Text('Due 15 January', style: _small),
             ]),
           ),
-          const Pill('Reminder', bg: AppColors.pink, fg: Colors.white),
+          GestureDetector(
+            onTap: () => openUrl(searchUrl('University of Leicester pay tuition fees')),
+            child: const Pill('Pay fees ↗', bg: AppColors.pink, fg: Colors.white),
+          ),
         ]),
       ),
       const Text('Prototype with sample data. Rules are simplified, so check your visa conditions on gov.uk.',
@@ -223,7 +227,10 @@ class DealRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final st = _style[d.kind]!;
-    return Padding(
+    return InkWell(
+      onTap: () => openUrl(d.url ?? mapsUrl('${d.name} Leicester')),
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(children: [
         Container(
@@ -239,8 +246,9 @@ class DealRow extends StatelessWidget {
             Text(d.offer, style: _small),
           ]),
         ),
-        Text(d.where, style: _small.copyWith(fontWeight: FontWeight.w600)),
+        Text('${d.where} ↗', style: _small.copyWith(fontWeight: FontWeight.w600)),
       ]),
+    ),
     );
   }
 }
@@ -311,6 +319,7 @@ class ArrivalScreen extends StatelessWidget {
                       color: t.done ? AppColors.mute : AppColors.ink,
                     )),
                 Text(t.detail, style: _small),
+                if (t.url != null) LinkText('Open guide', t.url!),
               ]),
             ),
             Pill('+10', bg: t.done ? Colors.transparent : AppColors.blueSoft, fg: t.done ? AppColors.mint : AppColors.blue),
@@ -449,6 +458,7 @@ class _WorkScreenState extends State<WorkScreen> {
       ),
       const Text('University holidays count as vacation, when full-time work may be allowed. Check your own visa.',
           style: _small),
+      const LinkText('Student visa work rules on gov.uk', 'https://www.gov.uk/student-visa'),
     ]);
   }
 }
@@ -585,6 +595,8 @@ class _MoneyScreenState extends State<MoneyScreen> {
           Text('Sending money home?', style: tt.titleMedium?.copyWith(color: AppColors.blue)),
           const Text('Compare rates and fees from regulated providers first. SettleMate never holds your money.',
               style: _small),
+          const LinkText('Money guides on MoneyHelper', 'https://www.moneyhelper.org.uk/en'),
+          LinkText('Compare transfer fees', searchUrl('compare international money transfer fees UK')),
         ]),
       ),
     ]);
@@ -629,6 +641,7 @@ class DiscoverScreen extends StatelessWidget {
               when: AppState.events[i].when,
               a: eventColours[i][0],
               b: eventColours[i][1],
+              url: AppState.events[i].url,
             ),
         ]),
       ),
@@ -657,6 +670,7 @@ class DiscoverScreen extends StatelessWidget {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(g.name, style: const TextStyle(fontWeight: FontWeight.w700)),
                       Text('${g.members} members', style: _small),
+                      LinkText('Find online', 'https://www.facebook.com/search/groups/?q=${Uri.encodeQueryComponent(g.name)}'),
                     ]),
                   ),
                   joined
@@ -672,19 +686,19 @@ class DiscoverScreen extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------- Assistant
-const _answers = <(RegExp, String)>[
+const _answers = <(RegExp, String, String)>[
   (RegExp(r'gp|doctor|nhs|ill|sick', caseSensitive: false),
-      'Search "Find a GP" on the NHS website, pick a practice near your address and fill in their registration form. It’s free. For urgent advice, call NHS 111.'),
+      'Search "Find a GP" on the NHS website, pick a practice near your address and fill in their registration form. It’s free. For urgent advice, call NHS 111.', 'https://www.nhs.uk/service-search/find-a-gp'),
   (RegExp(r'hour|work|job|shift', caseSensitive: false),
-      'Most degree-level students can work up to 20 hours a week in term time. Your Work tab tracks every shift and warns you before you reach your limit.'),
+      'Most degree-level students can work up to 20 hours a week in term time. Your Work tab tracks every shift and warns you before you reach your limit.', 'https://www.gov.uk/student-visa'),
   (RegExp(r'bank|account', caseSensitive: false),
-      'Most UK banks let students open an account online. You usually need your passport or eVisa and a letter from your university confirming your address.'),
+      'Most UK banks let students open an account online. You usually need your passport or eVisa and a letter from your university confirming your address.', 'https://www.moneyhelper.org.uk/en'),
   (RegExp(r'rail|train|travel|bus', caseSensitive: false),
-      'A 16–25 Railcard gives a third off most rail fares, and many city bus companies sell student term passes.'),
+      'A 16–25 Railcard gives a third off most rail fares, and many city bus companies sell student term passes.', 'https://www.16-25railcard.co.uk'),
   (RegExp(r'money|budget|send|transfer', caseSensitive: false),
-      'Set your monthly budget in the Money tab. To send money home, compare a few regulated providers first.'),
+      'Set your monthly budget in the Money tab. To send money home, compare a few regulated providers first.', 'https://www.moneyhelper.org.uk/en'),
   (RegExp(r'friend|lonely|people|society', caseSensitive: false),
-      'Try Discover → Find your people. Joining a society or a weekly event is the fastest way to make friends.'),
+      'Try Discover → Find your people. Joining a society or a weekly event is the fastest way to make friends.', 'https://www.eventbrite.co.uk/d/united-kingdom--leicester/students/'),
 ];
 
 void showAssistant(BuildContext context) {
@@ -706,22 +720,24 @@ class _Assistant extends StatefulWidget {
 
 class _AssistantState extends State<_Assistant> {
   final input = TextEditingController();
-  final msgs = <(bool, String)>[
-    (false, 'Hi Dinakar! I can help with GP, banking, work hours, travel, money and making friends. What do you need?'),
+  final msgs = <(bool, String, String?)>[
+    (false, 'Hi Dinakar! I can help with GP, banking, work hours, travel, money and making friends. What do you need?', null),
   ];
 
   void ask(String q) {
     if (q.trim().isEmpty) return;
-    String reply = 'In the full app I’d answer this with links to official sources. Try asking about GP, bank, work hours, travel, money or friends.';
+    String reply = 'I don’t have a demo answer for that yet. Here’s a web search to get you started.';
+    String link = searchUrl('$q UK international student');
     for (final a in _answers) {
       if (a.$1.hasMatch(q)) {
         reply = a.$2;
+        link = a.$3;
         break;
       }
     }
     setState(() {
-      msgs.add((true, q));
-      msgs.add((false, reply));
+      msgs.add((true, q, null));
+      msgs.add((false, reply, link));
     });
     input.clear();
   }
@@ -762,7 +778,10 @@ class _AssistantState extends State<_Assistant> {
                       border: m.$1 ? null : Border.all(color: AppColors.line),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(m.$2, style: TextStyle(color: m.$1 ? Colors.white : AppColors.ink, fontSize: 15)),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(m.$2, style: TextStyle(color: m.$1 ? Colors.white : AppColors.ink, fontSize: 15)),
+                      if (m.$3 != null) LinkText('Open link', m.$3!),
+                    ]),
                   ),
                 ),
             ]),

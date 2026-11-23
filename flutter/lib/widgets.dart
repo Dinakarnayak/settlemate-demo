@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'theme.dart';
 
@@ -138,7 +139,8 @@ class Pill extends StatelessWidget {
 
 /// Coloured event card with a simple shape illustration.
 class EventCard extends StatelessWidget {
-  const EventCard({super.key, required this.title, required this.when, required this.a, required this.b});
+  const EventCard({super.key, required this.title, required this.when, required this.a, required this.b, required this.url});
+  final String url;
   final String title;
   final String when;
   final Color a;
@@ -146,7 +148,9 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () => openUrl(url),
+      child: Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
@@ -177,6 +181,7 @@ class EventCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
@@ -187,3 +192,32 @@ const eventColours = [
   [AppColors.mint, AppColors.sun],
   [AppColors.pink, AppColors.blue],
 ];
+
+/// Opens a website or app (Maps, NHS, gov.uk…) outside SettleMate.
+Future<void> openUrl(String url) async {
+  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+}
+
+String mapsUrl(String query) =>
+    'https://www.google.com/maps/search/?api=1&query=${Uri.encodeQueryComponent(query)}';
+
+String searchUrl(String query) => 'https://www.google.com/search?q=${Uri.encodeQueryComponent(query)}';
+
+/// Small blue "Open guide ↗" style link.
+class LinkText extends StatelessWidget {
+  const LinkText(this.label, this.url, {super.key});
+  final String label;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => openUrl(url),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text('$label ↗',
+            style: const TextStyle(color: AppColors.blue, fontWeight: FontWeight.w700, fontSize: 13)),
+      ),
+    );
+  }
+}

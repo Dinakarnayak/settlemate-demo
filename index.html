@@ -123,6 +123,10 @@ input,select{font-size:16px;border:1.5px solid var(--line);background:var(--app)
 .conf{position:absolute;width:9px;height:14px;border-radius:3px;z-index:6;pointer-events:none;animation:fall 1.1s ease-out forwards}
 @keyframes fall{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
 @keyframes pop{50%{transform:scale(1.25)}}
+a.deal,a.event{color:inherit;text-decoration:none}a.event{display:block}a.deal:hover b,a.event:hover b{text-decoration:underline}
+.go{display:inline-block;margin-top:4px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;min-height:24px}
+.go:hover{text-decoration:underline}
+.m a{color:inherit;font-weight:700}
 .note{max-width:1000px;margin:0 auto;padding:0 20px 32px;color:var(--mute);font-size:13px;text-align:center}
 @media(max-width:600px){.top{padding-top:14px}.top h1{font-size:26px}.top p{font-size:14px}.stage{padding:6px 0 0}.blob{display:none}
 .phone{width:100%;height:calc(100dvh - 92px);min-height:620px;border:0;border-radius:0;box-shadow:none}.status{display:none}}
@@ -171,6 +175,18 @@ const ic = {
   train:'<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/><circle cx="9" cy="14" r=".8"/><circle cx="15" cy="14" r=".8"/>',
   help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/>'
 };
+const gsearch = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+const maps = q => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+const ext = (href, text, cls='go') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener">${text}</a>`;
+const taskLinks = {
+  'Get a UK SIM card': gsearch('student SIM only deals UK'),
+  'Open a UK bank account': 'https://www.moneyhelper.org.uk/en',
+  'Check your eVisa and share code': 'https://www.gov.uk/view-prove-immigration-status',
+  'Register with a GP': 'https://www.nhs.uk/service-search/find-a-gp',
+  'Apply for a National Insurance number': 'https://www.gov.uk/apply-national-insurance-number',
+  'Get council tax exemption': 'https://www.gov.uk/council-tax/discounts-for-full-time-students',
+  'Buy a 16–25 Railcard': 'https://www.16-25railcard.co.uk'
+};
 const tabs = [['home','Home'],['arrival','Arrival'],['work','Work'],['money','Money'],['discover','Discover']];
 
 const fresh = {
@@ -201,15 +217,15 @@ const deals = [
   {n:'Golden Dragon Supermarket',k:'Groceries',o:'Rice 10kg £14.50',w:'0.9 mi',i:'cart',c:'var(--coralsoft)',f:'var(--coral)'},
   {n:'Campus Kitchen',k:'Meals',o:'£3.50 lunch deal',w:'On campus',i:'bowl',c:'var(--sunsoft)',f:'#d99a00'},
   {n:'Spice Route Café',k:'Meals',o:'Thali £6, Mon–Thu',w:'0.6 mi',i:'bowl',c:'var(--sunsoft)',f:'#d99a00'},
-  {n:'16–25 Railcard',k:'Travel',o:'⅓ off rail fares',w:'Online',i:'train',c:'var(--bluesoft)',f:'var(--blue)'},
-  {n:'City bus term pass',k:'Travel',o:'Student term ticket',w:'City buses',i:'train',c:'var(--bluesoft)',f:'var(--blue)'},
-  {n:'Money advice drop-in',k:'Help',o:'Free, at the student hub',w:'Campus',i:'help',c:'var(--mintsoft)',f:'var(--mint)'}
+  {n:'16–25 Railcard',k:'Travel',o:'⅓ off rail fares',w:'Online',u:'https://www.16-25railcard.co.uk',i:'train',c:'var(--bluesoft)',f:'var(--blue)'},
+  {n:'City bus term pass',k:'Travel',o:'Student term ticket',w:'City buses',u:gsearch('Leicester student bus term ticket'),i:'train',c:'var(--bluesoft)',f:'var(--blue)'},
+  {n:'Money advice drop-in',k:'Help',o:'Free, at the student hub',w:'Campus',u:gsearch('University of Leicester student money advice'),i:'help',c:'var(--mintsoft)',f:'var(--mint)'}
 ];
 const events = [
-  {t:'International welcome social',w:'Fri · 7pm · Students’ Union',a:'#ff5a3c',b:'#ffc93c'},
-  {t:'Free pizza study night',w:'Wed · 6pm · Library',a:'#3d6bff',b:'#ff7eb6'},
-  {t:'Christmas market trip',w:'Sat · 11am · Meet at campus',a:'#1fbf8f',b:'#ffc93c'},
-  {t:'Five-a-side football',w:'Sun · 2pm · Sports park',a:'#ff7eb6',b:'#3d6bff'}
+  {t:'International welcome social',w:'Fri · 7pm · Students’ Union',u:'https://www.eventbrite.co.uk/d/united-kingdom--leicester/students/',a:'#ff5a3c',b:'#ffc93c'},
+  {t:'Free pizza study night',w:'Wed · 6pm · Library',u:gsearch('University of Leicester library events'),a:'#3d6bff',b:'#ff7eb6'},
+  {t:'Christmas market trip',w:'Sat · 11am · Meet at campus',u:gsearch('Leicester Christmas market'),a:'#1fbf8f',b:'#ffc93c'},
+  {t:'Five-a-side football',w:'Sun · 2pm · Sports park',u:maps('five a side football Leicester'),a:'#ff7eb6',b:'#3d6bff'}
 ];
 const groups = [
   {n:'Indian Students Leicester',m:1240,c:'#ffe08a'},{n:'Chinese Students Society',m:980,c:'#ffc9df'},
@@ -244,9 +260,9 @@ const views = {
         <span class="meter"><i style="width:${Math.min(100,spent()/S.budget*100)}%"></i></span></button>
     </div>
     <div class="row"><h3>This week near you</h3><button class="btn soft" data-go="discover" style="min-height:36px;padding:6px 12px;font-size:14px">See all</button></div>
-    <div class="hscroll">${events.map(e=>`<div class="event"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w}</span></div></div>`).join('')}</div>
+    <div class="hscroll">${events.map(e=>`<a class="event" href="${e.u}" target="_blank" rel="noopener"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w}</span></div></a>`).join('')}</div>
     <div class="card"><h3>Deals for you</h3>${deals.slice(0,3).map(dealRow).join('')}</div>
-    <div class="card" style="background:var(--pinksoft);border:0"><div class="row"><div><h3 style="margin:0 0 2px">Tuition instalment</h3><div class="small">Due 15 January · 53 days to go</div></div><span class="pill" style="background:var(--pink);color:#fff">Reminder</span></div></div>`;
+    <div class="card" style="background:var(--pinksoft);border:0"><div class="row"><div><h3 style="margin:0 0 2px">Tuition instalment</h3><div class="small">Due 15 January · 53 days to go</div></div><a class="pill" style="background:var(--pink);color:#fff;text-decoration:none" href="${gsearch('University of Leicester pay tuition fees')}" target="_blank" rel="noopener">Pay fees ↗</a></div></div>`;
   },
   arrival(){
     const pct=Math.round(doneCount()/S.tasks.length*100);
@@ -255,7 +271,7 @@ const views = {
       <div class="ring" style="width:72px;height:72px">${ring(pct,'var(--mint)','rgb(31 191 143/.2)',12)}</div></div></div>
     ${S.tasks.map((t,i)=>`<div class="task ${t.done?'done':''}">
       <button class="tick" data-tick="${i}" aria-pressed="${t.done}" aria-label="Mark ${esc(t.t)} ${t.done?'not done':'done'}">${t.done?'✓':''}</button>
-      <div style="flex:1"><b>${esc(t.t)}</b><div class="small">${esc(t.d)}</div></div><span class="xp">+10</span></div>`).join('')}`;
+      <div style="flex:1"><b>${esc(t.t)}</b><div class="small">${esc(t.d)}</div>${taskLinks[t.t]?ext(taskLinks[t.t],'Open guide ↗'):''}</div><span class="xp">+10</span></div>`).join('')}`;
   },
   work(){
     const h=hours(), over=h>S.limit, near=!over&&h>=S.limit-3;
@@ -275,7 +291,7 @@ const views = {
       <ul class="list" style="margin-top:8px">${S.shifts.map((s,i)=>`<li><span class="group"><span class="gav" style="background:${s.j.toLowerCase().includes('caf')?'#ffe08a':'#c9d6ff'};width:36px;height:36px;border-radius:12px;font-size:13px">${esc(s.day)}</span><b>${esc(s.j)}</b></span>
         <span class="row"><span class="num">${s.h}h</span><button class="del" data-delshift="${i}" aria-label="Remove shift">✕</button></span></li>`).join('')}</ul>
     </div>
-    <p class="small">University holidays count as vacation, when full-time work may be allowed. Check your own visa.</p>`;
+    <p class="small">University holidays count as vacation, when full-time work may be allowed. Check your own visa.<br>${ext('https://www.gov.uk/student-visa','Student visa work rules on gov.uk ↗')}</p>`;
   },
   money(){
     const sp=spent(), left=S.budget-sp;
@@ -293,7 +309,7 @@ const views = {
       <input id="amt" type="number" min="0.01" step="0.01" value="5" aria-label="Amount in pounds"><button class="btn">Add</button></form></div>
     <div class="card"><h3>Where it went</h3><div class="donut"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"/>${arcs}</svg>
       <div class="legend">${S.spend.map((s,i)=>`<div><i style="background:${catCol[i]}"></i><span>${s.c}</span><span class="num">${gbp(s.a)}</span></div>`).join('')}</div></div></div>
-    <div class="card" style="background:var(--bluesoft);border:0"><h3 style="color:var(--blue)">Sending money home?</h3><div class="small">Compare rates and fees from regulated providers first. SettleMate never holds your money.</div></div>`;
+    <div class="card" style="background:var(--bluesoft);border:0"><h3 style="color:var(--blue)">Sending money home?</h3><div class="small">Compare rates and fees from regulated providers first. SettleMate never holds your money.</div>${ext('https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper ↗')} ${ext(gsearch('compare international money transfer fees UK'),'Compare transfer fees ↗')}</div>`;
   },
   discover(){
     const kinds=['All','Groceries','Meals','Travel','Help'];
@@ -302,15 +318,15 @@ const views = {
     <div class="chips">${kinds.map(k=>`<button data-filter="${k}" aria-pressed="${S.filter===k}">${k}</button>`).join('')}</div>
     <div class="card">${list.map(dealRow).join('')}</div>
     <h3>Events</h3>
-    <div class="hscroll">${events.map(e=>`<div class="event"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w}</span></div></div>`).join('')}</div>
+    <div class="hscroll">${events.map(e=>`<a class="event" href="${e.u}" target="_blank" rel="noopener"><div class="cover">${cover(e)}</div><div class="body"><b>${e.t}</b><span class="small">${e.w}</span></div></a>`).join('')}</div>
     <h3>Find your people</h3>
-    <div class="card"><ul class="list">${groups.map(g=>{const j=S.joined.includes(g.n);return `<li><span class="group"><span class="gav" style="background:${g.c}">${g.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><span><b>${g.n}</b><br><span class="small">${g.m.toLocaleString()} members</span></span></span>
+    <div class="card"><ul class="list">${groups.map(g=>{const j=S.joined.includes(g.n);return `<li><span class="group"><span class="gav" style="background:${g.c}">${g.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><span><b>${g.n}</b><br><span class="small">${g.m.toLocaleString()} members · </span>${ext('https://www.facebook.com/search/groups/?q='+encodeURIComponent(g.n),'Find online ↗')}</span></span>
       <button class="btn ${j?'soft':''}" data-join="${esc(g.n)}" style="min-width:76px">${j?'Joined':'Join'}</button></li>`}).join('')}</ul></div>`;
   }
 };
 function dealRow(d){
-  return `<div class="deal"><div class="badge" style="background:${d.c}">${svg(d.i,d.f)}</div>
-  <div style="flex:1"><b>${esc(d.n)}</b><div class="small">${esc(d.o)}</div></div><span class="small" style="white-space:nowrap;font-weight:600">${d.w}</span></div>`;
+  return `<a class="deal" href="${d.u||maps(d.n+' Leicester')}" target="_blank" rel="noopener" aria-label="${esc(d.n)}, opens ${d.u?'website':'Google Maps'}"><div class="badge" style="background:${d.c}">${svg(d.i,d.f)}</div>
+  <div style="flex:1"><b>${esc(d.n)}</b><div class="small">${esc(d.o)}</div></div><span class="small" style="white-space:nowrap;font-weight:600">${d.w} ↗</span></a>`;
 }
 
 const phone=document.getElementById('phone'), screen=document.getElementById('screen'), nav=document.getElementById('nav'), toastEl=document.getElementById('toast');
@@ -369,21 +385,22 @@ screen.addEventListener('change', e=>{
 /* Assistant (scripted demo answers) */
 const sheet=document.getElementById('sheet'), msgs=document.getElementById('msgs'), q=document.getElementById('q');
 const answers=[
-  [/gp|doctor|nhs|ill|sick/i,'Search "Find a GP" on the NHS website, pick a practice near your address and fill in their registration form. It’s free. For urgent advice, call NHS 111.'],
-  [/hour|work|job|shift/i,'Most degree-level students can work up to 20 hours a week in term time. Your Work tab tracks every shift and warns you before you reach your limit.'],
-  [/bank|account/i,'Most UK banks let students open an account online. You usually need your passport or eVisa and a letter from your university confirming your address.'],
-  [/\bni\b|national insurance/i,'Apply for a National Insurance number on gov.uk. You can start work before it arrives, but tell your employer you’ve applied.'],
-  [/rail|train|travel|bus/i,'A 16–25 Railcard gives a third off most rail fares, and many city bus companies sell student term passes. See Discover → Travel.'],
-  [/money|budget|send|transfer|cheap/i,'Set your monthly budget in the Money tab and use quick add for everyday spending. To send money home, compare a few regulated providers first.'],
-  [/friend|lonely|people|society/i,'Try Discover → Find your people. Joining a society or a weekly event is the fastest way to make friends. Your university’s wellbeing team is there too if you’re struggling.']
+  [/gp|doctor|nhs|ill|sick/i,'Search "Find a GP" on the NHS website, pick a practice near your address and fill in their registration form. It’s free. For urgent advice, use NHS 111.','https://www.nhs.uk/service-search/find-a-gp','Find a GP on NHS'],
+  [/hour|work|job|shift/i,'Most degree-level students can work up to 20 hours a week in term time. Your Work tab tracks every shift and warns you before you reach your limit.','https://www.gov.uk/student-visa','Student visa rules on gov.uk'],
+  [/bank|account/i,'Most UK banks let students open an account online. You usually need your passport or eVisa and a letter from your university confirming your address.','https://www.moneyhelper.org.uk/en','Banking guides on MoneyHelper'],
+  [/ni|national insurance/i,'Apply for a National Insurance number on gov.uk. You can start work before it arrives, but tell your employer you’ve applied.','https://www.gov.uk/apply-national-insurance-number','Apply on gov.uk'],
+  [/visa|share code|evisa/i,'You can view your eVisa and get a share code for employers or landlords on gov.uk.','https://www.gov.uk/view-prove-immigration-status','View your eVisa'],
+  [/rail|train|travel|bus/i,'A 16–25 Railcard gives a third off most rail fares, and many city bus companies sell student term passes. See Discover → Travel.','https://www.16-25railcard.co.uk','Get a 16–25 Railcard'],
+  [/money|budget|send|transfer|cheap/i,'Set your monthly budget in the Money tab and use quick add for everyday spending. To send money home, compare a few regulated providers first.','https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper'],
+  [/friend|lonely|people|society/i,'Try Discover → Find your people. Joining a society or a weekly event is the fastest way to make friends. Your university’s wellbeing team is there too if you’re struggling.','https://www.eventbrite.co.uk/d/united-kingdom--leicester/students/','Student events near you']
 ];
 const sugg=['How do I register with a GP?','How many hours can I work?','Cheapest way to travel?','How do I make friends?'];
 document.getElementById('sugg').innerHTML=sugg.map(s=>`<button data-ask="${s}">${s}</button>`).join('');
-function say(t,who){ msgs.insertAdjacentHTML('beforeend',`<div class="m ${who}">${esc(t)}</div>`); msgs.scrollTop=msgs.scrollHeight; }
+function say(t,who,link){ msgs.insertAdjacentHTML('beforeend',`<div class="m ${who}">${esc(t)}${link?`<br><a href="${link[0]}" target="_blank" rel="noopener">${esc(link[1])} ↗</a>`:''}</div>`); msgs.scrollTop=msgs.scrollHeight; }
 function ask(v){
   say(v,'me');
   const hit=answers.find(([r])=>r.test(v));
-  setTimeout(()=>say(hit?hit[1]:'In the full app I’d answer this with links to official sources. In this demo, try asking about GP, bank, work hours, travel, money or friends.','bot'),450);
+  setTimeout(()=>hit?say(hit[1],'bot',[hit[2],hit[3]]):say('I don’t have a demo answer for that yet. Here’s a web search to get you started.','bot',[gsearch(v+' UK international student'),'Search the web']),450);
 }
 say('Hi Dinakar! I can help with GP, banking, work hours, travel, money and making friends. What do you need?','bot');
 document.getElementById('sugg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) ask(b.dataset.ask); });
