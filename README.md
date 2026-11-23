@@ -4,6 +4,8 @@ An all-in-one daily-life app for international students in the UK. This reposito
 
 **Live demo:** https://dinakarnayak.github.io/settlemate-demo/
 
+**Installable app:** https://dinakarnayak.github.io/settlemate-demo/app/ (open it on your phone, then choose *Add to Home Screen*)
+
 ## What's in the demo
 
 - **Home:** next arrival task, weekly work hours, money left this month, events and deals nearby
@@ -17,11 +19,26 @@ An all-in-one daily-life app for international students in the UK. This reposito
 
 The full business plan (problem, market, business model, roadmap and visa considerations) is in [docs/startup-plan.md](docs/startup-plan.md).
 
+## What's in this repo
+
+| Folder | What it is |
+|---|---|
+| `index.html` | Clickable demo inside a phone frame, for showing people |
+| `app/` | The same design as an installable phone app (PWA): full screen, app icon, works offline |
+| `flutter/` | Flutter starter for Android and iOS with the same design (see `flutter/README.md`) |
+| `docs/startup-plan.md` | The startup plan |
+
 ## Tech
 
-A single static `index.html` file (HTML, CSS and vanilla JavaScript) with no build step. Progress is saved in the browser's `localStorage`.
+The web demo and app are plain HTML, CSS and JavaScript with no build step. Progress is saved in the browser's `localStorage`. Open `index.html` or `app/index.html` in a browser to run them locally.
 
-Run it locally by opening `index.html` in a browser.
+### Install the app on your phone
+
+1. Open https://dinakarnayak.github.io/settlemate-demo/app/ on your phone.
+2. **Android (Chrome):** menu ⋮ → *Install app* / *Add to Home screen*.
+3. **iPhone (Safari):** Share → *Add to Home Screen*.
+
+It then opens full screen from its own icon, like a normal app.
 
 ## Note
 
