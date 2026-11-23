@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SettleMate demo prototype</title>
+<title>Landed demo prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -240,8 +240,8 @@ label.f{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
 </head>
 <body>
 <header class="top">
-  <h1>SettleMate: clickable demo</h1>
-  <p>Your UK student life in one app: arrival, work hours, money, scam protection and your community. <a href="app/">Open the installable app</a></p>
+  <h1>Landed: clickable demo</h1>
+  <p><b>Everything you need, from the day you land.</b> Your UK student life in one app: arrival, work hours, money, scam protection and your community. <a href="app/">Open the installable app</a></p>
 </header>
 
 <div class="stage">
@@ -257,7 +257,7 @@ label.f{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
     <nav class="nav" id="nav" aria-label="App sections"></nav>
     <section class="sheet" id="sheet" aria-label="Assistant">
       <div class="grab"></div>
-      <div class="row" style="padding:8px 16px 4px"><h3 style="margin:0">Ask SettleMate</h3><button class="del" id="close" aria-label="Close assistant">✕</button></div>
+      <div class="row" style="padding:8px 16px 4px"><h3 style="margin:0">Ask Landed</h3><button class="del" id="close" aria-label="Close assistant">✕</button></div>
       <div class="msgs" id="msgs"></div>
       <div class="chips" id="sugg"></div>
       <form id="ask"><input id="q" placeholder="Ask anything about UK life…" aria-label="Your question"><button class="btn" style="background:var(--blue)">Send</button></form>
@@ -611,7 +611,7 @@ const views = {
       <div class="legend">${S.spend.map((s,i)=>`<div><i style="background:${catCol[i]}"></i><span>${s.c}</span><span class="num">${gbp(s.a)}</span></div>`).join('')}</div></div></div>
     ${!c.rate&&c.cur?`<div class="card"><h3>Pounds to ${c.cur}</h3><div class="small">See today’s rate for £1 in ${c.n}.</div>${ext(rateUrl(c),'Live exchange rate ↗')}</div>`:''}
     ${c.rate?`<div class="card"><h3>Converter</h3><div class="row"><label style="flex:1">£ in the UK<input id="conv" type="number" value="100" aria-label="Amount in pounds"></label><div style="flex:1;text-align:right"><div class="small">${c.n} (${c.cur})</div><div class="big" style="font-size:26px" id="convOut">${homeMoney(100).replace('≈ ','')}</div></div></div><div class="small" style="margin-top:6px">Rough sample rate: £1 ≈ ${c.sym}${c.rate}. Check the live rate before sending money.</div>${ext(rateUrl(c),'Live exchange rate ↗')}</div>`:''}
-    <div class="card" style="background:var(--bluesoft);border:0"><h3 style="color:var(--blue)">Sending money home?</h3><div class="small">Compare rates and fees from FCA-regulated providers first. SettleMate never holds your money, and nobody legit will ask you to pay a “fine” by transfer.</div>
+    <div class="card" style="background:var(--bluesoft);border:0"><h3 style="color:var(--blue)">Sending money home?</h3><div class="small">Compare rates and fees from FCA-regulated providers first. Landed never holds your money, and nobody legit will ask you to pay a “fine” by transfer.</div>
       ${ext('https://www.moneyhelper.org.uk/en','Money guides on MoneyHelper ↗')} ${ext(gsearch('compare international money transfer fees UK'),'Compare transfer fees ↗')}</div>`;
   },
   safe(){
@@ -653,7 +653,7 @@ const views = {
     const c=country(), safeDone=[S.checks>0, S.tasks.find(t=>t.t==='Learn the top student scams')?.done, !!S.emName, !!S.email, S.tasks.find(t=>t.t.startsWith('Check your eVisa'))?.done].filter(Boolean).length;
     const rows=[['user','Personal info','Name, email','go:profile'],['cap','University and course',S.uni,'go:profile'],['cal','Term dates',termInfo().title,'go:terms'],
       ['globe','Home country',c.n,'act:country'],['safe','Safety centre','Scam Shield and reporting','go:safe'],['phone','Emergency contacts',S.emName||'Not added yet','go:profile'],
-      ['bell','Notifications','Deadlines, work limit, term dates','act:notif'],['lock','Privacy','Your data stays on this device','act:privacy'],['info','About SettleMate','Prototype v0.3','act:about'],['out','Sign out','Restarts the demo','act:signout']];
+      ['bell','Notifications','Deadlines, work limit, term dates','act:notif'],['lock','Privacy','Your data stays on this device','act:privacy'],['info','About Landed','Prototype v0.3','act:about'],['out','Sign out','Restarts the demo','act:signout']];
     return `<button class="back" data-go="home">← Home</button>
     <div class="acc-top"><div><h2>${esc(S.name)}</h2><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><span class="pill" style="background:var(--card);border:1px solid var(--line);color:var(--ink)">★ Level ${level()}</span><span class="pill" style="background:var(--mintsoft);color:var(--mint)">${svg('check')} Verified student</span></div></div>
       <div class="acc-av">${esc((S.name||'S').slice(0,1).toUpperCase())}</div></div>
@@ -664,7 +664,7 @@ const views = {
       <button class="promo" data-act="invite" style="background:#c9d6ff"><span><b>Invite your flatmates</b><span style="font-size:13px;font-weight:600">Earn 25 XP for each friend</span></span><span class="ring" style="display:grid;place-items:center">${svg('gift')}</span></button>
     </div>
     <div class="menu">${rows.map(([i,t,sub,a])=>{const [k,v]=a.split(':');return `<button ${k==='go'?`data-go="${v}"`:`data-act="${v}"`}><span class="mi">${svg(i)}</span><span>${t}<small>${esc(sub)}</small></span><span class="chev">${svg('chev')}</span></button>`}).join('')}</div>
-    <p class="small" style="text-align:center">SettleMate prototype · sample data</p>`;
+    <p class="small" style="text-align:center">Landed prototype · sample data</p>`;
   },
   profile(){
     const f=(id,label,val,type='text',ph='')=>`<label class="f" for="${id}" style="margin-top:12px">${label}</label><input id="${id}" data-field="${id}" type="${type}" value="${esc(val)}" placeholder="${ph}">`;
@@ -696,7 +696,7 @@ const views = {
     ${home?`<div class="card" style="background:var(--sunsoft);border:0"><div class="row"><h3 style="margin:0">Home away from home</h3><span class="cc" style="width:34px;height:34px;border-radius:11px;background:var(--sun);color:#1b1d2e;display:grid;place-items:center;font:700 13px Fredoka,sans-serif">${c.c}</span></div>
       ${homeRows.map(([i,t,sub,u])=>`<a class="deal" href="${u}" target="_blank" rel="noopener"><div class="badge" style="background:var(--card)">${svg(i,'var(--coral)')}</div><div style="flex:1"><b>${esc(t)}</b><div class="small">${sub}</div></div><span class="small">↗</span></a>`).join('')}</div>`:''}
     <div class="chips">${kinds.map(k=>`<button data-filter="${k}" aria-pressed="${S.filter===k}">${k}</button>`).join('')}</div>
-    <div class="card">${list.map(dealRow).join('')}<div class="small" style="margin-top:6px">${verified} means a sample listing checked by the SettleMate team.</div></div>
+    <div class="card">${list.map(dealRow).join('')}<div class="small" style="margin-top:6px">${verified} means a sample listing checked by the Landed team.</div></div>
     <h3>Events</h3>
     <div class="hscroll">${events.map(eventCard).join('')}</div>
     <h3>Find your people</h3>
@@ -725,13 +725,13 @@ function renderOnb(){
   o.hidden=false;
   const dots=`<div class="dots">${[0,1,2].map(i=>`<i class="${i===S.step?'on':''}"></i>`).join('')}</div>`;
   let body='';
-  if(S.step===0) body=`<div class="art">${onbArt[0]}</div><h2>Welcome to SettleMate</h2><p class="sub">Everything you need for daily life in the UK: arrival, work hours, money, safety and your community, all in one app.</p>${dots}<button class="btn block" data-onb="next">Get started</button>`;
-  if(S.step===1) body=`<h2>Where’s home?</h2><p class="sub">SettleMate greets you in your language and shows your home time, currency and community.</p>
+  if(S.step===0) body=`<div class="art">${onbArt[0]}</div><h2>Welcome to Landed</h2><p class="sub"><b>Everything you need, from the day you land.</b> Everything you need for daily life in the UK: arrival, work hours, money, safety and your community, all in one app.</p>${dots}<button class="btn block" data-onb="next">Get started</button>`;
+  if(S.step===1) body=`<h2>Where’s home?</h2><p class="sub">Landed greets you in your language and shows your home time, currency and community.</p>
     <label class="f" for="onbName">Your first name</label><input id="onbName" value="${esc(S.name)}" autocomplete="given-name" style="margin-bottom:14px">
     <label class="f" for="onbSearch">Home country</label><input id="onbSearch" type="search" placeholder="Search ${countries.length-1}+ countries" autocomplete="off" style="margin-bottom:10px">
     <div class="countries" id="clist">${countries.map(c=>`<button data-country="${c.c}" data-name="${c.n.toLowerCase()}" aria-pressed="${S.country===c.c}"><span class="cc">${c.c==='OT'?'…':c.c}</span>${c.n}</button>`).join('')}</div>
     ${dots}<button class="btn block" data-onb="next">Continue</button>`;
-  if(S.step===2) body=`<div class="art">${onbArt[2]}</div><h2>You’re protected</h2><p class="sub">Scammers target international students. SettleMate’s Scam Shield helps you spot fake Home Office calls, rental scams and “easy money” jobs before they cost you.</p>${dots}<button class="btn block" data-onb="done">Let’s go</button>`;
+  if(S.step===2) body=`<div class="art">${onbArt[2]}</div><h2>You’re protected</h2><p class="sub">Scammers target international students. Landed’s Scam Shield helps you spot fake Home Office calls, rental scams and “easy money” jobs before they cost you.</p>${dots}<button class="btn block" data-onb="done">Let’s go</button>`;
   o.innerHTML=`<div style="display:flex;justify-content:flex-end;min-height:28px">${S.step<2?'<button class="copy" data-onb="done">Skip</button>':''}</div>`+body;
 }
 
@@ -783,8 +783,8 @@ phone.addEventListener('click', e=>{
     if(a==='country'){ S.onboarded=false; S.step=1; render(); return; }
     if(a==='notif'){ toast('Reminders on: deadlines, work limit and term dates'); return; }
     if(a==='privacy'){ toast('In this demo, your data stays on this device'); return; }
-    if(a==='about'){ toast('SettleMate prototype v0.3'); return; }
-    if(a==='invite'){ copy('Join me on SettleMate: https://dinakarnayak.github.io/settlemate-demo/app/'); return; }
+    if(a==='about'){ toast('Landed prototype v0.3'); return; }
+    if(a==='invite'){ copy('Join me on Landed: https://dinakarnayak.github.io/settlemate-demo/app/'); return; }
     if(a==='saveprofile'){ toast('Saved'); go('account'); return; }
     if(a==='signout'){ try{ localStorage.removeItem(KEY); }catch(err){} S=JSON.parse(JSON.stringify(fresh)); render(true); return; }
   }

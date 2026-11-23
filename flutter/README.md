@@ -1,6 +1,6 @@
-# SettleMate: Flutter app (starter)
+# Landed: Flutter app (starter)
 
-The SettleMate design as a Flutter app for Android and iOS. It has the same colours, fonts, tabs, XP, work-hours ring, budget and assistant as the web app.
+The Landed design as a Flutter app for Android and iOS. It has the same colours, fonts, tabs, XP, work-hours ring, budget and assistant as the web app.
 
 ## Run it
 

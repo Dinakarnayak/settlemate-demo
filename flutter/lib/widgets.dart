@@ -193,7 +193,7 @@ const eventColours = [
   [AppColors.pink, AppColors.blue],
 ];
 
-/// Opens a website or app (Maps, NHS, gov.uk…) outside SettleMate.
+/// Opens a website or app (Maps, NHS, gov.uk…) outside Landed.
 Future<void> openUrl(String url) async {
   await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
 }

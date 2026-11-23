@@ -4,7 +4,7 @@
 
 ## 1. Summary
 
-**Working name:** SettleMate (placeholder, so check trademarks before using it)
+**Name:** Landed. Tagline: *Everything you need, from the day you land.* (Check UK trademarks, app stores and domains before launch.)
 
 **What it is:** One mobile app that helps international students with everyday life in the UK: arrival tasks, visa and work-hour rules, budgeting in GBP, cheaper groceries and money transfers, housing, and finding people from their own community.
 
@@ -39,7 +39,7 @@
 
 ### All-in-one app: the full picture
 
-SettleMate is **one app for everything an international student needs day to day**. The home screen shows today's tasks, this week's work hours, money left this month and nearby deals. Every module sits behind one login and one profile (university, city and home country).
+Landed is **one app for everything an international student needs day to day**. The home screen shows today's tasks, this week's work hours, money left this month and nearby deals. Every module sits behind one login and one profile (university, city and home country).
 
 | Module | What it does inside the app |
 |---|---|

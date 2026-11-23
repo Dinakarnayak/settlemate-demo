@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// SettleMate colours, the same as the web app.
+/// Landed colours, the same as the web app.
 class AppColors {
   static const coral = Color(0xFFFF5A3C);
   static const sun = Color(0xFFFFC93C);

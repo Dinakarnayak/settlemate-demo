@@ -1,5 +1,5 @@
-// SettleMate offline cache: the app works without internet after the first visit.
-const CACHE = 'settlemate-v3';
+// Landed offline cache: the app works without internet after the first visit.
+const CACHE = 'landed-v4';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {

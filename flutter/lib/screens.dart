@@ -593,7 +593,7 @@ class _MoneyScreenState extends State<MoneyScreen> {
         color: AppColors.blueSoft,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Sending money home?', style: tt.titleMedium?.copyWith(color: AppColors.blue)),
-          const Text('Compare rates and fees from regulated providers first. SettleMate never holds your money.',
+          const Text('Compare rates and fees from regulated providers first. Landed never holds your money.',
               style: _small),
           const LinkText('Money guides on MoneyHelper', 'https://www.moneyhelper.org.uk/en'),
           LinkText('Compare transfer fees', searchUrl('compare international money transfer fees UK')),
@@ -760,7 +760,7 @@ class _AssistantState extends State<_Assistant> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
             child: Row(children: [
-              Expanded(child: Text('Ask SettleMate', style: Theme.of(context).textTheme.titleMedium)),
+              Expanded(child: Text('Ask Landed', style: Theme.of(context).textTheme.titleMedium)),
               IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
             ]),
           ),

@@ -1,4 +1,4 @@
-# SettleMate: clickable demo
+# Landed: clickable demo
 
 An all-in-one daily-life app for international students in the UK. This repository holds a clickable front-end prototype.
 
