@@ -1,6 +1,6 @@
 // Landed offline cache: the app works without internet after the first visit.
-const CACHE = 'landed-v4';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
+const CACHE = 'landed-v5';
+const FILES = ['./', './index.html', './manifest.webmanifest', './core.js', './platform.css', './platform.js', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

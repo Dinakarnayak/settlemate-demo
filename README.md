@@ -51,9 +51,22 @@ For now, every card and link opens a trusted outside service instead of a built-
 
 The Flutter app opens the same links with `url_launcher`. (The Flutter starter doesn't have the newest features yet: the welcome tour, Scam Shield, term dates, Today plan and account page.)
 
+## Cross-device experience
+
+SettleMate now adapts its layout to the device:
+- **Phone:** full-screen, touch-first app with safe-area spacing.
+- **Tablet:** wider cards and a comfortable touch layout.
+- **Laptop / desktop:** a wide workspace with a persistent side navigation, keyboard shortcuts and an installable PWA where supported.
+
+On desktop, use **Alt+1–6** to switch the six primary tabs, **Ctrl/Cmd+K** to open the assistant, and **Esc** to close it. Browsers that support PWA installation show an **Install app** action when installation is available.
+
+The same app remains available in the browser; no separate account or duplicate data store is created by changing screen size.
+
 ## Tech
 
-The web demo and app are plain HTML, CSS and JavaScript with no build step. Progress is saved in the browser's `localStorage`. Open `index.html` or `app/index.html` in a browser to run them locally.
+The current web app is plain HTML, CSS and JavaScript with no build step. It uses a Web App Manifest, Service Worker, responsive CSS and progressive browser capabilities. Progress is saved in the browser's `localStorage`. Open `index.html` or `app/index.html` in a browser to run them locally.
+
+The staged technology roadmap is documented in [docs/platform-architecture.md](docs/platform-architecture.md). Native Flutter builds, backend services, authenticated sync and live AI integrations remain future stages and are not represented as active services today.
 
 ### Install the app on your phone
 
