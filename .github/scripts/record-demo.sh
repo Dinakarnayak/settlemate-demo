@@ -3,6 +3,13 @@
 set -u
 APP=com.dinakarnayak.landed
 
+# Keep the recording clean: the emulator's home-screen app often freezes on CI
+# and shows "isn't responding" popups over everything. Landed doesn't need it.
+adb shell settings put global hide_error_dialogs 1 || true
+adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher > /dev/null 2>&1 || true
+adb shell am force-stop com.google.android.apps.nexuslauncher > /dev/null 2>&1 || true
+sleep 20
+
 flutter test integration_test/demo_test.dart -d emulator-5554 > tour.log 2>&1 &
 TEST_PID=$!
 
