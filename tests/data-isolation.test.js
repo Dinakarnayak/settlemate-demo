@@ -18,7 +18,7 @@ test('policies use the verified Neon Auth subject for authenticated requests', (
   assert.match(sql, /WITH CHECK \(owner_id = \(SELECT auth\.user_id\(\)\)\)/);
 });
 
-test('new rows default to the signed-in user's subject', () => {
+test("new rows default to the signed-in user's subject", () => {
   assert.match(sql, /owner_id text NOT NULL DEFAULT auth\.user_id\(\)/);
   assert.match(sql, /owner_id text PRIMARY KEY DEFAULT auth\.user_id\(\)/);
 });
