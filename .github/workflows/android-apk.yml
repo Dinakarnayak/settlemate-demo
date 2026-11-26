@@ -1,0 +1,78 @@
+name: Android APK
+
+on:
+  push:
+    branches: [feat/settlemate-android-apk]
+    paths:
+      - "flutter/**"
+      - ".github/workflows/android-apk.yml"
+      - "tests/**"
+      - "package.json"
+      - "core.js"
+      - "backend/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run repository tests
+        run: npm test
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate Android project files
+        working-directory: flutter
+        run: flutter create --platforms=android --org com.dinakarnayak --project-name settlemate .
+
+      - name: Set Android app label
+        working-directory: flutter
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          content = manifest.read_text()
+          content = content.replace('android:label="settlemate"', 'android:label="SettleMate"')
+          manifest.write_text(content)
+          PY
+
+      - name: Install Flutter dependencies
+        working-directory: flutter
+        run: flutter pub get
+
+      - name: Analyze Flutter app
+        working-directory: flutter
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Build installable debug APK
+        working-directory: flutter
+        run: flutter build apk --debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SettleMate-Android-debug
+          path: flutter/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
