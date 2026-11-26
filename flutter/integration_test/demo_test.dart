@@ -129,7 +129,24 @@ void main() {
     await scroll(t, 400, 2500);
     await t.pageBack();
     await pause(t, 800);
+
+    // ---------------------------------------------------------------- worldwide: switch to Canada
+    await tap(t, find.text('Study country'), 1500);
+    await tap(t, find.text('Canada'), 1200);
+    await tap(t, find.text('Replace checklist'), 1500);
     await t.pageBack();
-    await pause(t, 2000);
+    await pause(t, 2500);
+    await tap(t, find.byKey(const ValueKey('tab-Arrival')), 2500);
+    await tap(t, find.byKey(const ValueKey('tab-Work')), 3000);
+    await tap(t, find.byKey(const ValueKey('tab-Home')), 1000);
+
+    // ---------------------------------------------------------------- worldwide: Arabic, right-to-left
+    await tap(t, find.byTooltip('Settings'), 1200);
+    await tap(t, find.text('Language'), 1200);
+    await tap(t, find.text('العربية'), 2000);
+    await t.pageBack();
+    await pause(t, 3000);
+    await tap(t, find.byKey(const ValueKey('tab-Explore')), 3000);
+    await tap(t, find.byKey(const ValueKey('tab-Money')), 3000);
   });
 }
