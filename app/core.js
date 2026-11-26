@@ -3,7 +3,7 @@
   const TABS = ['home','arrival','work','money','safe','discover','account','profile','terms'];
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const finite = (v, fallback, min, max) => { const n=Number(v); return Number.isFinite(n) ? Math.min(max,Math.max(min,n)) : fallback; };
-  const validDate = v => typeof v === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(v) && !Number.isNaN(Date.parse(v+'T00:00:00'));
+  const validDate = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v+'T00:00:00'));
   const localISO = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const weekStart = d => { const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; };
   const currentWeekShifts = (shifts, now=new Date()) => { const start=weekStart(now), end=new Date(start); end.setDate(end.getDate()+7); return (Array.isArray(shifts)?shifts:[]).filter(s=>s&&validDate(s.date)&&new Date(s.date+'T00:00:00')>=start&&new Date(s.date+'T00:00:00')<end); };
