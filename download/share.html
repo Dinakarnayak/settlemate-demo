@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landed: share image</title>
+<meta name="robots" content="noindex">
+<style>
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-Bold.ttf"); font-weight: 700; }
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-ExtraBold.ttf"); font-weight: 800; }
+  @font-face { font-family: "Fredoka"; src: url("../flutter/assets/fonts/Fredoka-SemiBold.ttf"); font-weight: 600; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { background: #FF5A3C; font-family: "Jakarta", system-ui, sans-serif; color: #fff; display: grid; grid-template-columns: 1fr 1.25fr; align-items: center; gap: 2vw; padding: 0 5vw; box-sizing: border-box; position: relative; }
+  .blob { position: absolute; border-radius: 50%; }
+  .b1 { width: 46vh; height: 46vh; background: #FFC93C; right: -8vh; top: -12vh; opacity: .9; }
+  .b2 { width: 36vh; height: 36vh; background: #FF7EB6; left: 34vw; bottom: -14vh; opacity: .55; }
+  .left { position: relative; z-index: 2; }
+  .brand { display: flex; align-items: center; gap: 1.6vh; font-family: "Fredoka"; font-size: 5vh; }
+  .brand img { width: 7vh; height: 7vh; border-radius: 2vh; transform: rotate(-8deg); box-shadow: 0 1vh 3vh rgba(0,0,0,.15); }
+  h1 { font-family: "Fredoka"; font-weight: 600; font-size: 8.4vh; line-height: 1.02; margin: 3.5vh 0 2.5vh; letter-spacing: -.01em; }
+  h1 span { color: #1B1D2E; }
+  .tags { display: flex; flex-wrap: wrap; gap: 1.2vh; }
+  .tags div { background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.35); border-radius: 99px; padding: 1vh 2vh; font-weight: 800; font-size: 2.3vh; }
+  .url { margin-top: 3.2vh; font-weight: 700; font-size: 2.2vh; opacity: .9; }
+  .phones { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 2.4vh; }
+  .phone { width: 27vh; border-radius: 3.6vh; border: 1vh solid #1B1D2E; background: #1B1D2E; overflow: hidden; box-shadow: 0 3vh 6vh rgba(27,29,46,.35); }
+  .phone img { display: block; width: 100%; }
+  .wrap.mid { transform: translateY(-3vh) scale(1.06); }
+  .flag { position: absolute; z-index: 5; top: -1.6vh; left: 50%; transform: translateX(-50%); background: #fff; color: #1B1D2E; font-weight: 800; font-size: 1.9vh; padding: .6vh 1.4vh; border-radius: 99px; white-space: nowrap; box-shadow: 0 .6vh 1.6vh rgba(0,0,0,.15); }
+  .wrap { position: relative; }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="left">
+    <div class="brand"><img src="assets/icon.png" alt="">Landed</div>
+    <h1>The free, private app for international students, <span>wherever you study.</span></h1>
+    <div class="tags">
+      <div>🔐 Encrypted on your phone</div>
+      <div>🚫 No ads, no trackers</div>
+      <div>🌍 8 countries · 6 languages</div>
+      <div>⏱️ Visa work-hour tracker</div>
+    </div>
+    <div class="url">dinakarnayak.github.io/settlemate-demo/download</div>
+  </div>
+  <div class="phones">
+    <div class="wrap"><div class="flag">🇬🇧 United Kingdom</div><div class="phone"><img src="assets/home.webp" alt=""></div></div>
+    <div class="wrap mid"><div class="flag">🇨🇦 Canada</div><div class="phone"><img src="assets/canada.webp" alt=""></div></div>
+    <div class="wrap"><div class="flag">العربية</div><div class="phone"><img src="assets/arabic.webp" alt=""></div></div>
+  </div>
+</body>
+</html>
