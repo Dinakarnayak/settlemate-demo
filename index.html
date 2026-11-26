@@ -586,6 +586,7 @@ const views = {
     </div>
     <div class="card"><h3>Log a shift</h3>
       <form class="add" id="shiftForm"><input id="job" placeholder="Job" value="Warehouse" aria-label="Job name">
+      <input id="shiftDate" type="date" value="2026-11-26" aria-label="Shift date">
       <input id="hrs" type="number" min="0.5" max="12" step="0.5" value="4" aria-label="Hours"><button class="btn">Add</button></form>
       <ul class="list" style="margin-top:8px">${weekShifts.map(s=>{const i=S.shifts.indexOf(s);return `<li><span class="group"><span class="gav" style="background:${s.j.toLowerCase().includes('caf')?'#ffe08a':'#c9d6ff'};width:36px;height:36px;border-radius:12px;font-size:13px">${esc(s.day)}</span><b>${esc(s.j)}</b></span>
         <span class="row"><span class="num">${s.h}h</span><button class="del" data-delshift="${i}" aria-label="Remove shift">✕</button></span></li>`).join('')}</ul>
