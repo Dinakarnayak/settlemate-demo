@@ -6,6 +6,7 @@ on:
     paths:
       - "flutter/**"
       - ".github/workflows/android-apk.yml"
+      - ".github/scripts/**"
       - "tests/**"
       - "package.json"
       - "core.js"
@@ -14,6 +15,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify-and-build:
@@ -46,33 +51,61 @@ jobs:
         working-directory: flutter
         run: flutter create --platforms=android --org com.dinakarnayak --project-name landed .
 
-      - name: Set Android app label
+      - name: Apply Landed Android settings (label, no cloud backup, signing)
         working-directory: flutter
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          manifest = Path("android/app/src/main/AndroidManifest.xml")
-          content = manifest.read_text()
-          content = content.replace('android:label="landed"', 'android:label="Landed"')
-          manifest.write_text(content)
-          PY
+        run: python3 ../.github/scripts/prepare-android.py
 
       - name: Install Flutter dependencies
         working-directory: flutter
-        run: flutter pub get
+        run: |
+          flutter pub get
+          echo "Resolved packages:"
+          flutter pub deps --style=compact --no-dev | head -40
 
       - name: Analyze Flutter app
         working-directory: flutter
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: Build installable debug APK
+      - name: Run Flutter tests
         working-directory: flutter
-        run: flutter build apk --debug
+        run: flutter test
+
+      - name: Load release signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.LANDED_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/landed-release.jks"
+            echo "LANDED_KEYSTORE=$RUNNER_TEMP/landed-release.jks" >> "$GITHUB_ENV"
+            echo "Using the Landed release key."
+          else
+            echo "::warning::LANDED_KEYSTORE_BASE64 secret not set. Signing with a temporary debug key, so installs can't be updated in place."
+          fi
+
+      - name: Build release APK
+        working-directory: flutter
+        env:
+          LANDED_KEYSTORE_PASSWORD: ${{ secrets.LANDED_KEYSTORE_PASSWORD }}
+          LANDED_KEY_ALIAS: landed
+        run: |
+          flutter build apk --release \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_SENDER_ID=${{ secrets.FIREBASE_SENDER_ID }} \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/Landed.apk
+          ls -la build/app/outputs/flutter-apk/
+
+      - name: Show signing fingerprints (add these to Firebase)
+        working-directory: flutter
+        run: |
+          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
+          $APKSIGNER verify --print-certs build/app/outputs/flutter-apk/Landed.apk | grep -E "SHA-1|SHA-256"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Landed-Android-debug
-          path: flutter/build/app/outputs/flutter-apk/app-debug.apk
+          name: Landed-Android
+          path: flutter/build/app/outputs/flutter-apk/Landed.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30

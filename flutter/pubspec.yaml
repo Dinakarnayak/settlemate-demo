@@ -1,7 +1,7 @@
 name: landed
-description: Landed, an all-in-one daily-life app for international students in the UK.
+description: Landed, an all-in-one daily-life app for international students in the UK. Private by design.
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+2
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
@@ -9,13 +9,39 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^6.2.1
-  url_launcher: ^6.3.0
+  cryptography: ^2.9.0
+  flutter_secure_storage: ^11.2.0
+  path_provider: ^2.1.6
+  local_auth: ^3.0.2
+  share_plus: ^13.3.1
+  url_launcher: ^6.3.3
+  geolocator: ^14.1.2
+  firebase_core: ^5.2.0
+  firebase_auth: ^7.1.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/fonts/OFL-Fredoka.txt
+    - assets/fonts/OFL-PlusJakartaSans.txt
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
+          weight: 600

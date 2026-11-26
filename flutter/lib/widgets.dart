@@ -5,6 +5,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'theme.dart';
 
+const pagePad = EdgeInsets.fromLTRB(18, 8, 18, 140);
+const smallText = TextStyle(fontSize: 13, color: AppColors.mute);
+
 /// Circular progress ring with a label in the middle.
 class ProgressRing extends StatelessWidget {
   const ProgressRing({
@@ -17,7 +20,7 @@ class ProgressRing extends StatelessWidget {
     this.child,
   });
 
-  final double value; // 0..1 (values over 1 show a full ring)
+  final double value;
   final Color color;
   final Color track;
   final double size;
@@ -26,15 +29,16 @@ class ProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final v = value.isNaN ? 0.0 : value.clamp(0.0, 1.0).toDouble();
     return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: value.clamp(0.0, 1.0).toDouble()),
+      tween: Tween(begin: 0, end: v),
       duration: const Duration(milliseconds: 600),
       curve: Curves.easeOutCubic,
-      builder: (context, v, _) => SizedBox(
+      builder: (context, t, _) => SizedBox(
         width: size,
         height: size,
         child: CustomPaint(
-          painter: _RingPainter(v, color, track, stroke),
+          painter: _RingPainter(t, color, track, stroke),
           child: Center(child: child),
         ),
       ),
@@ -51,50 +55,57 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final r = rect.deflate(stroke / 2);
-    final base = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..color = track;
-    canvas.drawArc(r, 0, math.pi * 2, false, base);
+    final r = (Offset.zero & size).deflate(stroke / 2);
+    canvas.drawArc(r, 0, math.pi * 2, false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke
+          ..color = track);
     if (value > 0) {
-      final fg = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke
-        ..strokeCap = StrokeCap.round
-        ..color = color;
-      canvas.drawArc(r, -math.pi / 2, math.pi * 2 * value, false, fg);
+      canvas.drawArc(r, -math.pi / 2, math.pi * 2 * value, false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = stroke
+            ..strokeCap = StrokeCap.round
+            ..color = color);
     }
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) =>
-      old.value != value || old.color != color || old.track != track;
+  bool shouldRepaint(_RingPainter old) => old.value != value || old.color != color || old.track != track;
 }
 
 /// Rounded white card with a soft coral shadow.
 class SoftCard extends StatelessWidget {
-  const SoftCard({super.key, required this.child, this.color, this.padding = const EdgeInsets.all(16)});
+  const SoftCard({super.key, required this.child, this.color, this.padding = const EdgeInsets.all(16), this.onTap});
   final Widget child;
   final Color? color;
   final EdgeInsets padding;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final plain = color == null;
+    final radius = BorderRadius.circular(22);
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: padding,
       decoration: BoxDecoration(
         color: color ?? Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: radius,
         border: plain ? Border.all(color: AppColors.line) : null,
         boxShadow: plain
-            ? [BoxShadow(color: AppColors.coral.withValues(alpha: .12), blurRadius: 18, offset: const Offset(0, 6))]
+            ? [BoxShadow(color: AppColors.coral.withValues(alpha: .10), blurRadius: 18, offset: const Offset(0, 6))]
             : null,
       ),
-      child: child,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
     );
   }
 }
@@ -108,10 +119,11 @@ class Meter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final v = value.isNaN ? 0.0 : value.clamp(0.0, 1.0).toDouble();
     return ClipRRect(
       borderRadius: BorderRadius.circular(6),
       child: LinearProgressIndicator(
-        value: value.clamp(0.0, 1.0).toDouble(),
+        value: v,
         minHeight: 10,
         color: color,
         backgroundColor: track ?? AppColors.ink.withValues(alpha: .12),
@@ -122,86 +134,131 @@ class Meter extends StatelessWidget {
 
 /// Small rounded label such as "5-day streak".
 class Pill extends StatelessWidget {
-  const Pill(this.text, {super.key, required this.bg, required this.fg});
+  const Pill(this.text, {super.key, required this.bg, required this.fg, this.icon});
   final String text;
   final Color bg;
   final Color fg;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-      child: Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 13)),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (icon != null) ...[Icon(icon, size: 14, color: fg), const SizedBox(width: 4)],
+        Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 13)),
+      ]),
     );
   }
 }
 
-/// Coloured event card with a simple shape illustration.
-class EventCard extends StatelessWidget {
-  const EventCard({super.key, required this.title, required this.when, required this.a, required this.b, required this.url});
-  final String url;
-  final String title;
-  final String when;
-  final Color a;
-  final Color b;
+/// Rounded square with an icon, used in lists.
+class IconBubble extends StatelessWidget {
+  const IconBubble(this.icon, {super.key, required this.bg, required this.fg, this.size = 46});
+  final IconData icon;
+  final Color bg;
+  final Color fg;
+  final double size;
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => openUrl(url),
-      child: Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.line),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 86,
-            width: double.infinity,
-            child: Stack(children: [
-              Positioned.fill(child: ColoredBox(color: a)),
-              Positioned(right: -18, top: -38, child: CircleAvatar(radius: 38, backgroundColor: b)),
-              Positioned(left: -4, bottom: -54, child: CircleAvatar(radius: 44, backgroundColor: b.withValues(alpha: .55))),
-            ]),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(size * .33)),
+        child: Icon(icon, color: fg, size: size * .5),
+      );
+}
+
+/// Big page heading with a subtitle.
+class ScreenTitle extends StatelessWidget {
+  const ScreenTitle(this.title, this.subtitle, {super.key, this.trailing});
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 6, bottom: 14),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2),
-              const SizedBox(height: 2),
-              Text(when, style: const TextStyle(fontSize: 13, color: AppColors.mute)),
+              Text(title, style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 4),
+              Text(subtitle, style: const TextStyle(color: AppColors.mute, fontSize: 15)),
             ]),
           ),
-        ],
-      ),
-    ),
-    );
+          if (trailing != null) trailing!,
+        ]),
+      );
+}
+
+class SectionHeader extends StatelessWidget {
+  const SectionHeader(this.title, {super.key, this.action, this.onAction});
+  final String title;
+  final String? action;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 4, bottom: 6),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          if (action != null) TextButton(onPressed: onAction, child: Text(action!)),
+        ]),
+      );
+}
+
+class EmptyState extends StatelessWidget {
+  const EmptyState(this.icon, this.text, {super.key});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        child: Column(children: [
+          Icon(icon, size: 34, color: AppColors.mute.withValues(alpha: .6)),
+          const SizedBox(height: 8),
+          Text(text, style: smallText, textAlign: TextAlign.center),
+        ]),
+      );
+}
+
+/// Coloured banner for warnings and tips.
+class Banner2 extends StatelessWidget {
+  const Banner2(this.text, {super.key, this.bg = AppColors.sunSoft, this.fg = AppColors.sunText, this.icon = Icons.info_rounded});
+  final String text;
+  final Color bg;
+  final Color fg;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, color: fg, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(text, style: TextStyle(color: fg, fontWeight: FontWeight.w600, fontSize: 14, height: 1.35))),
+        ]),
+      );
+}
+
+// ------------------------------------------------------------------ helpers
+
+/// Opens a website or app (Maps, NHS, GOV.UK, phone dialler) outside Landed.
+Future<void> openUrl(String url) async {
+  try {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } on Object {
+    // No app could open it; nothing else to do.
   }
 }
 
-const eventColours = [
-  [AppColors.coral, AppColors.sun],
-  [AppColors.blue, AppColors.pink],
-  [AppColors.mint, AppColors.sun],
-  [AppColors.pink, AppColors.blue],
-];
-
-/// Opens a website or app (Maps, NHS, gov.uk…) outside Landed.
-Future<void> openUrl(String url) async {
-  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-}
-
-String mapsUrl(String query) =>
-    'https://www.google.com/maps/search/?api=1&query=${Uri.encodeQueryComponent(query)}';
-
-String searchUrl(String query) => 'https://www.google.com/search?q=${Uri.encodeQueryComponent(query)}';
+String mapsUrl(String query) => 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeQueryComponent(query)}';
 
 /// Small blue "Open guide ↗" style link.
 class LinkText extends StatelessWidget {
@@ -210,14 +267,82 @@ class LinkText extends StatelessWidget {
   final String url;
 
   @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => openUrl(url),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Text('$label ↗',
-            style: const TextStyle(color: AppColors.blue, fontWeight: FontWeight.w700, fontSize: 13)),
+  Widget build(BuildContext context) => InkWell(
+        onTap: () => openUrl(url),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Text('$label ↗', style: const TextStyle(color: AppColors.blue, fontWeight: FontWeight.w700, fontSize: 14)),
+        ),
+      );
+}
+
+const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+String fmtDate(DateTime d, {bool weekday = false, bool year = false}) =>
+    '${weekday ? '${_days[d.weekday - 1]} ' : ''}${d.day} ${_months[d.month - 1]}${year ? ' ${d.year}' : ''}';
+
+String fmtMonth(DateTime d) => '${const [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ][d.month - 1]} ${d.year}';
+
+String dayName(DateTime d) => _days[d.weekday - 1];
+
+String daysLeftText(int days) => switch (days) {
+      < 0 => '${-days} day${days == -1 ? '' : 's'} ago',
+      0 => 'Today',
+      1 => 'Tomorrow',
+      _ => 'in $days days',
+    };
+
+Future<DateTime?> pickDate(BuildContext context, {DateTime? initial, DateTime? first, DateTime? last}) {
+  final now = DateTime.now();
+  return showDatePicker(
+    context: context,
+    initialDate: initial ?? now,
+    firstDate: first ?? DateTime(now.year - 2),
+    lastDate: last ?? DateTime(now.year + 6),
+  );
+}
+
+Future<bool> confirm(BuildContext context, String title, String body, {String yes = 'Delete', bool danger = true}) async {
+  final r = await showDialog<bool>(
+    context: context,
+    builder: (c) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+        FilledButton(
+          style: danger ? FilledButton.styleFrom(backgroundColor: AppColors.coral) : null,
+          onPressed: () => Navigator.pop(c, true),
+          child: Text(yes),
+        ),
+      ],
+    ),
+  );
+  return r ?? false;
+}
+
+void toast(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message), duration: const Duration(milliseconds: 1800)));
+}
+
+/// Opens a rounded bottom sheet that scrolls and moves above the keyboard.
+Future<T?> showSheet<T>(BuildContext context, Widget Function(BuildContext) builder) => showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: AppColors.bg,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (c) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(c).viewInsets.bottom),
+        child: SafeArea(top: false, child: builder(c)),
       ),
     );
-  }
-}
+
+double? parseAmount(String s) => double.tryParse(s.replaceAll(RegExp(r'[£,\s]'), ''));
