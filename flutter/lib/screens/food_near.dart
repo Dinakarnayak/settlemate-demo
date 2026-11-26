@@ -134,11 +134,11 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
           ),
         ],
         if (loading)
-          const Padding(
-            padding: EdgeInsets.all(40),
+          Padding(
+            padding: const EdgeInsets.all(40),
             child: Column(children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 12),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 12),
               Text(t('Finding places near you…'), style: smallText),
             ]),
           ),

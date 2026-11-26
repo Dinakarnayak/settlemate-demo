@@ -390,7 +390,7 @@ class AppStore extends ChangeNotifier {
   }
 
   String? addExpense({required String category, required double amount, required DateTime date, String note = ''}) {
-    if (amount <= 0 || amount > 100000) return 'Enter an amount above £0.';
+    if (amount <= 0 || amount > 100000) return 'Enter an amount above 0.';
     expenses.add(Expense(id: newId(), date: dateOnly(date), category: category, amount: amount, note: note.trim()));
     _changed('Added ${money(amount)} to $category');
     return null;

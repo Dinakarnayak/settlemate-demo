@@ -155,7 +155,7 @@ class SettingsScreen extends StatelessWidget {
                     trailing: DropdownButton<int>(
                       value: s.settings.lockAfterSeconds,
                       underline: const SizedBox(),
-                      items: const [
+                      items: [
                         DropdownMenuItem(value: 0, child: Text(t('Immediately'))),
                         DropdownMenuItem(value: 30, child: Text(t('30 seconds'))),
                         DropdownMenuItem(value: 120, child: Text(t('2 minutes'))),
