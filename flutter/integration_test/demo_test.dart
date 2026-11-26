@@ -146,8 +146,9 @@ void main() {
     await tap(t, find.byTooltip('Settings'), 1200);
     await t.scrollUntilVisible(find.text('Language'), 250, scrollable: find.byType(Scrollable).last);
     await tap(t, find.text('Language'), 1200);
-    await tap(t, find.text('العربية'), 2000);
-    await t.pageBack();
+    await tap(t, find.text('العربية'), 2500);
+    final nav = t.state<NavigatorState>(find.byType(Navigator).first);
+    if (nav.canPop()) nav.pop();
     await pause(t, 3000);
     await tap(t, find.byKey(const ValueKey('tab-Explore')), 3000);
     await tap(t, find.byKey(const ValueKey('tab-Money')), 3000);
