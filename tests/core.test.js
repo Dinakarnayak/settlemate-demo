@@ -16,8 +16,9 @@ const vm=require('node:vm');
 test('both browser entry points contain valid inline JavaScript',()=>{
   for(const file of ['index.html','app/index.html']){
     const html=fs.readFileSync(require('node:path').join(__dirname,'..',file),'utf8');
-    const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
-    assert.ok(scripts.length>0,file+' should have an inline application script');
-    for(const match of scripts) new vm.Script(match[1],{filename:file});
+    const start=html.indexOf('<script>');
+    const end=html.indexOf('</script>',start);
+    assert.ok(start>=0&&end>start,file+' should have an inline application script');
+    new vm.Script(html.slice(start+8,end),{filename:file});
   }
 });
