@@ -25,4 +25,4 @@ flutter run             # pick a phone, emulator or Chrome
 
 ## Status
 
-This is a starter written to match the web prototype. It hasn't been compiled yet, so expect to fix a few small errors the first time you run `flutter analyze`. Data is in memory only. Next steps are saving data on the device (`shared_preferences`) and then adding a backend (Firebase or Supabase) for accounts and community features.
+This is a starter written to match the web prototype. It hasn't been compiled yet, so expect to fix a few small errors the first time you run `flutter analyze`. Data is in memory only. The current starter is not yet connected to accounts or cloud storage. The planned private beta backend is PostgreSQL with Neon Auth; see `../backend/README.md` and `../docs/beta-security.md`. Native sign-in, secure token storage, per-user sync, export and account deletion must be implemented and tested before this client is offered to real beta users.
