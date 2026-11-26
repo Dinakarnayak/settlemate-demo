@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: demo-video-${{ github.ref }}
@@ -70,3 +70,12 @@ jobs:
           name: Landed-demo-video
           path: landed-demo.mp4
           retention-days: 30
+
+      - name: Publish video to the Landed beta release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view landed-beta > /dev/null 2>&1 || \
+            gh release create landed-beta --prerelease --target "$GITHUB_SHA" --title "Landed beta" \
+              --notes "Latest Landed Android beta. Open on your Android phone and tap Landed.apk to install."
+          gh release upload landed-beta landed-demo.mp4 --clobber
