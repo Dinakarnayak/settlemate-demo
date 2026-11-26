@@ -17,7 +17,7 @@ Created 26 November 2026 for SettleMate's private personal beta.
 | Allowed browser origin | `https://dinakarnayak.github.io` |
 
 ## Auth settings
-Email/password sign-in and sign-up are enabled. Email OTP verification is required before sign-in; verification is sent on sign-up and sign-in. Password reset revokes sessions. The shared Neon email sender is currently configured as `auth@mail.myneon.app`; test delivery and configure a branded production sender before inviting external testers.
+Email/password sign-in is enabled, but new sign-ups are deliberately disabled until the app's account UI and beta invite flow are ready. Email OTP verification is required on sign-in. Password reset revokes sessions. The shared Neon email sender is currently configured as `auth@mail.myneon.app`; test delivery and configure a branded production sender before inviting external testers.
 
 Localhost is currently permitted for development. Disable it before production.
 
