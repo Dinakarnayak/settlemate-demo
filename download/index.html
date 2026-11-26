@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Landed: everything you need, from the day you land</title>
-<meta name="description" content="Landed is a free, private app for international students in the UK: arrival checklist, work-hour limits, budget, deadlines, food nearby and guides linked to GOV.UK and the NHS.">
-<meta property="og:title" content="Landed: the free, private app for international students in the UK">
+<title>Landed: the free, private app for international students, wherever you study</title>
+<meta name="description" content="Landed is a free, private app for international students in the UK, USA, Canada, Australia, Germany, Ireland, France, New Zealand and beyond: arrival checklist, work-hour limits, budget, deadlines, food nearby and official guides, in 6 languages.">
+<meta property="og:title" content="Landed: the free, private app for international students, wherever you study">
 <meta property="og:description" content="Arrival checklist, work-hour tracker, budget, deadlines and official guides. Encrypted on your phone. No ads, no trackers.">
 <meta property="og:image" content="assets/home.webp">
 <meta name="theme-color" content="#FF5A3C">
@@ -108,6 +108,8 @@
   .privacy a { color: var(--sun); }
 
   /* install */
+  .countries h3 { font-size: 19px; margin: 0 0 4px; }
+  .countries .card { padding: 18px; }
   .install { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
   @media (max-width: 820px) { .install { grid-template-columns: 1fr; } }
   .install .card { position: relative; padding-top: 58px; }
@@ -135,6 +137,7 @@
     <a class="brand" href="#top"><img src="assets/icon.png" alt="">Landed</a>
     <div class="links">
       <a href="#features">Features</a>
+      <a href="#countries">Countries</a>
       <a href="#privacy">Privacy</a>
       <a href="#faq">FAQ</a>
       <a class="cta-small" href="#install">Download</a>
@@ -146,9 +149,9 @@
   <div class="wrap">
     <header class="hero">
       <div>
-        <span class="eyebrow">🔒 Free · Private · No ads</span>
+        <span class="eyebrow">🔒 Free · Private · 8 countries · 6 languages</span>
         <h1>Everything you need, <span>from the day you land.</span></h1>
-        <p class="lead">Landed is one app for international students in the UK. Arrival checklist, work-hour limits, budget, deadlines, food nearby and plain-English guides linked to GOV.UK and the NHS.</p>
+        <p class="lead">Landed is one app for international students, wherever you study. Arrival checklist, work-hour limits, budget in your currency, deadlines, food nearby and guides linked to official sources.</p>
         <div class="buttons">
           <a class="btn primary" href="https://github.com/Dinakarnayak/settlemate-demo/releases/latest/download/Landed.apk">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.5 11.5 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
@@ -169,7 +172,7 @@
       <div><i style="background:var(--mint-soft)">🔐</i>Encrypted on your phone</div>
       <div><i style="background:var(--sun-soft)">🚫</i>No ads, no trackers</div>
       <div><i style="background:var(--blue-soft)">📶</i>Works offline</div>
-      <div><i style="background:var(--pink-soft)">🏛️</i>Official sources</div>
+      <div><i style="background:var(--pink-soft)">🌍</i>8 countries, 6 languages</div>
     </div>
 
     <section id="features">
@@ -178,16 +181,35 @@
         <p>The things every international student juggles, in one calm place.</p>
       </div>
       <div class="grid">
-        <div class="card c-coral"><div class="ic">✅</div><h3>Arrival checklist</h3><p>eVisa and share code, bank, GP, NI number, council tax, railcard, in the right order. Add your own tasks too.</p></div>
-        <div class="card c-blue"><div class="ic">⏱️</div><h3>Work-hour tracker</h3><p>Log shifts across all your jobs. Landed counts Monday to Sunday and warns you before you go over 20 (or 10) hours in term time.</p></div>
-        <div class="card c-sun"><div class="ic">💷</div><h3>Budget in pounds</h3><p>Set a monthly budget, log spending by category and see what you can spend each day.</p></div>
+        <div class="card c-coral"><div class="ic">✅</div><h3>Arrival checklist</h3><p>The right first steps for your country, in order: permits and registration, bank, doctor, tax number, SIM. Add your own tasks too.</p></div>
+        <div class="card c-blue"><div class="ic">⏱️</div><h3>Work-hour tracker</h3><p>Log shifts across all your jobs. Landed knows your country’s rule (weekly, fortnightly, days or hours per year) and warns you before you go over.</p></div>
+        <div class="card c-sun"><div class="ic">💷</div><h3>Budget in your currency</h3><p>Set a monthly budget, log spending by category and see what you can spend each day.</p></div>
         <div class="card c-pink"><div class="ic">📅</div><h3>Deadlines & visa countdown</h3><p>Visa expiry, tuition instalments, rent and assignments, with reminders on your home screen.</p></div>
         <div class="card c-mint"><div class="ic">🍛</div><h3>Food near me</h3><p>Restaurants, cafés and grocers by distance, with cuisine, halal and veggie filters, plus newly mapped places.</p></div>
-        <div class="card c-plain"><div class="ic">📚</div><h3>12 practical guides</h3><p>Visa, work, money, housing and renters’ rights, health, study, transport, food, phones, community, emergencies and careers.</p></div>
+        <div class="card c-plain"><div class="ic">📚</div><h3>12 practical guides</h3><p>Visa, work, money, housing, health, emergencies, study, food and community, checked against official sources for each country.</p></div>
         <div class="card c-plain"><div class="ic">✨</div><h3>Ask Landed</h3><p>An offline helper with 50+ answers, each linked to its official source. It also knows your own hours and budget.</p></div>
-        <div class="card c-plain"><div class="ic">🆘</div><h3>Emergency help</h3><p>One-tap 999, 111, 101, Samaritans and Report Fraud, plus what to do if you lose your passport.</p></div>
+        <div class="card c-plain"><div class="ic">🆘</div><h3>Emergency help</h3><p>One-tap local emergency, health and crisis lines for your study country, plus what to do if you lose your passport.</p></div>
         <div class="card c-plain"><div class="ic">🗒️</div><h3>Private notes</h3><p>Landlord contacts, course codes, questions for your adviser, all encrypted on your phone.</p></div>
       </div>
+    </section>
+
+    <section id="countries">
+      <div class="section-title">
+        <h2>Wherever you study</h2>
+        <p>Country packs with checked work rules, checklists, guides, currency and emergency numbers. General tools work everywhere else.</p>
+      </div>
+      <div class="grid countries">
+        <div class="card c-plain"><h3>🇬🇧 United Kingdom</h3><p>20 h/week in term (10 below degree level)</p></div>
+        <div class="card c-plain"><h3>🇺🇸 United States</h3><p>20 h/week on campus while school is in session</p></div>
+        <div class="card c-plain"><h3>🇨🇦 Canada</h3><p>24 h/week off campus during terms</p></div>
+        <div class="card c-plain"><h3>🇦🇺 Australia</h3><p>48 h per fortnight during your course</p></div>
+        <div class="card c-plain"><h3>🇩🇪 Germany</h3><p>140 full or 280 half days a year</p></div>
+        <div class="card c-plain"><h3>🇮🇪 Ireland</h3><p>20 h/week in term, 40 h in holiday periods</p></div>
+        <div class="card c-plain"><h3>🇫🇷 France</h3><p>964 hours a year</p></div>
+        <div class="card c-plain"><h3>🇳🇿 New Zealand</h3><p>25 h/week during study</p></div>
+        <div class="card c-sun"><h3>🌍 Anywhere else</h3><p>Budget in any currency, deadlines, notes, food nearby and your own work limit</p></div>
+      </div>
+      <p class="fine" style="text-align:center">App available in English, हिन्दी, 简体中文, Español, العربية and Français. Rules checked November 2026; always confirm your own visa conditions.</p>
     </section>
 
     <section id="demo">
@@ -250,11 +272,12 @@
       <div class="faq">
         <details><summary>Is Landed really free?</summary><p>Yes. No subscription, no ads, no in-app purchases. Landed runs entirely on your phone, so there are no server costs to pass on.</p></details>
         <details><summary>Do I need an account?</summary><p>No. Everything works without signing in. Your data stays on your phone either way.</p></details>
-        <details><summary>Is this legal or immigration advice?</summary><p>No. Landed gives general, simplified information and links to official sources such as GOV.UK, UKCISA and the NHS. For your own situation, speak to your university’s international student advice team or a regulated immigration adviser.</p></details>
+        <details><summary>Which countries and languages are supported?</summary><p>Checked packs for the UK, USA, Canada, Australia, Germany, Ireland, France and New Zealand, plus general tools for any other country. The app is in English, Hindi, Chinese, Spanish, Arabic and French; guides are in English for now.</p></details>
+        <details><summary>Is this legal or immigration advice?</summary><p>No. Landed gives general, simplified information and links to official sources such as government immigration websites. For your own situation, speak to your university’s international student advice team or a regulated immigration adviser.</p></details>
         <details><summary>What happens if I lose or change my phone?</summary><p>Create an encrypted backup in Settings and keep it somewhere safe. On your new phone, install Landed and restore it with your passphrase. Without a backup, the data can’t be recovered, which is the point of on-device encryption.</p></details>
         <details><summary>Why isn’t it on Google Play?</summary><p>Landed is a new, independent student project. Direct download lets it launch for free; a Play Store release may follow.</p></details>
         <details><summary>Is it safe to install an APK?</summary><p>Only install apps from sources you trust. Landed’s full source code is public on GitHub, and every build is made automatically by GitHub Actions from that code.</p></details>
-        <details><summary>Is Landed linked to my university or the Home Office?</summary><p>No. Landed is independent and not affiliated with UKVI, the Home Office, the NHS or any university.</p></details>
+        <details><summary>Is Landed linked to my university or a government?</summary><p>No. Landed is independent and not affiliated with any government, immigration authority or university.</p></details>
       </div>
     </section>
   </div>
@@ -262,7 +285,7 @@
 
 <footer>
   <div class="wrap">
-    <div>© 2026 Landed · A student project by Dinakar Nayak N, made in Leicester.</div>
+    <div>© 2026 Landed · A student project by Dinakar Nayak N, made in Leicester for students everywhere.</div>
     <div style="display:flex;gap:18px;flex-wrap:wrap">
       <a href="../privacy/">Privacy policy</a>
       <a href="https://github.com/Dinakarnayak/settlemate-demo">Source code</a>

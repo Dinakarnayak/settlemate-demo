@@ -3,7 +3,7 @@ name: Demo video
 # Records a screen video of the real app on a free Android emulator.
 on:
   push:
-    branches: [feat/settlemate-android-apk]
+    branches: [feat/settlemate-android-apk, feat/landed-worldwide]
     paths:
       - "flutter/integration_test/**"
       - ".github/workflows/demo-video.yml"
