@@ -76,6 +76,17 @@ The staged technology roadmap is documented in [docs/platform-architecture.md](d
 
 It then opens full screen from its own icon, like a normal app.
 
+## Private personal beta (in progress)
+
+The next release is designed for **independent personal accounts**: every tester will have a private profile, tasks, work shifts, spending records and preferences, with secure sync across their own devices.
+
+The first backend foundation is being developed on a separate feature branch:
+- PostgreSQL schema for personal records.
+- Row-level security policies that fail closed without a verified user subject.
+- Security and launch checklist for authentication, verified API sessions, export, deletion and cross-user isolation tests.
+
+**This is not enabled in the live demo yet.** The current public PWA remains a browser-local prototype. Do not enter real financial, immigration, identity or other sensitive information. Account sign-up, cloud sync, native app builds and public beta access will be enabled only after the backend, email verification, security tests and release checks are complete. See [docs/beta-security.md](docs/beta-security.md).
+
 ## Note
 
 This is a prototype with sample data. Rules shown are simplified and are not legal advice. Always check your own visa conditions on gov.uk.
