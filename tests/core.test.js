@@ -10,3 +10,14 @@ test('counts only shifts in the current Monday-to-Sunday week',()=>{const a=[{j:
 test('migrates legacy weekday-only shifts into the current week',()=>{const s=normaliseState(fresh,{shifts:[{j:'Warehouse',h:6,day:'Mon'}]},now);assert.equal(s.shifts[0].date,'2026-11-23');assert.equal(weeklyHours(s.shifts,now),6);});
 test('bounds profile and pasted message lengths',()=>{const s=normaliseState(fresh,{name:'N'.repeat(100),scamText:'x'.repeat(20000)},now);assert.equal(s.name.length,60);assert.equal(s.scamText.length,12000);});
 test('formats local calendar dates without UTC drift',()=>assert.equal(localISO(new Date(2026,10,26,23,30)),'2026-11-26'));
+
+const fs=require('node:fs');
+const vm=require('node:vm');
+test('both browser entry points contain valid inline JavaScript',()=>{
+  for(const file of ['index.html','app/index.html']){
+    const html=fs.readFileSync(require('node:path').join(__dirname,'..',file),'utf8');
+    const scripts=[...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];
+    assert.ok(scripts.length>0,file+' should have an inline application script');
+    for(const match of scripts) new vm.Script(match[1],{filename:file});
+  }
+});
