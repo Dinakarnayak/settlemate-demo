@@ -16,7 +16,7 @@ const vm=require('node:vm');
 test('both browser entry points contain valid inline JavaScript',()=>{
   for(const file of ['index.html','app/index.html']){
     const html=fs.readFileSync(require('node:path').join(__dirname,'..',file),'utf8');
-    const scripts=[...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];
+    const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
     assert.ok(scripts.length>0,file+' should have an inline application script');
     for(const match of scripts) new vm.Script(match[1],{filename:file});
   }
