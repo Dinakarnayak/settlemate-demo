@@ -6,6 +6,7 @@ import '../widgets.dart';
 import 'assistant.dart';
 import 'deadlines.dart';
 import 'money.dart';
+import 'profile_photo.dart';
 import 'work.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -38,16 +39,7 @@ class HomeScreen extends StatelessWidget {
           label: 'Profile and settings',
           child: GestureDetector(
             onTap: openSettings,
-            child: Transform.rotate(
-              angle: -0.1,
-              child: Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: AppColors.sun, borderRadius: BorderRadius.circular(16)),
-                child: Text(p.firstName.isEmpty ? '👋' : p.firstName.characters.first.toUpperCase(), style: bigNumber(size: 20)),
-              ),
-            ),
+            child: ProfileAvatar(store: s),
           ),
         ),
         const SizedBox(width: 12),

@@ -13,6 +13,7 @@ import '../services/security.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'account.dart';
+import 'profile_photo.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, required this.store, required this.auth});
@@ -30,6 +31,31 @@ class SettingsScreen extends StatelessWidget {
           appBar: AppBar(title: const Text('Settings')),
           body: ListView(padding: const EdgeInsets.fromLTRB(18, 4, 18, 40), children: [
             // ------------------------------------------------ profile
+            Center(
+              child: Column(children: [
+                const SizedBox(height: 8),
+                Stack(clipBehavior: Clip.none, children: [
+                  GestureDetector(
+                    onTap: () => showPhotoOptions(context, s),
+                    child: ProfileAvatar(store: s, size: 104, tilt: false),
+                  ),
+                  Positioned(
+                    right: -6,
+                    bottom: -6,
+                    child: IconButton.filled(
+                      tooltip: 'Change profile photo',
+                      style: IconButton.styleFrom(backgroundColor: AppColors.coral, foregroundColor: Colors.white),
+                      onPressed: () => showPhotoOptions(context, s),
+                      icon: const Icon(Icons.photo_camera_rounded, size: 20),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 12),
+                Text(p.name.isEmpty ? 'Add your name' : p.name, style: Theme.of(context).textTheme.titleLarge),
+                if (p.university.isNotEmpty) Text(p.university, style: smallText),
+                const SizedBox(height: 8),
+              ]),
+            ),
             const SectionHeader('Profile'),
             SoftCard(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
@@ -323,7 +349,7 @@ class PrivacyScreen extends StatelessWidget {
       body: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), children: [
         para('In short', 'Landed keeps your information on your phone, encrypted. We don’t run ads, use analytics or trackers, or sell data.'),
         para('What stays on your phone',
-            'Your profile, checklist, work shifts, spending, deadlines, notes and saved guides. They’re encrypted with AES-256-GCM. The key is held in your phone’s secure Android Keystore. We never receive this data.'),
+            'Your profile and photo, checklist, work shifts, spending, deadlines, notes and saved guides. They’re encrypted with AES-256-GCM. The key is held in your phone’s secure Android Keystore. We never receive this data.'),
         para('Optional account',
             'If you choose to sign in, Google Firebase Authentication processes your email address, name and sign-in provider (Google, Facebook or email) so you can sign in. Nothing else is sent. You can delete your account any time in Settings → Account.'),
         para('The helper', 'The Ask helper runs offline. Your questions are not sent anywhere.'),

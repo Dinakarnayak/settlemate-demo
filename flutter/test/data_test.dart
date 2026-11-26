@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:landed/content/assistant.dart';
 import 'package:landed/data/models.dart';
@@ -101,6 +103,20 @@ void main() {
       expect(again.profile.firstName, 'Dinakar');
       expect(again.upcoming.single.kind, 'Visa');
       expect(again.visaDaysLeft, greaterThan(600));
+    });
+
+    test('profile photo is kept in the encrypted vault and erased with everything', () async {
+      final keys = MemoryKeyStore();
+      final blobs = MemoryBlobStore();
+      final s = AppStore(Vault(keys, blobs), clock: () => now);
+      await s.load();
+      s.setPhoto(Uint8List.fromList([137, 80, 78, 71, 1, 2, 3]));
+      await s.flush();
+      final again = AppStore(Vault(keys, blobs), clock: () => now);
+      await again.load();
+      expect(again.photo, [137, 80, 78, 71, 1, 2, 3]);
+      await again.eraseEverything();
+      expect(again.photo, isNull);
     });
 
     test('erase everything resets to a fresh state', () async {

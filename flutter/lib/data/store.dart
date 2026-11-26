@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
@@ -22,6 +24,8 @@ class AppStore extends ChangeNotifier {
   List<Deadline> deadlines = [];
   List<Note> notes = [];
   Set<String> savedGuides = {};
+  String? _photo; // base64 PNG, stored only inside the encrypted vault
+  Uint8List? _photoBytes;
   int xp = 0;
   int streak = 0;
   DateTime? lastOpened;
@@ -54,6 +58,7 @@ class AppStore extends ChangeNotifier {
         'deadlines': [for (final d in deadlines) d.toJson()],
         'notes': [for (final n in notes) n.toJson()],
         'savedGuides': savedGuides.toList(),
+        'photo': _photo,
         'xp': xp,
         'streak': streak,
         'lastOpened': lastOpened == null ? null : isoDate(lastOpened!),
@@ -72,6 +77,8 @@ class AppStore extends ChangeNotifier {
     deadlines = _list(j['deadlines']).map(Deadline.fromJson).toList();
     notes = _list(j['notes']).map(Note.fromJson).toList();
     savedGuides = {for (final g in (j['savedGuides'] as List? ?? const [])) if (g is String) g};
+    _photo = j['photo'] as String?;
+    _photoBytes = null;
     xp = (j['xp'] as num?)?.toInt() ?? 0;
     streak = (j['streak'] as num?)?.toInt() ?? 0;
     lastOpened = parseDate(j['lastOpened']);
@@ -113,6 +120,8 @@ class AppStore extends ChangeNotifier {
     deadlines = [];
     notes = [];
     savedGuides = {};
+    _photo = null;
+    _photoBytes = null;
     xp = 0;
     streak = 0;
     lastOpened = null;
@@ -168,6 +177,28 @@ class AppStore extends ChangeNotifier {
     } else {
       deadlines.add(Deadline(id: newId(), title: 'Student visa expires', date: date, kind: 'Visa'));
     }
+  }
+
+  // ------------------------------------------------------------------ profile photo
+  Uint8List? get photo {
+    if (_photo == null) return null;
+    try {
+      return _photoBytes ??= base64Decode(_photo!);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  void setPhoto(Uint8List png) {
+    _photo = base64Encode(png);
+    _photoBytes = png;
+    _changed('Profile photo updated');
+  }
+
+  void removePhoto() {
+    _photo = null;
+    _photoBytes = null;
+    _changed('Profile photo removed');
   }
 
   void updateSettings(void Function(Settings s) edit) {
