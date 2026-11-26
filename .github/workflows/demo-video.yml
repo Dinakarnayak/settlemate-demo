@@ -61,7 +61,7 @@ jobs:
 
       - name: Make a shareable MP4
         run: |
-          sudo apt-get install -y ffmpeg > /dev/null
+          which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           ffmpeg -y -i flutter/demo-raw.mp4 -vf "scale=720:-2,fps=30" -c:v libx264 -preset veryfast -crf 24 -pix_fmt yuv420p -movflags +faststart -an landed-demo.mp4
           ls -la landed-demo.mp4
 
