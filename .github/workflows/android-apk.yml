@@ -44,7 +44,7 @@ jobs:
 
       - name: Generate Android project files
         working-directory: flutter
-        run: flutter create --platforms=android --org com.dinakarnayak --project-name settlemate .
+        run: flutter create --platforms=android --org com.dinakarnayak --project-name landed .
 
       - name: Set Android app label
         working-directory: flutter
@@ -53,7 +53,7 @@ jobs:
           from pathlib import Path
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           content = manifest.read_text()
-          content = content.replace('android:label="settlemate"', 'android:label="SettleMate"')
+          content = content.replace('android:label="landed"', 'android:label="Landed"')
           manifest.write_text(content)
           PY
 
@@ -72,7 +72,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SettleMate-Android-debug
+          name: Landed-Android-debug
           path: flutter/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 14

@@ -1,6 +1,6 @@
-# SettleMate Android app
+# Landed Android app
 
-Native Flutter Android client for SettleMate. The screens currently provide a visual/product prototype with sample in-memory data.
+Native Flutter Android client for Landed (formerly SettleMate). The screens currently provide a visual/product prototype with sample in-memory data.
 
 ## Build an Android APK
 
@@ -8,7 +8,7 @@ Install Flutter 3.27 or newer and the Android SDK, then run:
 
 ```bash
 cd flutter
-flutter create --platforms=android --org com.dinakarnayak --project-name settlemate .
+flutter create --platforms=android --org com.dinakarnayak --project-name landed .
 flutter pub get
 flutter analyze
 flutter build apk --debug

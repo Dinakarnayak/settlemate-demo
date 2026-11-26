@@ -4,22 +4,22 @@ import 'screens.dart';
 import 'state.dart';
 import 'theme.dart';
 
-void main() => runApp(const SettleMateApp());
+void main() => runApp(const LandedApp());
 
-class SettleMateApp extends StatefulWidget {
-  const SettleMateApp({super.key});
+class LandedApp extends StatefulWidget {
+  const LandedApp({super.key});
 
   @override
-  State<SettleMateApp> createState() => _SettleMateAppState();
+  State<LandedApp> createState() => _LandedAppState();
 }
 
-class _SettleMateAppState extends State<SettleMateApp> {
+class _LandedAppState extends State<LandedApp> {
   final state = AppState();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SettleMate',
+      title: 'Landed',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       home: Shell(state: state),

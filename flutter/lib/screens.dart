@@ -686,7 +686,7 @@ class DiscoverScreen extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------- Assistant
-const _answers = <(RegExp, String, String)>[
+final _answers = <(RegExp, String, String)>[
   (RegExp(r'gp|doctor|nhs|ill|sick', caseSensitive: false),
       'Search "Find a GP" on the NHS website, pick a practice near your address and fill in their registration form. It’s free. For urgent advice, call NHS 111.', 'https://www.nhs.uk/service-search/find-a-gp'),
   (RegExp(r'hour|work|job|shift', caseSensitive: false),
