@@ -87,6 +87,12 @@ The first backend foundation is being developed on a separate feature branch:
 
 **This is not enabled in the live demo yet.** The current public PWA remains a browser-local prototype. Do not enter real financial, immigration, identity or other sensitive information. Account sign-up, cloud sync, native app builds and public beta access will be enabled only after the backend, email verification, security tests and release checks are complete. See [docs/beta-security.md](docs/beta-security.md).
 
+## Private personal beta infrastructure
+
+A dedicated Neon project, Neon Auth and the Neon Data API have now been provisioned. The database has per-user tables and forced row-level security. See [the non-secret environment configuration](docs/neon-beta-setup.md) and [the security plan](docs/beta-security.md).
+
+**Important:** the live PWA and Flutter starter are not yet connected to sign-in or cloud sync. The app remains a local prototype; do not enter sensitive information or invite external testers until the client integration, export/deletion flows and two-account end-to-end isolation tests are complete.
+
 ## Note
 
 This is a prototype with sample data. Rules shown are simplified and are not legal advice. Always check your own visa conditions on gov.uk.
