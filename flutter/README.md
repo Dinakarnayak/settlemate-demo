@@ -1,28 +1,39 @@
-# Landed: Flutter app (starter)
+# SettleMate Android app
 
-The Landed design as a Flutter app for Android and iOS. It has the same colours, fonts, tabs, XP, work-hours ring, budget and assistant as the web app.
+Native Flutter Android client for SettleMate. The screens currently provide a visual/product prototype with sample in-memory data.
 
-## Run it
+## Build an Android APK
 
-You need [Flutter](https://docs.flutter.dev/get-started/install) 3.27 or newer.
+Install Flutter 3.27 or newer and the Android SDK, then run:
 
 ```bash
 cd flutter
-flutter create .        # generates the android/ and ios/ folders (keeps lib/ as it is)
+flutter create --platforms=android --org com.dinakarnayak --project-name settlemate .
 flutter pub get
-flutter run             # pick a phone, emulator or Chrome
+flutter analyze
+flutter build apk --debug
 ```
 
-## Files
+The APK is created at `build/app/outputs/flutter-apk/app-debug.apk`.
 
-| File | What's in it |
-|---|---|
-| `lib/main.dart` | App start, theme, floating pill navigation bar, "Ask" button |
-| `lib/screens.dart` | Home, Arrival, Work, Money, Discover screens and the assistant sheet |
-| `lib/state.dart` | All app data and actions (sample data, `ChangeNotifier`) |
-| `lib/widgets.dart` | Progress ring, cards, meters, pills, event cards |
-| `lib/theme.dart` | Colours and fonts (Fredoka + Plus Jakarta Sans via `google_fonts`) |
+## Automated free build
 
-## Status
+Every push to `feat/settlemate-android-apk` runs the Android build workflow. GitHub Actions uploads the debug APK as a downloadable workflow artifact when the build succeeds. This does not publish to Google Play.
 
-This is a starter written to match the web prototype. It hasn't been compiled yet, so expect to fix a few small errors the first time you run `flutter analyze`. Data is in memory only. The current starter is not yet connected to accounts or cloud storage. The planned private beta backend is PostgreSQL with Neon Auth; see `../backend/README.md` and `../docs/beta-security.md`. Native sign-in, secure token storage, per-user sync, export and account deletion must be implemented and tested before this client is offered to real beta users.
+## App areas
+
+- Home dashboard
+- Arrival checklist
+- Work-hours tracker
+- Money and spending
+- Discover
+- Assistant interface
+
+## Current limitations
+
+- This Android client is not connected to Neon Auth or the Neon Data API yet.
+- App data is sample/in-memory data and is not private cloud-synced.
+- Sign-in, secure token storage, export, account deletion and real multi-account isolation are not implemented in this client.
+- Do not enter sensitive personal data or distribute this prototype to external testers.
+
+The private beta backend and security gates are documented in `../backend/README.md`, `../docs/beta-security.md` and `../docs/neon-beta-setup.md`.
