@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landed privacy policy</title>
+<meta name="description" content="How the Landed app handles your information: encrypted on your phone, no ads, no trackers.">
+<link rel="icon" href="../download/assets/icon.png">
+<style>
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-Bold.ttf") format("truetype"); font-weight: 700; }
+  @font-face { font-family: "Fredoka"; src: url("../flutter/assets/fonts/Fredoka-SemiBold.ttf") format("truetype"); font-weight: 600; }
+  body { margin: 0; font-family: "Jakarta", system-ui, sans-serif; color: #1B1D2E; background: #FFFDFA; line-height: 1.65; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 22px 60px; }
+  a { color: #3D6BFF; }
+  h1, h2 { font-family: "Fredoka", system-ui, sans-serif; font-weight: 600; line-height: 1.15; }
+  h1 { font-size: 40px; margin: 24px 0 6px; }
+  h2 { font-size: 24px; margin: 32px 0 6px; }
+  .meta { color: #6B6F86; }
+  .summary { background: #D9F7EC; border-radius: 18px; padding: 16px 20px; font-weight: 700; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 15px; }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid #F0E6DC; vertical-align: top; }
+  th { background: #FFF2CC; }
+  .back { font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="../download/">← Landed</a>
+  <h1>Privacy policy</h1>
+  <p class="meta">Last updated 26 November 2026 · Applies to the Landed Android app</p>
+
+  <p class="summary">In short: Landed keeps your information on your phone, encrypted. We don’t run ads, use analytics or trackers, or sell data, and we don’t have a server that receives your data.</p>
+
+  <h2>Who we are</h2>
+  <p>Landed is an independent student project by Dinakar Nayak N, based in Leicester, UK. It isn’t affiliated with UKVI, the Home Office, the NHS or any university. For privacy questions or requests, <a href="https://github.com/Dinakarnayak/settlemate-demo/issues">open an issue on GitHub</a>.</p>
+
+  <h2>What stays on your phone</h2>
+  <p>Your profile and photo, arrival checklist, work shifts, spending, deadlines, notes and saved guides. They are encrypted with AES-256-GCM, and the encryption key is held in your phone’s secure Android Keystore. Android cloud backup and device-to-device transfer are switched off for this data. We never receive it.</p>
+  <p>Profile photos are cropped and re-saved by the app, which removes hidden photo data such as GPS location before storage.</p>
+
+  <h2>When something leaves your phone</h2>
+  <table>
+    <tr><th>Feature</th><th>What is sent</th><th>To whom</th><th>When</th></tr>
+    <tr><td>Food near me</td><td>Your approximate location, rounded to about 1 km</td><td>OpenStreetMap’s free Overpass service</td><td>Only when you tap “Find food near me”. Not stored by Landed.</td></tr>
+    <tr><td>Links and maps</td><td>Whatever the website or app you open normally receives</td><td>The site you choose (e.g. GOV.UK, NHS, Google Maps)</td><td>Only when you tap a link</td></tr>
+    <tr><td>Optional sign-in</td><td>Email address, name and sign-in provider</td><td>Google Firebase Authentication</td><td>Only if sign-in is available in your version and you choose to sign in</td></tr>
+  </table>
+  <p>The Ask helper runs offline: your questions are not sent anywhere.</p>
+
+  <h2>Backups</h2>
+  <p>Backups you create are encrypted with a passphrase only you know. You decide where to keep the file. Without the passphrase it can’t be read, including by us.</p>
+
+  <h2>Permissions</h2>
+  <ul>
+    <li><b>Approximate location:</b> only for Food near me, only when you ask.</li>
+    <li><b>Biometrics:</b> only if you turn on App lock. Your fingerprint or face never leaves your phone’s secure hardware.</li>
+    <li><b>Camera and photos:</b> only when you choose a profile photo.</li>
+    <li><b>Internet:</b> to search nearby places, open links and (optionally) sign in.</li>
+  </ul>
+
+  <h2>Referral links</h2>
+  <p>The banks and SIMs section links to providers’ official pages. If a referral link is ever used, it will be clearly labelled “Referral”.</p>
+
+  <h2>Children</h2>
+  <p>Landed is designed for university students and isn’t aimed at children under 13.</p>
+
+  <h2>Your rights</h2>
+  <p>Under UK GDPR you can ask what information is held about you, correct it or delete it. Because your data stays on your phone, you can see, change and erase it in the app yourself (Settings → Erase everything). If you signed in, you can delete your account in Settings → Account. You can also complain to the Information Commissioner’s Office: <a href="https://ico.org.uk/make-a-complaint/">ico.org.uk</a>.</p>
+
+  <h2>Changes</h2>
+  <p>If this policy changes, the new version will be published here with a new date.</p>
+</main>
+</body>
+</html>

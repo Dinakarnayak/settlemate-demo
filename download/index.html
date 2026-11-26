@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landed: everything you need, from the day you land</title>
+<meta name="description" content="Landed is a free, private app for international students in the UK: arrival checklist, work-hour limits, budget, deadlines, food nearby and guides linked to GOV.UK and the NHS.">
+<meta property="og:title" content="Landed: the free, private app for international students in the UK">
+<meta property="og:description" content="Arrival checklist, work-hour tracker, budget, deadlines and official guides. Encrypted on your phone. No ads, no trackers.">
+<meta property="og:image" content="assets/home.webp">
+<meta name="theme-color" content="#FF5A3C">
+<link rel="icon" href="assets/icon.png">
+<style>
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Jakarta"; src: url("../flutter/assets/fonts/PlusJakartaSans-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+  @font-face { font-family: "Fredoka"; src: url("../flutter/assets/fonts/Fredoka-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+
+  :root {
+    --coral: #FF5A3C; --coral-soft: #FFE6DF; --sun: #FFC93C; --sun-soft: #FFF2CC;
+    --blue: #3D6BFF; --blue-soft: #E3EAFF; --mint: #1FBF8F; --mint-soft: #D9F7EC;
+    --pink: #FF7EB6; --pink-soft: #FFE3EF; --ink: #1B1D2E; --mute: #6B6F86; --bg: #FFFDFA; --line: #F0E6DC;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: "Jakarta", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: var(--blue); }
+  h1, h2, h3 { font-family: "Fredoka", "Jakarta", system-ui, sans-serif; font-weight: 600; line-height: 1.1; margin: 0; letter-spacing: -.01em; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
+
+  /* nav */
+  nav { position: sticky; top: 0; z-index: 10; background: rgba(255,253,250,.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: 14px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: "Fredoka"; font-size: 24px; color: var(--ink); text-decoration: none; }
+  .brand img { width: 36px; height: 36px; border-radius: 11px; transform: rotate(-8deg); }
+  nav .links { margin-left: auto; display: flex; gap: 22px; font-weight: 600; font-size: 15px; }
+  nav .links a { color: var(--ink); text-decoration: none; }
+  nav .links a:hover { color: var(--coral); }
+  @media (max-width: 720px) { nav .links a:not(.cta-small) { display: none; } }
+  .cta-small { background: var(--coral); color: #fff !important; padding: 9px 16px; border-radius: 14px; }
+
+  /* hero */
+  .hero { padding: 64px 0 40px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; padding-top: 36px; } }
+  .eyebrow { display: inline-flex; gap: 8px; align-items: center; background: var(--mint-soft); color: #0f7a5a; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 99px; }
+  .hero h1 { font-size: clamp(42px, 6.4vw, 72px); margin: 18px 0 16px; }
+  .hero h1 span { color: var(--coral); }
+  .lead { font-size: clamp(17px, 2vw, 20px); color: var(--mute); max-width: 34em; margin: 0 0 26px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 18px; font-weight: 800; font-size: 16px; text-decoration: none; border: 2px solid transparent; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.primary { background: var(--coral); color: #fff; box-shadow: 0 10px 24px rgba(255,90,60,.28); }
+  .btn.ghost { background: #fff; color: var(--ink); border-color: var(--line); }
+  .btn svg { width: 22px; height: 22px; }
+  .fine { font-size: 13.5px; color: var(--mute); margin-top: 14px; }
+  .phones { position: relative; height: 560px; }
+  .phone { position: absolute; width: 232px; border-radius: 34px; border: 8px solid var(--ink); background: var(--ink); overflow: hidden; box-shadow: 0 30px 60px rgba(27,29,46,.22); }
+  .phone img { display: block; width: 100%; }
+  .phone.a { left: 8%; top: 20px; transform: rotate(-6deg); z-index: 2; }
+  .phone.b { right: 6%; top: 60px; transform: rotate(5deg); }
+  .blob { position: absolute; border-radius: 50%; filter: blur(2px); }
+  .blob.one { width: 260px; height: 260px; background: var(--sun); right: 18%; top: 0; opacity: .55; }
+  .blob.two { width: 200px; height: 200px; background: var(--pink-soft); left: 0; bottom: 30px; }
+  @media (max-width: 900px) { .phones { height: 480px; max-width: 460px; margin: 0 auto; width: 100%; } .phone { width: 200px; } }
+
+  /* trust strip */
+  .trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 10px 0 70px; }
+  @media (max-width: 820px) { .trust { grid-template-columns: repeat(2, 1fr); } }
+  .trust div { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 16px; font-weight: 700; display: flex; gap: 12px; align-items: center; }
+  .trust i { font-style: normal; width: 40px; height: 40px; flex: none; border-radius: 13px; display: grid; place-items: center; font-size: 20px; }
+
+  section { padding: 30px 0 70px; }
+  .section-title { text-align: center; max-width: 680px; margin: 0 auto 36px; }
+  .section-title h2 { font-size: clamp(32px, 4.4vw, 46px); margin-bottom: 10px; }
+  .section-title p { color: var(--mute); font-size: 18px; margin: 0; }
+
+  /* features */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  .card { border-radius: 24px; padding: 22px; }
+  .card h3 { font-size: 22px; margin: 14px 0 6px; }
+  .card p { margin: 0; color: #3a3d52; }
+  .card .ic { width: 46px; height: 46px; border-radius: 15px; background: rgba(255,255,255,.7); display: grid; place-items: center; font-size: 24px; }
+  .c-coral { background: var(--coral-soft); } .c-sun { background: var(--sun-soft); } .c-blue { background: var(--blue-soft); }
+  .c-mint { background: var(--mint-soft); } .c-pink { background: var(--pink-soft); } .c-plain { background: #fff; border: 1px solid var(--line); }
+
+  /* demo */
+  .demo { display: grid; grid-template-columns: .8fr 1.2fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px) { .demo { grid-template-columns: 1fr; } }
+  .video-frame { width: min(320px, 100%); margin: 0 auto; border-radius: 36px; border: 9px solid var(--ink); overflow: hidden; background: var(--ink); box-shadow: 0 30px 60px rgba(27,29,46,.2); }
+  .video-frame video { display: block; width: 100%; height: auto; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .shots figure { margin: 0; }
+  .shots img { width: 100%; border-radius: 20px; border: 1px solid var(--line); box-shadow: 0 10px 24px rgba(27,29,46,.08); }
+  .shots figcaption { font-size: 14px; font-weight: 700; text-align: center; margin-top: 6px; }
+
+  /* privacy */
+  .privacy { background: var(--ink); color: #fff; border-radius: 34px; padding: 46px; display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  @media (max-width: 820px) { .privacy { grid-template-columns: 1fr; padding: 30px; } }
+  .privacy h2 { font-size: clamp(30px, 4vw, 42px); }
+  .privacy p { color: #c9cbe0; }
+  .privacy ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .privacy li { background: rgba(255,255,255,.07); border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; }
+  .privacy li b { color: #fff; }
+  .privacy li span { color: #c9cbe0; }
+  .privacy a { color: var(--sun); }
+
+  /* install */
+  .install { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
+  @media (max-width: 820px) { .install { grid-template-columns: 1fr; } }
+  .install .card { position: relative; padding-top: 58px; }
+  .install .card::before { counter-increment: step; content: counter(step); position: absolute; top: 18px; left: 22px; width: 32px; height: 32px; border-radius: 11px; background: var(--coral); color: #fff; font-family: "Fredoka"; display: grid; place-items: center; font-size: 18px; }
+  .download-box { margin-top: 22px; text-align: center; }
+
+  /* faq */
+  details { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px 20px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 800; font-size: 17px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  summary::after { content: "+"; font-family: "Fredoka"; font-size: 24px; color: var(--coral); line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 10px 0 0; color: #3a3d52; }
+  .faq { max-width: 780px; margin: 0 auto; }
+
+  footer { border-top: 1px solid var(--line); padding: 30px 0 46px; color: var(--mute); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 28px; justify-content: space-between; }
+  footer a { color: var(--ink); font-weight: 600; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/icon.png" alt="">Landed</a>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#faq">FAQ</a>
+      <a class="cta-small" href="#install">Download</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+  <div class="wrap">
+    <header class="hero">
+      <div>
+        <span class="eyebrow">🔒 Free · Private · No ads</span>
+        <h1>Everything you need, <span>from the day you land.</span></h1>
+        <p class="lead">Landed is one app for international students in the UK. Arrival checklist, work-hour limits, budget, deadlines, food nearby and plain-English guides linked to GOV.UK and the NHS.</p>
+        <div class="buttons">
+          <a class="btn primary" href="https://github.com/Dinakarnayak/settlemate-demo/releases/latest/download/Landed.apk">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.5 11.5 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
+            Download for Android
+          </a>
+          <a class="btn ghost" href="#demo">▶ Watch the demo</a>
+        </div>
+        <p class="fine">Free Android app. Not on Google Play yet, so see <a href="#install">how to install</a>.</p>
+      </div>
+      <div class="phones" aria-hidden="true">
+        <div class="blob one"></div><div class="blob two"></div>
+        <div class="phone a"><img src="assets/home.webp" alt=""></div>
+        <div class="phone b"><img src="assets/explore.webp" alt=""></div>
+      </div>
+    </header>
+
+    <div class="trust">
+      <div><i style="background:var(--mint-soft)">🔐</i>Encrypted on your phone</div>
+      <div><i style="background:var(--sun-soft)">🚫</i>No ads, no trackers</div>
+      <div><i style="background:var(--blue-soft)">📶</i>Works offline</div>
+      <div><i style="background:var(--pink-soft)">🏛️</i>Official sources</div>
+    </div>
+
+    <section id="features">
+      <div class="section-title">
+        <h2>Your first year, sorted</h2>
+        <p>The things every international student juggles, in one calm place.</p>
+      </div>
+      <div class="grid">
+        <div class="card c-coral"><div class="ic">✅</div><h3>Arrival checklist</h3><p>eVisa and share code, bank, GP, NI number, council tax, railcard, in the right order. Add your own tasks too.</p></div>
+        <div class="card c-blue"><div class="ic">⏱️</div><h3>Work-hour tracker</h3><p>Log shifts across all your jobs. Landed counts Monday to Sunday and warns you before you go over 20 (or 10) hours in term time.</p></div>
+        <div class="card c-sun"><div class="ic">💷</div><h3>Budget in pounds</h3><p>Set a monthly budget, log spending by category and see what you can spend each day.</p></div>
+        <div class="card c-pink"><div class="ic">📅</div><h3>Deadlines & visa countdown</h3><p>Visa expiry, tuition instalments, rent and assignments, with reminders on your home screen.</p></div>
+        <div class="card c-mint"><div class="ic">🍛</div><h3>Food near me</h3><p>Restaurants, cafés and grocers by distance, with cuisine, halal and veggie filters, plus newly mapped places.</p></div>
+        <div class="card c-plain"><div class="ic">📚</div><h3>12 practical guides</h3><p>Visa, work, money, housing and renters’ rights, health, study, transport, food, phones, community, emergencies and careers.</p></div>
+        <div class="card c-plain"><div class="ic">✨</div><h3>Ask Landed</h3><p>An offline helper with 50+ answers, each linked to its official source. It also knows your own hours and budget.</p></div>
+        <div class="card c-plain"><div class="ic">🆘</div><h3>Emergency help</h3><p>One-tap 999, 111, 101, Samaritans and Report Fraud, plus what to do if you lose your passport.</p></div>
+        <div class="card c-plain"><div class="ic">🗒️</div><h3>Private notes</h3><p>Landlord contacts, course codes, questions for your adviser, all encrypted on your phone.</p></div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="demo">
+        <div class="video-frame">
+          <video controls playsinline preload="none" poster="assets/poster.webp" aria-label="Landed app demo video">
+            <source src="assets/landed-demo.mp4" type="video/mp4">
+            <a href="assets/landed-demo.mp4">Download the demo video</a>
+          </video>
+        </div>
+        <div>
+          <div class="section-title" style="text-align:left;margin:0 0 24px">
+            <h2>See it in action</h2>
+            <p>A real recording of the app: set-up, home, work hours, guides, the helper and privacy settings.</p>
+          </div>
+          <div class="shots">
+            <figure><img src="assets/work.webp" alt="Logging a shift and seeing hours left this week"><figcaption>Log a shift</figcaption></figure>
+            <figure><img src="assets/ask.webp" alt="Ask Landed answering how many hours a student can work"><figcaption>Ask anything</figcaption></figure>
+            <figure><img src="assets/settings.webp" alt="Settings with profile photo, privacy and backup options"><figcaption>You’re in control</figcaption></figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <div class="privacy">
+        <div>
+          <h2>Private by design. Not by promise.</h2>
+          <p>Visa dates, wages and spending are sensitive. Landed keeps them on your phone, encrypted, and we never see them, because there’s no server to send them to.</p>
+          <p><a href="../privacy/">Read the privacy policy →</a></p>
+        </div>
+        <ul>
+          <li>🔐 <div><b>AES-256 encryption.</b> <span>The key lives in your phone’s secure Android Keystore.</span></div></li>
+          <li>🚫 <div><b>No ads, analytics or trackers.</b> <span>Not now, not later.</span></div></li>
+          <li>👆 <div><b>App lock.</b> <span>Fingerprint, face or PIN. Screenshots and the Recents preview are blocked by default.</span></div></li>
+          <li>💾 <div><b>Your backup, your key.</b> <span>Passphrase-encrypted backups, and a one-tap “erase everything”.</span></div></li>
+          <li>📍 <div><b>Location only when you ask.</b> <span>Rounded to about 1 km for “Food near me”, never stored.</span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="section-title">
+        <h2>Install in a minute</h2>
+        <p>Landed isn’t on Google Play yet, so you install it directly. It’s free.</p>
+      </div>
+      <div class="install">
+        <div class="card c-plain"><h3>Download</h3><p>On your Android phone, tap <b>Download for Android</b>. You’ll get <b>Landed.apk</b>.</p></div>
+        <div class="card c-plain"><h3>Allow the install</h3><p>Open the file. If asked, allow your browser to install apps (<i>Settings → Install unknown apps</i>). You can switch it off again afterwards.</p></div>
+        <div class="card c-plain"><h3>Set up</h3><p>Open Landed, add only what you want to, and turn on App lock in Settings.</p></div>
+      </div>
+      <div class="download-box">
+        <a class="btn primary" href="https://github.com/Dinakarnayak/settlemate-demo/releases/latest/download/Landed.apk">Download Landed.apk</a>
+        <p class="fine">Prefer to check first? See the <a href="https://github.com/Dinakarnayak/settlemate-demo/releases/latest">release notes</a> and the <a href="https://github.com/Dinakarnayak/settlemate-demo">source code</a>. On iPhone? Try the <a href="../app/">web prototype</a>.</p>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-title"><h2>Questions</h2></div>
+      <div class="faq">
+        <details><summary>Is Landed really free?</summary><p>Yes. No subscription, no ads, no in-app purchases. Landed runs entirely on your phone, so there are no server costs to pass on.</p></details>
+        <details><summary>Do I need an account?</summary><p>No. Everything works without signing in. Your data stays on your phone either way.</p></details>
+        <details><summary>Is this legal or immigration advice?</summary><p>No. Landed gives general, simplified information and links to official sources such as GOV.UK, UKCISA and the NHS. For your own situation, speak to your university’s international student advice team or a regulated immigration adviser.</p></details>
+        <details><summary>What happens if I lose or change my phone?</summary><p>Create an encrypted backup in Settings and keep it somewhere safe. On your new phone, install Landed and restore it with your passphrase. Without a backup, the data can’t be recovered, which is the point of on-device encryption.</p></details>
+        <details><summary>Why isn’t it on Google Play?</summary><p>Landed is a new, independent student project. Direct download lets it launch for free; a Play Store release may follow.</p></details>
+        <details><summary>Is it safe to install an APK?</summary><p>Only install apps from sources you trust. Landed’s full source code is public on GitHub, and every build is made automatically by GitHub Actions from that code.</p></details>
+        <details><summary>Is Landed linked to my university or the Home Office?</summary><p>No. Landed is independent and not affiliated with UKVI, the Home Office, the NHS or any university.</p></details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Landed · A student project by Dinakar Nayak N, made in Leicester.</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap">
+      <a href="../privacy/">Privacy policy</a>
+      <a href="https://github.com/Dinakarnayak/settlemate-demo">Source code</a>
+      <a href="https://github.com/Dinakarnayak/settlemate-demo/issues">Report a problem</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,8 +1,12 @@
-# Landed: clickable demo
+# Landed
 
-An all-in-one daily-life app for international students in the UK. This repository holds a clickable front-end prototype.
+The free, private, all-in-one app for international students in the UK.
 
-**Live demo:** https://dinakarnayak.github.io/settlemate-demo/
+**Get the Android app:** https://dinakarnayak.github.io/settlemate-demo/download/ · [Download Landed.apk](https://github.com/Dinakarnayak/settlemate-demo/releases/latest/download/Landed.apk) · [Privacy policy](https://dinakarnayak.github.io/settlemate-demo/privacy/)
+
+The Android app lives in [`flutter/`](flutter/). This repository also holds the original clickable web prototype:
+
+**Web prototype:** https://dinakarnayak.github.io/settlemate-demo/
 
 **Installable app:** https://dinakarnayak.github.io/settlemate-demo/app/ (open it on your phone, then choose *Add to Home Screen*)
 

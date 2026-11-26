@@ -2,7 +2,7 @@ name: Android APK
 
 on:
   push:
-    branches: [feat/settlemate-android-apk]
+    branches: [main, feat/settlemate-android-apk]
     paths:
       - "flutter/**"
       - ".github/workflows/android-apk.yml"
@@ -110,21 +110,36 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish to the Landed beta release
+      - name: Publish release (main = public release, branch = beta)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view landed-beta > /dev/null 2>&1 || \
-            gh release create landed-beta --prerelease --target "$GITHUB_SHA" --title "Landed beta" \
-              --notes "Latest Landed Android beta."
+          VERSION=$(grep '^version:' flutter/pubspec.yaml | sed 's/version: *//; s/+.*//')
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            if [ -z "$LANDED_KEYSTORE" ]; then
+              echo "::error::Public release needs the permanent signing key. Add the LANDED_KEYSTORE_BASE64 and LANDED_KEYSTORE_PASSWORD secrets, then re-run this workflow. Without it, every update would force users to uninstall and lose their data."
+              exit 1
+            fi
+            TAG="v$VERSION"; TITLE="Landed $VERSION"; FLAGS="--latest"
+          else
+            TAG="landed-beta"; TITLE="Landed beta"; FLAGS="--prerelease"
+          fi
           cat > notes.md <<NOTES
-          Latest Landed Android beta, built from ${GITHUB_SHA::7} on $(date -u +'%d %b %Y %H:%M UTC').
+          **Landed $VERSION**: the free, private app for international students in the UK. Built from ${GITHUB_SHA::7} on $(date -u +'%d %b %Y').
 
-          **Install:** open this page on your Android phone, tap **Landed.apk**, and allow installing from your browser if asked.
+          **Install:** open this page on your Android phone, tap **Landed.apk**, and allow installing from your browser if asked. Step-by-step: https://dinakarnayak.github.io/settlemate-demo/download/#install
 
-          **Demo:** \`landed-demo.mp4\` shows the app running.
+          - Arrival checklist, work-hour tracker, budget, deadlines with visa countdown, private notes
+          - 12 guides linked to GOV.UK, the NHS and trusted charities; offline Ask helper
+          - Food near me (OpenStreetMap, location only when you ask)
+          - Encrypted on your phone (AES-256). No ads, no analytics, no trackers.
 
-          Private by design: personal data stays encrypted on the phone. No ads, no trackers.
+          Privacy policy: https://dinakarnayak.github.io/settlemate-demo/privacy/
+          General information only, not legal or immigration advice.
           NOTES
-          gh release edit landed-beta --notes-file notes.md
-          gh release upload landed-beta flutter/build/app/outputs/flutter-apk/Landed.apk --clobber
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TITLE" --notes-file notes.md
+          else
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TITLE" --notes-file notes.md $FLAGS
+          fi
+          gh release upload "$TAG" flutter/build/app/outputs/flutter-apk/Landed.apk --clobber

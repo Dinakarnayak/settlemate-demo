@@ -69,7 +69,10 @@ const providers = <Provider>[
     kind: 'SIM',
     blurb: 'SIM-only plans with international minutes.',
     officialUrl: 'https://www.lebara.co.uk/',
-    referralUrl: 'https://aklam.io/yzJ6U79f', // founder's Lebara Refer & Earn link (Aklamio)
+    // Founder's Lebara Refer & Earn link, switched OFF at public launch until the
+    // university's international student advice team confirms it's allowed:
+    // referralUrl: 'https://aklam.io/yzJ6U79f',
+    referralUrl: null,
   ),
   Provider(
     name: 'giffgaff',
