@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../services/places.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -93,7 +94,7 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Food near me')),
+      appBar: AppBar(title: Text(t('Food near me'))),
       body: ListView(padding: const EdgeInsets.fromLTRB(18, 4, 18, 40), children: [
         if (places == null && !loading) ...[
           const SizedBox(height: 10),
@@ -106,11 +107,11 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Text('Restaurants, cafés, takeaways and grocers around you',
+          Text(t('Restaurants, cafés, takeaways and grocers around you'),
               style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
           const SizedBox(height: 10),
-          const Banner2(
-            'Your location is used once, rounded to about 1 km, to search OpenStreetMap. It isn’t stored or shared with anyone else.',
+          Banner2(
+            t('Your location is used once, rounded to about 1 km, to search OpenStreetMap. It isn’t stored or shared with anyone else.'),
             bg: AppColors.mintSoft,
             fg: AppColors.mint,
             icon: Icons.privacy_tip_rounded,
@@ -123,13 +124,13 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
           FilledButton.icon(
             onPressed: _search,
             icon: const Icon(Icons.my_location_rounded),
-            label: const Text('Find food near me'),
+            label: Text(t('Find food near me')),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
-            onPressed: () => openUrl(mapsUrl('restaurants near ${widget.store.profile.cityOrUk}')),
+            onPressed: () => openUrl(mapsUrl(widget.store.placeName.isEmpty ? 'restaurants near me' : 'restaurants near ${widget.store.placeName}')),
             icon: const Icon(Icons.map_rounded),
-            label: const Text('Search in maps instead'),
+            label: Text(t('Search in maps instead')),
           ),
         ],
         if (loading)
@@ -138,18 +139,18 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
             child: Column(children: [
               CircularProgressIndicator(),
               SizedBox(height: 12),
-              Text('Finding places near you…', style: smallText),
+              Text(t('Finding places near you…'), style: smallText),
             ]),
           ),
         if (error != null) ...[
           Banner2(error!, bg: AppColors.coralSoft, fg: AppColors.coral, icon: Icons.error_rounded),
-          OutlinedButton(onPressed: _search, child: const Text('Try again')),
+          OutlinedButton(onPressed: _search, child: Text(t('Try again'))),
         ],
         if (places != null && !loading) ...[
           Row(children: [
-            Expanded(child: Text('${list.length} of ${places!.length} places within ${radius / 1000} km', style: smallText.copyWith(fontWeight: FontWeight.w700))),
+            Expanded(child: Text(t('{a} of {b} places within {r} km', {'a': '${list.length}', 'b': '${places!.length}', 'r': '${radius / 1000}'}), style: smallText.copyWith(fontWeight: FontWeight.w700))),
             PopupMenuButton<int>(
-              tooltip: 'Distance',
+              tooltip: t('Distance'),
               initialValue: radius,
               onSelected: (r) {
                 setState(() => radius = r);
@@ -160,7 +161,7 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
                 PopupMenuItem(value: 1500, child: Text('Within 1.5 km')),
                 PopupMenuItem(value: 3000, child: Text('Within 3 km')),
               ],
-              child: const Pill('Distance', bg: AppColors.blueSoft, fg: AppColors.blue, icon: Icons.tune_rounded),
+              child: Pill(t('Distance'), bg: AppColors.blueSoft, fg: AppColors.blue, icon: Icons.tune_rounded),
             ),
           ]),
           const SizedBox(height: 10),
@@ -169,8 +170,8 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
             child: Row(children: [
               for (final k in const ['All', 'Restaurant', 'Café', 'Takeaway', 'Grocery'])
                 Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(label: Text(k), selected: kind == k, onSelected: (_) => setState(() => kind = k)),
+                  padding: const EdgeInsetsDirectional.only(end: 6),
+                  child: ChoiceChip(label: Text(t(k)), selected: kind == k, onSelected: (_) => setState(() => kind = k)),
                 ),
             ]),
           ),
@@ -179,20 +180,20 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(children: [
               Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: FilterChip(label: const Text('New on the map'), selected: newOnly, onSelected: (v) => setState(() => newOnly = v)),
+                padding: const EdgeInsetsDirectional.only(end: 6),
+                child: FilterChip(label: Text(t('New on the map')), selected: newOnly, onSelected: (v) => setState(() => newOnly = v)),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: FilterChip(label: const Text('Halal'), selected: halalOnly, onSelected: (v) => setState(() => halalOnly = v)),
+                padding: const EdgeInsetsDirectional.only(end: 6),
+                child: FilterChip(label: Text(t('Halal')), selected: halalOnly, onSelected: (v) => setState(() => halalOnly = v)),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: FilterChip(label: const Text('Vegetarian'), selected: vegOnly, onSelected: (v) => setState(() => vegOnly = v)),
+                padding: const EdgeInsetsDirectional.only(end: 6),
+                child: FilterChip(label: Text(t('Vegetarian')), selected: vegOnly, onSelected: (v) => setState(() => vegOnly = v)),
               ),
               for (final c in topCuisines)
                 Padding(
-                  padding: const EdgeInsets.only(right: 6),
+                  padding: const EdgeInsetsDirectional.only(end: 6),
                   child: FilterChip(
                     label: Text(c.replaceAll('_', ' ')),
                     selected: cuisine == c,
@@ -203,11 +204,11 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
           ),
           const SizedBox(height: 10),
           if (list.isEmpty)
-            const SoftCard(child: EmptyState(Icons.search_off_rounded, 'Nothing matches these filters. Try a bigger distance or fewer filters.'))
+            SoftCard(child: EmptyState(Icons.search_off_rounded, t('Nothing matches these filters. Try a bigger distance or fewer filters.')))
           else
             for (final p in list.take(120)) _PlaceCard(place: p, onTap: () => _details(context, p)),
           const SizedBox(height: 6),
-          const Text('Map data © OpenStreetMap contributors. Menus and prices aren’t in OpenStreetMap; open a place to see them on maps.',
+          Text(t('Map data © OpenStreetMap contributors. Menus and prices aren’t in OpenStreetMap; open a place to see them on maps.'),
               style: smallText, textAlign: TextAlign.center),
           const LinkText('OpenStreetMap copyright', 'https://www.openstreetmap.org/copyright'),
         ],
@@ -227,15 +228,15 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
             const SizedBox(height: 8),
             _info(Icons.directions_walk_rounded, '${p.distanceText} · ${p.walkText}'),
             if (p.address != null) _info(Icons.place_rounded, p.address!),
-            _info(Icons.schedule_rounded, p.openingHours ?? 'Opening hours not listed'),
+            _info(Icons.schedule_rounded, p.openingHours ?? t('Opening hours not listed')),
             if (p.phone != null) _info(Icons.call_rounded, p.phone!),
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => openUrl(mapsUrl('${p.name} ${p.address ?? widget.store.profile.city}')),
+                onPressed: () => openUrl(mapsUrl('${p.name} ${p.address ?? widget.store.placeName}')),
                 icon: const Icon(Icons.restaurant_menu_rounded),
-                label: const Text('Menu, prices & reviews'),
+                label: Text(t('Menu, prices & reviews')),
               ),
             ),
             const SizedBox(height: 8),
@@ -244,7 +245,7 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => openUrl('https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking'),
                   icon: const Icon(Icons.directions_rounded),
-                  label: const Text('Directions'),
+                  label: Text(t('Directions')),
                 ),
               ),
               if (p.website != null) ...[
@@ -253,14 +254,14 @@ class _FoodNearScreenState extends State<FoodNearScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => openUrl(p.website!.startsWith('http') ? p.website! : 'https://${p.website!}'),
                     icon: const Icon(Icons.language_rounded),
-                    label: const Text('Website'),
+                    label: Text(t('Website')),
                   ),
                 ),
               ],
               if (p.phone != null) ...[
                 const SizedBox(width: 8),
                 IconButton.outlined(
-                  tooltip: 'Call',
+                  tooltip: t('Call'),
                   onPressed: () => openUrl('tel:${p.phone!.replaceAll(' ', '')}'),
                   icon: const Icon(Icons.call_rounded),
                 ),

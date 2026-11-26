@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../content/countries/countries.dart';
 import '../data/models.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
@@ -14,19 +16,25 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  static const pages = 5;
   final _pages = PageController();
   int page = 0;
   final name = TextEditingController();
   final uni = TextEditingController();
   final city = TextEditingController();
   final home = TextEditingController();
-  final budget = TextEditingController(text: '800');
+  final currency = TextEditingController();
+  late final budget = TextEditingController(text: packFor(country).defaultBudget.toStringAsFixed(0));
   bool degree = true;
   DateTime? visa;
+  late String country = widget.store.profile.studyCountry;
+  bool budgetEdited = false;
+
+  CountryPack get pack => packFor(country);
 
   @override
   void dispose() {
-    for (final c in [name, uni, city, home, budget]) {
+    for (final c in [name, uni, city, home, budget, currency]) {
       c.dispose();
     }
     _pages.dispose();
@@ -35,32 +43,46 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() {
     FocusScope.of(context).unfocus();
-    if (page < 3) {
+    if (page < pages - 1) {
       _pages.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
     } else {
+      final p = pack;
       widget.store.completeOnboarding(Profile(
         name: name.text.trim(),
         university: uni.text.trim(),
         city: city.text.trim(),
         homeCountry: home.text.trim(),
         degreeLevel: degree,
-        weeklyLimit: degree ? 20 : 10,
-        monthlyBudget: parseAmount(budget.text) ?? 800,
+        weeklyLimit: widget.store.defaultLimit(p, degree),
+        monthlyBudget: parseAmount(budget.text) ?? p.defaultBudget,
         visaExpiry: visa,
+        studyCountry: country,
+        language: currentLanguage,
+        currency: p.fullySupported ? '' : currency.text.trim(),
       ));
     }
   }
 
+  void _pickCountry(String code) => setState(() {
+        country = code;
+        if (!budgetEdited) budget.text = packFor(code).defaultBudget.toStringAsFixed(0);
+      });
+
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final p = pack;
+    final r = p.work;
+    final limitText = r.isDays
+        ? t('Work limit: {n} days a year.', {'n': '${r.limit.round()}'})
+        : t('Work limit: {n} hours per {p}.', {'n': '${widget.store.defaultLimit(p, degree)}', 'p': t(r.periodName)});
     return Scaffold(
       body: SafeArea(
         child: Column(children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
             child: Row(children: [
-              for (var i = 0; i < 4; i++)
+              for (var i = 0; i < pages; i++)
                 Expanded(
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
@@ -77,63 +99,124 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               physics: const NeverScrollableScrollPhysics(),
               onPageChanged: (i) => setState(() => page = i),
               children: [
+                // ------------------------------------------------ welcome + language
                 _page([
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
                   Center(
                     child: Transform.rotate(
                       angle: -0.12,
                       child: Container(
-                        width: 96,
-                        height: 96,
+                        width: 88,
+                        height: 88,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(30)),
-                        child: const Icon(Icons.flight_land_rounded, color: Colors.white, size: 52),
+                        decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(28)),
+                        child: const Icon(Icons.flight_land_rounded, color: Colors.white, size: 48),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 28),
-                  Text('Welcome to Landed', style: tt.headlineMedium?.copyWith(fontSize: 32), textAlign: TextAlign.center),
-                  const SizedBox(height: 8),
-                  const Text('Everything you need, from the day you land.',
-                      textAlign: TextAlign.center, style: TextStyle(fontSize: 17, color: AppColors.mute)),
-                  const SizedBox(height: 28),
-                  const _Promise(Icons.lock_rounded, 'Private by design', 'Everything you enter is encrypted and stays on this phone.'),
-                  const _Promise(Icons.money_off_rounded, 'Free, no ads', 'No adverts, no trackers, no selling your data. Ever.'),
-                  const _Promise(Icons.wifi_off_rounded, 'Works offline', 'Checklists, trackers, guides and the helper all work without internet.'),
-                  const _Promise(Icons.verified_rounded, 'Official sources', 'Guides link to GOV.UK, the NHS and trusted charities.'),
-                ]),
-                _page([
-                  Text('About you', style: tt.headlineMedium),
-                  const SizedBox(height: 6),
-                  const Text('All optional. It personalises the app and never leaves your phone.', style: TextStyle(color: AppColors.mute)),
-                  const SizedBox(height: 20),
-                  TextField(controller: name, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'First name')),
-                  const SizedBox(height: 12),
-                  TextField(controller: uni, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'University')),
-                  const SizedBox(height: 12),
-                  TextField(controller: city, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'UK city', hintText: 'e.g. Leicester')),
-                  const SizedBox(height: 12),
-                  TextField(controller: home, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'Home country', hintText: 'e.g. India')),
-                ]),
-                _page([
-                  Text('Your visa', style: tt.headlineMedium),
-                  const SizedBox(height: 6),
-                  const Text('Used for your work-hour limit and visa countdown.', style: TextStyle(color: AppColors.mute)),
-                  const SizedBox(height: 20),
-                  const Text('Course level', style: TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: true, label: Text('Degree or above'), icon: Icon(Icons.school_rounded)),
-                      ButtonSegment(value: false, label: Text('Below degree')),
-                    ],
-                    selected: {degree},
-                    onSelectionChanged: (v) => setState(() => degree = v.first),
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Term-time work limit: ${degree ? 20 : 10} hours a week. Your eVisa shows your exact conditions.', style: smallText),
                   const SizedBox(height: 22),
-                  const Text('Visa expiry date', style: TextStyle(fontWeight: FontWeight.w700)),
+                  Text(t('Welcome to Landed'), style: tt.headlineMedium?.copyWith(fontSize: 30), textAlign: TextAlign.center),
+                  const SizedBox(height: 8),
+                  Text(t('Everything you need, from the day you land.'),
+                      textAlign: TextAlign.center, style: const TextStyle(fontSize: 17, color: AppColors.mute)),
+                  const SizedBox(height: 18),
+                  Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: [
+                    for (final l in appLanguages)
+                      ChoiceChip(
+                        key: ValueKey('lang-${l.code}'),
+                        label: Text(l.native),
+                        selected: currentLanguage == l.code,
+                        onSelected: (_) {
+                          setCurrentLanguage(l.code);
+                          widget.store.setLanguage(l.code);
+                        },
+                      ),
+                  ]),
+                  const SizedBox(height: 22),
+                  _Promise(Icons.lock_rounded, t('Private by design'), t('Everything you enter is encrypted and stays on this phone.')),
+                  _Promise(Icons.money_off_rounded, t('Free, no ads'), t('No adverts, no trackers, no selling your data. Ever.')),
+                  _Promise(Icons.public_rounded, t('Wherever you study'), t('Rules, checklists and emergency numbers for your study country.')),
+                  _Promise(Icons.verified_rounded, t('Official sources'), t('Guides link to government and trusted sources.')),
+                ]),
+                // ------------------------------------------------ study country
+                _page([
+                  Text(t('Where are you studying?'), style: tt.headlineMedium),
+                  const SizedBox(height: 6),
+                  Text(t('Landed sets work rules, money, guides and emergency numbers for this country. You can change it later.'),
+                      style: const TextStyle(color: AppColors.mute)),
+                  const SizedBox(height: 16),
+                  for (final c in countryPacks)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Material(
+                        color: country == c.code ? AppColors.coralSoft : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          key: ValueKey('country-${c.code}'),
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => _pickCountry(c.code),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: country == c.code ? AppColors.coral : AppColors.line, width: country == c.code ? 2 : 1.5),
+                            ),
+                            child: Row(children: [
+                              Text(c.flag, style: const TextStyle(fontSize: 26)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Text(c.fullySupported ? c.name : t('Another country'), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                                  Text(c.fullySupported ? '${c.currencyCode} · ${c.studentVisaName}' : t('General tools, no country-specific rules yet'),
+                                      style: smallText),
+                                ]),
+                              ),
+                              if (country == c.code) const Icon(Icons.check_circle_rounded, color: AppColors.coral),
+                            ]),
+                          ),
+                        ),
+                      ),
+                    ),
+                ]),
+                // ------------------------------------------------ about you
+                _page([
+                  Text(t('About you'), style: tt.headlineMedium),
+                  const SizedBox(height: 6),
+                  Text(t('All optional. It personalises the app and never leaves your phone.'), style: const TextStyle(color: AppColors.mute)),
+                  const SizedBox(height: 20),
+                  TextField(controller: name, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('First name'))),
+                  const SizedBox(height: 12),
+                  TextField(controller: uni, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('University'))),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: city,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(labelText: t('City'), hintText: p.cities.isEmpty ? null : t('e.g. {c}', {'c': p.cities.first})),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(controller: home, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('Home country'), hintText: t('e.g. India'))),
+                ]),
+                // ------------------------------------------------ visa
+                _page([
+                  Text(t('Your visa'), style: tt.headlineMedium),
+                  const SizedBox(height: 6),
+                  Text(t('Used for your work limit and visa countdown.'), style: const TextStyle(color: AppColors.mute)),
+                  const SizedBox(height: 20),
+                  if (r.belowDegreeLimit != null) ...[
+                    Text(t('Course level'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment(value: true, label: Text(t('Degree or above')), icon: const Icon(Icons.school_rounded)),
+                        ButtonSegment(value: false, label: Text(t('Below degree'))),
+                      ],
+                      selected: {degree},
+                      onSelectionChanged: (v) => setState(() => degree = v.first),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  Banner2('$limitText ${r.summary}', bg: AppColors.blueSoft, fg: AppColors.blue, icon: Icons.gavel_rounded),
+                  Text(t('Visa expiry date'), style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: () async {
@@ -141,25 +224,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       if (d != null) setState(() => visa = d);
                     },
                     icon: const Icon(Icons.event_rounded),
-                    label: Text(visa == null ? 'Add date (optional)' : fmtDate(visa!, year: true)),
+                    label: Text(visa == null ? t('Add date (optional)') : fmtDate(visa!, year: true)),
                   ),
-                  const SizedBox(height: 8),
-                  const LinkText('Find it in your UKVI account', 'https://www.gov.uk/view-prove-immigration-status'),
                 ]),
+                // ------------------------------------------------ budget
                 _page([
-                  Text('Your budget', style: tt.headlineMedium),
+                  Text(t('Your budget'), style: tt.headlineMedium),
                   const SizedBox(height: 6),
-                  const Text('Roughly how much do you plan to spend each month, including rent?', style: TextStyle(color: AppColors.mute)),
+                  Text(t('Roughly how much do you plan to spend each month, including rent?'), style: const TextStyle(color: AppColors.mute)),
                   const SizedBox(height: 20),
+                  if (!p.fullySupported) ...[
+                    TextField(
+                      controller: currency,
+                      maxLength: 4,
+                      decoration: InputDecoration(labelText: t('Currency symbol'), hintText: t('e.g. ¥, ₩, R')),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   TextField(
                     controller: budget,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     style: bigNumber(size: 30),
-                    decoration: const InputDecoration(prefixText: '£ ', suffixText: 'a month'),
+                    onChanged: (_) => budgetEdited = true,
+                    decoration: InputDecoration(
+                      prefixText: '${p.fullySupported ? p.currencySymbol : (currency.text.trim().isEmpty ? '' : currency.text.trim())} ',
+                      suffixText: t('a month'),
+                    ),
                   ),
                   const SizedBox(height: 22),
-                  const Banner2(
-                    'Tip: turn on App lock in Settings to protect Landed with your fingerprint, face or PIN.',
+                  Banner2(
+                    t('Tip: turn on App lock in Settings to protect Landed with your fingerprint, face or PIN.'),
                     bg: AppColors.mintSoft,
                     fg: AppColors.mint,
                     icon: Icons.fingerprint_rounded,
@@ -174,13 +269,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               if (page > 0)
                 TextButton(
                   onPressed: () => _pages.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic),
-                  child: const Text('Back'),
+                  child: Text(t('Back')),
                 ),
               const Spacer(),
               FilledButton(
                 key: const ValueKey('onboarding-next'),
                 onPressed: _next,
-                child: Text(page == 0 ? 'Get started' : page == 3 ? 'Start using Landed' : 'Next'),
+                child: Text(page == 0 ? t('Get started') : page == pages - 1 ? t('Start using Landed') : t('Next')),
               ),
             ]),
           ),

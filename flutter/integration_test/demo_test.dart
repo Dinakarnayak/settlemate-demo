@@ -51,6 +51,8 @@ void main() {
 
     // ---------------------------------------------------------------- onboarding
     await tap(t, find.byKey(const ValueKey('onboarding-next')));
+    await tap(t, find.byKey(const ValueKey('country-GB')), 1500); // study country
+    await tap(t, find.byKey(const ValueKey('onboarding-next')));
     final fields = find.byType(TextField);
     await typeSlowly(t, fields.at(0), 'Dinakar');
     await typeSlowly(t, fields.at(1), 'University of Leicester');

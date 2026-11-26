@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../content/countries/countries.dart';
 import '../data/models.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'guide.dart';
+
+String periodWord(WorkRule r) => switch (r.period) {
+      LimitPeriod.week => t('this week'),
+      LimitPeriod.fortnight => t('this fortnight'),
+      _ => t('this year'),
+    };
 
 class WorkScreen extends StatefulWidget {
   const WorkScreen({super.key, required this.store});
@@ -20,43 +28,59 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   Widget build(BuildContext context) {
     final s = widget.store;
-    final limit = s.profile.weeklyLimit;
-    final h = s.hoursInWeek(week);
-    final over = h > limit;
-    final near = !over && h >= limit - 3;
+    final rule = s.rule;
+    final limit = s.workLimit;
+    final used = s.usedInPeriod(week);
+    final over = used > limit;
+    final nearGap = rule.isDays ? 10 : rule.period == LimitPeriod.yearHours ? 60 : rule.period == LimitPeriod.fortnight ? 6 : 3;
+    final near = !over && used >= limit - nearGap;
     final col = over ? AppColors.coral : near ? AppColors.sun : AppColors.blue;
     final weekShifts = s.shiftsInWeek(week);
     final pay = s.payInWeek(week);
     final isThisWeek = weekStart(s.now) == week;
     final end = week.add(const Duration(days: 6));
+    final (pStart, pEnd) = s.periodRange(week);
+    final periodText = switch (rule.period) {
+      LimitPeriod.week => t('Monday to Sunday'),
+      LimitPeriod.fortnight => '${fmtDate(pStart)} – ${fmtDate(pEnd.subtract(const Duration(days: 1)))}',
+      _ => '${pStart.year}',
+    };
 
     final (msg, bg, fg) = over
-        ? ('${fmtHours(h - limit)} over your $limit-hour limit. In term time this can breach your visa conditions.', AppColors.coralSoft, AppColors.coral)
+        ? (t('{x} over your limit. In term time this can breach your visa conditions.', {'x': s.units(used - limit)}), AppColors.coralSoft, AppColors.coral)
         : near
-            ? ('Only ${fmtHours(limit - h)} left this week. Plan your next shift carefully.', AppColors.sunSoft, AppColors.sunText)
-            : ('You’re within your term-time limit.', AppColors.mintSoft, AppColors.mint);
+            ? (t('Only {x} left. Plan your next shift carefully.', {'x': s.units(limit - used)}), AppColors.sunSoft, AppColors.sunText)
+            : (t('You’re within your term-time limit.'), AppColors.mintSoft, AppColors.mint);
+
+    final chips = <int>{
+      s.defaultLimit(s.pack, true),
+      if (rule.belowDegreeLimit != null) rule.belowDegreeLimit!.round(),
+      s.profile.weeklyLimit,
+    }.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     return ListView(padding: pagePad, children: [
-      ScreenTitle('Work hours', 'Monday to Sunday · all jobs count together',
+      ScreenTitle(t('Work hours'), '${s.pack.flag} ${t(rule.isDays ? 'Days worked count towards your yearly limit' : 'All jobs count together')}',
           trailing: IconButton(
-            tooltip: 'Work rules',
+            tooltip: t('Work rules'),
             onPressed: () => openGuide(context, s, 'work'),
             icon: const Icon(Icons.menu_book_rounded),
           )),
+      Banner2(rule.summary, bg: AppColors.blueSoft, fg: AppColors.blue, icon: Icons.gavel_rounded),
       Row(children: [
         IconButton(
-          tooltip: 'Previous week',
+          tooltip: t('Previous week'),
           onPressed: () => setState(() => week = week.subtract(const Duration(days: 7))),
           icon: const Icon(Icons.chevron_left_rounded),
         ),
         Expanded(
           child: Column(children: [
-            Text(isThisWeek ? 'This week' : 'Week of ${fmtDate(week)}', style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(isThisWeek ? t('This week') : t('Week of {d}', {'d': fmtDate(week)}), style: const TextStyle(fontWeight: FontWeight.w700)),
             Text('${fmtDate(week, weekday: true)} – ${fmtDate(end, weekday: true)}', style: smallText),
           ]),
         ),
         IconButton(
-          tooltip: 'Next week',
+          tooltip: t('Next week'),
           onPressed: () => setState(() => week = week.add(const Duration(days: 7))),
           icon: const Icon(Icons.chevron_right_rounded),
         ),
@@ -66,35 +90,34 @@ class _WorkScreenState extends State<WorkScreen> {
         child: Column(children: [
           Row(children: [
             ProgressRing(
-              value: limit == 0 ? 0 : h / limit,
+              value: limit == 0 ? 0 : used / limit,
               color: col,
               track: AppColors.line,
               size: 140,
               stroke: 14,
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text(fmtHours(h), style: bigNumber(size: 34)),
-                Text('of ${limit}h', style: smallText),
+                FittedBox(child: Text(rule.isDays ? used.toString().replaceAll('.0', '') : fmtHours(used), style: bigNumber(size: 34))),
+                Text(rule.isDays ? t('of {n} days', {'n': '${limit.round()}'}) : t('of {n}h', {'n': '${limit.round()}'}), style: smallText),
               ]),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Your weekly limit', style: smallText.copyWith(fontWeight: FontWeight.w600)),
+                Text(t('Limit per {p}', {'p': t(rule.periodName)}), style: smallText.copyWith(fontWeight: FontWeight.w600)),
+                Text(periodText, style: smallText.copyWith(fontSize: 12)),
                 const SizedBox(height: 6),
-                Wrap(spacing: 8, children: [
-                  for (final v in [20, 10])
+                Wrap(spacing: 6, runSpacing: 6, children: [
+                  for (final v in chips)
                     ChoiceChip(
-                      label: Text('${v}h'),
-                      selected: limit == v,
-                      onSelected: (_) => s.updateProfile((p) {
-                        p.weeklyLimit = v;
-                        p.degreeLevel = v == 20;
-                      }),
+                      label: Text(rule.isDays ? '$v' : '${v}h'),
+                      selected: s.profile.weeklyLimit == v,
+                      onSelected: (_) => s.updateProfile((p) => p.weeklyLimit = v),
                     ),
+                  ActionChip(label: Text(t('Custom')), onPressed: () => _customLimit(context, s)),
                 ]),
                 const SizedBox(height: 8),
-                Text('${weekShifts.length} shift${weekShifts.length == 1 ? '' : 's'}', style: smallText),
-                if (pay > 0) Text('≈ ${gbp(pay)} before tax', style: smallText.copyWith(fontWeight: FontWeight.w700)),
+                Text(t('{n} shifts this week', {'n': '${weekShifts.length}'}), style: smallText),
+                if (pay > 0) Text(t('≈ {x} before tax', {'x': s.money(pay)}), style: smallText.copyWith(fontWeight: FontWeight.w700)),
               ]),
             ),
           ]),
@@ -105,12 +128,16 @@ class _WorkScreenState extends State<WorkScreen> {
             decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
             child: Text(msg, style: TextStyle(color: fg, fontWeight: FontWeight.w600, fontSize: 14)),
           ),
+          if (rule.breaksNote != null) ...[
+            const SizedBox(height: 8),
+            Text(rule.breaksNote!, style: smallText),
+          ],
         ]),
       ),
       _WeekBars(store: s, week: week),
-      SectionHeader('Shifts', action: 'Log shift', onAction: () => showAddShift(context, s, initialDate: isThisWeek ? null : week)),
+      SectionHeader(t('Shifts'), action: t('Log shift'), onAction: () => showAddShift(context, s, initialDate: isThisWeek ? null : week)),
       if (weekShifts.isEmpty)
-        const SoftCard(child: EmptyState(Icons.work_outline_rounded, 'No shifts this week. Tap “Log shift” after each one.'))
+        SoftCard(child: EmptyState(Icons.work_outline_rounded, t('No shifts this week. Tap “Log shift” after each one.')))
       else
         SoftCard(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -120,8 +147,8 @@ class _WorkScreenState extends State<WorkScreen> {
                 key: ValueKey(sh.id),
                 direction: DismissDirection.endToStart,
                 background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 16),
+                  alignment: AlignmentDirectional.centerEnd,
+                  padding: const EdgeInsetsDirectional.only(end: 16),
                   child: const Icon(Icons.delete_rounded, color: AppColors.coral),
                 ),
                 onDismissed: (_) => s.removeShift(sh),
@@ -129,15 +156,36 @@ class _WorkScreenState extends State<WorkScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                   leading: const IconBubble(Icons.badge_rounded, bg: AppColors.blueSoft, fg: AppColors.blue, size: 42),
                   title: Text(sh.job, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text('${fmtDate(sh.date, weekday: true)}${sh.rate != null ? ' · ${gbp(sh.rate!)}/h' : ''}'),
+                  subtitle: Text('${fmtDate(sh.date, weekday: true)}${sh.rate != null ? ' · ${s.money(sh.rate!)}/h' : ''}'),
                   trailing: Text(fmtHours(sh.hours), style: bigNumber(size: 20)),
                 ),
               ),
           ]),
         ),
-      const Text('Swipe a shift left to delete it. Rules are simplified: check your eVisa for your exact conditions.',
-          style: smallText, textAlign: TextAlign.center),
+      LinkText(t('Official rules'), rule.officialUrl),
+      Text(t('Swipe a shift to delete it. Rules are simplified: check your own visa conditions.'), style: smallText, textAlign: TextAlign.center),
     ]);
+  }
+
+  Future<void> _customLimit(BuildContext context, AppStore s) async {
+    final c = TextEditingController(text: '${s.profile.weeklyLimit}');
+    final v = await showDialog<int>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: Text(t('Your limit per {p}', {'p': t(s.rule.periodName)})),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(suffixText: s.rule.isDays ? t('days') : t('hours')),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(d), child: Text(t('Cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(d, int.tryParse(c.text.trim())), child: Text(t('Save'))),
+        ],
+      ),
+    );
+    if (v != null && v > 0 && v < 5000) s.updateProfile((p) => p.weeklyLimit = v);
   }
 }
 
@@ -175,7 +223,7 @@ class _WeekBars extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  dayName(week.add(Duration(days: i))).substring(0, 1),
+                  dayName(week.add(Duration(days: i))).characters.first,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -204,12 +252,12 @@ Future<void> showAddShift(BuildContext context, AppStore s, {DateTime? initialDa
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Log a shift', style: Theme.of(c).textTheme.titleLarge),
+            Text(t('Log a shift'), style: Theme.of(c).textTheme.titleLarge),
             const SizedBox(height: 14),
             TextField(
               controller: job,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Job', hintText: 'e.g. Café, Warehouse'),
+              decoration: InputDecoration(labelText: t('Job'), hintText: t('e.g. Café, Warehouse')),
             ),
             if (jobs.length > 1) ...[
               const SizedBox(height: 8),
@@ -231,7 +279,7 @@ Future<void> showAddShift(BuildContext context, AppStore s, {DateTime? initialDa
                   controller: hours,
                   autofocus: true,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Hours', suffixText: 'h'),
+                  decoration: InputDecoration(labelText: t('Hours'), suffixText: 'h'),
                   onChanged: (_) => set(() {}),
                 ),
               ),
@@ -240,7 +288,7 @@ Future<void> showAddShift(BuildContext context, AppStore s, {DateTime? initialDa
                 child: TextField(
                   controller: rate,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Pay per hour', prefixText: '£ ', hintText: 'optional'),
+                  decoration: InputDecoration(labelText: t('Pay per hour'), prefixText: '${s.currencySymbol} ', hintText: t('optional')),
                 ),
               ),
             ]),
@@ -257,8 +305,8 @@ Future<void> showAddShift(BuildContext context, AppStore s, {DateTime? initialDa
             if (h > 0)
               Banner2(
                 left < 0
-                    ? 'This takes that week to ${fmtHours(s.profile.weeklyLimit - left)}, over your ${s.profile.weeklyLimit}h limit. Only do this in an official vacation.'
-                    : '${fmtHours(left)} left that week after this shift.',
+                    ? t('This puts you {x} over your limit for that {p}. Only do this in an official break.', {'x': s.units(-left), 'p': t(s.rule.periodName)})
+                    : t('{x} left that {p} after this shift.', {'x': s.units(left), 'p': t(s.rule.periodName)}),
                 bg: left < 0 ? AppColors.coralSoft : AppColors.mintSoft,
                 fg: left < 0 ? AppColors.coral : AppColors.mint,
                 icon: left < 0 ? Icons.warning_rounded : Icons.check_circle_rounded,
@@ -271,12 +319,12 @@ Future<void> showAddShift(BuildContext context, AppStore s, {DateTime? initialDa
                 onPressed: () {
                   final e = s.addShift(job: job.text, date: date, hours: h, rate: parseAmount(rate.text));
                   if (e != null) {
-                    set(() => error = e);
+                    set(() => error = t(e));
                   } else {
                     Navigator.pop(c);
                   }
                 },
-                child: const Text('Save shift'),
+                child: Text(t('Save shift')),
               ),
             ),
           ]),

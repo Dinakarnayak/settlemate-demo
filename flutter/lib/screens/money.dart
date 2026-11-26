@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/models.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'guide.dart';
@@ -44,21 +45,21 @@ class _MoneyScreenState extends State<MoneyScreen> {
     final over = left < 0;
 
     return ListView(padding: pagePad, children: [
-      ScreenTitle('Money', 'Your budget in pounds, private to this phone',
+      ScreenTitle(t('Money'), '${s.pack.flag} ${t('Your budget in {c}, private to this phone', {'c': s.pack.fullySupported ? s.pack.currencyCode : t('your currency')})}',
           trailing: IconButton(
-            tooltip: 'Money guide',
+            tooltip: t('Money guide'),
             onPressed: () => openGuide(context, s, 'money'),
             icon: const Icon(Icons.menu_book_rounded),
           )),
       Row(children: [
         IconButton(
-          tooltip: 'Previous month',
+          tooltip: t('Previous month'),
           onPressed: () => setState(() => month = DateTime(month.year, month.month - 1)),
           icon: const Icon(Icons.chevron_left_rounded),
         ),
         Expanded(child: Text(fmtMonth(month), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700))),
         IconButton(
-          tooltip: 'Next month',
+          tooltip: t('Next month'),
           onPressed: () => setState(() => month = DateTime(month.year, month.month + 1)),
           icon: const Icon(Icons.chevron_right_rounded),
         ),
@@ -69,31 +70,31 @@ class _MoneyScreenState extends State<MoneyScreen> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(color: over ? AppColors.coral : AppColors.tileSun, borderRadius: BorderRadius.circular(26)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(over ? 'Over budget by' : 'Left this month',
+          Text(over ? t('Over budget by') : t('Left this month'),
               style: TextStyle(fontWeight: FontWeight.w700, color: over ? Colors.white70 : AppColors.ink)),
           const SizedBox(height: 6),
-          Text(gbp(left.abs()), style: bigNumber(size: 44, color: over ? Colors.white : AppColors.ink)),
+          Text(s.money(left.abs()), style: bigNumber(size: 44, color: over ? Colors.white : AppColors.ink)),
           const SizedBox(height: 12),
           Meter(value: budget == 0 ? 0 : spent / budget, color: over ? Colors.white : AppColors.ink, track: over ? Colors.white30 : null),
           const SizedBox(height: 10),
           Row(children: [
             Expanded(
-              child: Text('${gbp(spent)} spent of ${gbp(budget)}',
+              child: Text(t('{x} spent of {y}', {'x': s.money(spent), 'y': s.money(budget)}),
                   style: TextStyle(fontWeight: FontWeight.w600, color: over ? Colors.white : AppColors.ink)),
             ),
             TextButton(
               onPressed: () => _editBudget(context, s),
               style: TextButton.styleFrom(foregroundColor: over ? Colors.white : AppColors.ink),
-              child: const Text('Edit budget'),
+              child: Text(t('Edit budget')),
             ),
           ]),
           if (isThisMonth && !over)
-            Text('About ${gbp(s.dailyAllowance.floorToDouble())} a day for the rest of the month',
+            Text(t('About {x} a day for the rest of the month', {'x': s.money(s.dailyAllowance.floorToDouble())}),
                 style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.sunText)),
         ]),
       ),
       if (cats.isNotEmpty) ...[
-        const SectionHeader('Where it went'),
+        SectionHeader(t('Where it went')),
         SoftCard(
           child: Column(children: [
             for (final e in cats.entries)
@@ -105,8 +106,8 @@ class _MoneyScreenState extends State<MoneyScreen> {
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Row(children: [
-                        Expanded(child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.w700))),
-                        Text(gbp(e.value), style: const TextStyle(fontWeight: FontWeight.w700)),
+                        Expanded(child: Text(t(e.key), style: const TextStyle(fontWeight: FontWeight.w700))),
+                        Text(s.money(e.value), style: const TextStyle(fontWeight: FontWeight.w700)),
                       ]),
                       const SizedBox(height: 6),
                       Meter(value: spent == 0 ? 0 : e.value / spent, color: styleFor(e.key).$3, track: AppColors.line),
@@ -117,9 +118,9 @@ class _MoneyScreenState extends State<MoneyScreen> {
           ]),
         ),
       ],
-      SectionHeader('Spending', action: 'Add', onAction: () => showAddExpense(context, s, initialDate: isThisMonth ? null : month)),
+      SectionHeader(t('Spending'), action: t('Add'), onAction: () => showAddExpense(context, s, initialDate: isThisMonth ? null : month)),
       if (list.isEmpty)
-        const SoftCard(child: EmptyState(Icons.receipt_long_rounded, 'Nothing logged this month. Tap “Add” when you spend.'))
+        SoftCard(child: EmptyState(Icons.receipt_long_rounded, t('Nothing logged this month. Tap “Add” when you spend.')))
       else
         SoftCard(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -129,22 +130,22 @@ class _MoneyScreenState extends State<MoneyScreen> {
                 key: ValueKey(e.id),
                 direction: DismissDirection.endToStart,
                 background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 16),
+                  alignment: AlignmentDirectional.centerEnd,
+                  padding: const EdgeInsetsDirectional.only(end: 16),
                   child: const Icon(Icons.delete_rounded, color: AppColors.coral),
                 ),
                 onDismissed: (_) => s.removeExpense(e),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                   leading: IconBubble(styleFor(e.category).$1, bg: styleFor(e.category).$2, fg: styleFor(e.category).$3, size: 42),
-                  title: Text(e.note.isEmpty ? e.category : e.note, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text('${e.category} · ${fmtDate(e.date, weekday: true)}'),
-                  trailing: Text(gbp(e.amount), style: bigNumber(size: 18)),
+                  title: Text(e.note.isEmpty ? t(e.category) : e.note, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('${t(e.category)} · ${fmtDate(e.date, weekday: true)}'),
+                  trailing: Text(s.money(e.amount), style: bigNumber(size: 18)),
                 ),
               ),
           ]),
         ),
-      const Text('Swipe an item left to delete it.', style: smallText, textAlign: TextAlign.center),
+      Text(t('Swipe an item to delete it.'), style: smallText, textAlign: TextAlign.center),
     ]);
   }
 
@@ -153,16 +154,16 @@ class _MoneyScreenState extends State<MoneyScreen> {
     final v = await showDialog<double>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Monthly budget'),
+        title: Text(t('Monthly budget')),
         content: TextField(
           controller: c,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(prefixText: '£ '),
+          decoration: InputDecoration(prefixText: '${s.currencySymbol} '),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(d), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(d, parseAmount(c.text)), child: const Text('Save')),
+          TextButton(onPressed: () => Navigator.pop(d), child: Text(t('Cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(d, parseAmount(c.text)), child: Text(t('Save'))),
         ],
       ),
     );
@@ -181,21 +182,21 @@ Future<void> showAddExpense(BuildContext context, AppStore s, {DateTime? initial
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Add spending', style: Theme.of(c).textTheme.titleLarge),
+            Text(t('Add spending'), style: Theme.of(c).textTheme.titleLarge),
             const SizedBox(height: 14),
             TextField(
               controller: amount,
               autofocus: true,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               style: bigNumber(size: 28),
-              decoration: const InputDecoration(prefixText: '£ ', hintText: '0.00'),
+              decoration: InputDecoration(prefixText: '${s.currencySymbol} ', hintText: '0.00'),
             ),
             const SizedBox(height: 12),
             Wrap(spacing: 6, runSpacing: 6, children: [
               for (final cat in expenseCategories)
                 ChoiceChip(
                   avatar: Icon(styleFor(cat).$1, size: 16, color: styleFor(cat).$3),
-                  label: Text(cat),
+                  label: Text(t(cat)),
                   selected: category == cat,
                   onSelected: (_) => set(() => category = cat),
                 ),
@@ -204,7 +205,7 @@ Future<void> showAddExpense(BuildContext context, AppStore s, {DateTime? initial
             TextField(
               controller: note,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(labelText: 'Note', hintText: 'optional, e.g. Weekly shop'),
+              decoration: InputDecoration(labelText: t('Note'), hintText: t('optional, e.g. Weekly shop')),
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
@@ -226,12 +227,12 @@ Future<void> showAddExpense(BuildContext context, AppStore s, {DateTime? initial
                 onPressed: () {
                   final e = s.addExpense(category: category, amount: parseAmount(amount.text) ?? 0, date: date, note: note.text);
                   if (e != null) {
-                    set(() => error = e);
+                    set(() => error = t(e));
                   } else {
                     Navigator.pop(c);
                   }
                 },
-                child: const Text('Save'),
+                child: Text(t('Save')),
               ),
             ),
           ]),

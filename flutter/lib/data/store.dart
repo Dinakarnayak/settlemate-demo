@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
-import '../content/arrival.dart';
+import '../content/countries/countries.dart';
 import 'models.dart';
 import 'vault.dart';
 
@@ -18,7 +18,7 @@ class AppStore extends ChangeNotifier {
 
   Profile profile = Profile();
   Settings settings = Settings();
-  List<TaskItem> tasks = defaultArrivalTasks();
+  List<TaskItem> tasks = countryPacks.first.arrivalTasks();
   List<Shift> shifts = [];
   List<Expense> expenses = [];
   List<Deadline> deadlines = [];
@@ -71,7 +71,7 @@ class AppStore extends ChangeNotifier {
     profile = j['profile'] is Map ? Profile.fromJson((j['profile'] as Map).cast()) : Profile();
     settings = j['settings'] is Map ? Settings.fromJson((j['settings'] as Map).cast()) : Settings();
     final t = _list(j['tasks']);
-    tasks = t.isEmpty ? defaultArrivalTasks() : t.map(TaskItem.fromJson).toList();
+    tasks = t.isEmpty ? pack.arrivalTasks() : t.map(TaskItem.fromJson).toList();
     shifts = _list(j['shifts']).map(Shift.fromJson).toList();
     expenses = _list(j['expenses']).map(Expense.fromJson).toList();
     deadlines = _list(j['deadlines']).map(Deadline.fromJson).toList();
@@ -114,7 +114,7 @@ class AppStore extends ChangeNotifier {
     await vault.wipe();
     profile = Profile();
     settings = Settings();
-    tasks = defaultArrivalTasks();
+    tasks = pack.arrivalTasks();
     shifts = [];
     expenses = [];
     deadlines = [];
@@ -136,6 +136,46 @@ class AppStore extends ChangeNotifier {
     final m = lastMessage;
     lastMessage = null;
     return m;
+  }
+
+  // ------------------------------------------------------------------ country
+  CountryPack get pack => packFor(profile.studyCountry);
+  WorkRule get rule => pack.work;
+
+  String money(double v) {
+    final custom = profile.currency.trim();
+    if (!pack.fullySupported && custom.isNotEmpty) {
+      final a = v.abs();
+      final n = a % 1 == 0 ? a.toStringAsFixed(0) : a.toStringAsFixed(2);
+      return '${v < 0 ? '−' : ''}$custom$n';
+    }
+    return pack.money(v);
+  }
+
+  String get currencySymbol => !pack.fullySupported && profile.currency.trim().isNotEmpty ? profile.currency.trim() : pack.currencySymbol;
+
+  /// Text for map searches: the city, or the country if no city is set.
+  String get placeName {
+    final c = profile.city.trim();
+    if (c.isNotEmpty) return c;
+    return pack.fullySupported ? pack.name : '';
+  }
+
+  /// Default work limit for the student's country and course level.
+  int defaultLimit(CountryPack p, bool degree) => ((!degree ? p.work.belowDegreeLimit : null) ?? p.work.limit).round();
+
+  /// Switches study country. Optionally replaces the arrival checklist with the new country's.
+  void setStudyCountry(String code, {bool resetChecklist = true}) {
+    final p = packFor(code);
+    profile.studyCountry = code;
+    profile.weeklyLimit = defaultLimit(p, profile.degreeLevel);
+    if (resetChecklist) tasks = p.arrivalTasks();
+    _changed('Study country set to ${p.name}');
+  }
+
+  void setLanguage(String code) {
+    profile.language = code;
+    _changed();
   }
 
   // ------------------------------------------------------------------ XP & streak
@@ -160,6 +200,7 @@ class AppStore extends ChangeNotifier {
   // ------------------------------------------------------------------ profile & settings
   void completeOnboarding(Profile p) {
     profile = p..onboarded = true;
+    if (doneCount == 0) tasks = pack.arrivalTasks();
     if (p.visaExpiry != null) _upsertVisaDeadline(p.visaExpiry!);
     _changed('Welcome to Landed, ${p.firstName.isEmpty ? 'friend' : p.firstName}!');
   }
@@ -171,11 +212,11 @@ class AppStore extends ChangeNotifier {
   }
 
   void _upsertVisaDeadline(DateTime date) {
-    final i = deadlines.indexWhere((d) => d.kind == 'Visa' && d.title == 'Student visa expires');
+    final i = deadlines.indexWhere((d) => d.kind == 'Visa' && (d.title == 'Student visa expires' || d.title == 'Visa expires'));
     if (i >= 0) {
       deadlines[i].date = date;
     } else {
-      deadlines.add(Deadline(id: newId(), title: 'Student visa expires', date: date, kind: 'Visa'));
+      deadlines.add(Deadline(id: newId(), title: 'Visa expires', date: date, kind: 'Visa'));
     }
   }
 
@@ -239,7 +280,7 @@ class AppStore extends ChangeNotifier {
   }
 
   void resetChecklist() {
-    tasks = defaultArrivalTasks();
+    tasks = pack.arrivalTasks();
     _changed('Checklist reset');
   }
 
@@ -255,8 +296,44 @@ class AppStore extends ChangeNotifier {
   double payInWeek(DateTime anyDay) => shiftsInWeek(anyDay).fold(0, (a, s) => a + s.pay);
   double get hoursThisWeek => hoursInWeek(now);
 
-  /// Hours left before the limit if a shift of [extra] hours were added on [day].
-  double hoursLeftAfter(DateTime day, double extra) => profile.weeklyLimit - hoursInWeek(day) - extra;
+  /// The limit period (week, fortnight or year) that contains [day].
+  (DateTime, DateTime) periodRange(DateTime day) {
+    final ws = weekStart(day);
+    return switch (rule.period) {
+      LimitPeriod.week => (ws, ws.add(const Duration(days: 7))),
+      // Australia: 14 days starting on a Monday. Landed checks last week + this week.
+      LimitPeriod.fortnight => (ws.subtract(const Duration(days: 7)), ws.add(const Duration(days: 7))),
+      LimitPeriod.yearDays || LimitPeriod.yearHours => (DateTime(day.year), DateTime(day.year + 1)),
+    };
+  }
+
+  /// Work used in the period containing [day]: hours, or days for day-based limits
+  /// (Germany: a day of up to 4 hours counts as half a day).
+  double usedInPeriod(DateTime day, {double extra = 0}) {
+    final (start, end) = periodRange(day);
+    final perDay = <DateTime, double>{};
+    for (final sh in shifts) {
+      if (!sh.date.isBefore(start) && sh.date.isBefore(end)) {
+        final d = dateOnly(sh.date);
+        perDay[d] = (perDay[d] ?? 0) + sh.hours;
+      }
+    }
+    if (extra > 0) {
+      final d = dateOnly(day);
+      perDay[d] = (perDay[d] ?? 0) + extra;
+    }
+    if (!rule.isDays) return perDay.values.fold(0.0, (a, h) => a + h);
+    return perDay.values.fold(0.0, (a, h) => a + (h <= 0 ? 0 : h <= 4 ? 0.5 : 1));
+  }
+
+  double get usedNow => usedInPeriod(now);
+  double get workLimit => profile.weeklyLimit.toDouble();
+  double get workLeftNow => workLimit - usedNow;
+
+  /// What would be left in that period after adding a shift of [extra] hours on [day].
+  double hoursLeftAfter(DateTime day, double extra) => workLimit - usedInPeriod(day, extra: extra);
+
+  String units(double v) => rule.isDays ? fmtDays(v) : fmtHours(v);
 
   List<String> get jobNames {
     final seen = <String>{};
@@ -276,7 +353,7 @@ class AppStore extends ChangeNotifier {
     shifts.add(s);
     final left = hoursLeftAfter(date, 0);
     _addXp(2, 'shift logged');
-    if (left < 0) lastMessage = 'Logged. That week is ${fmtHours(-left)} over your ${profile.weeklyLimit}h limit.';
+    if (left < 0) lastMessage = 'Logged. That ${rule.periodName} is ${units(-left)} over your limit.';
     _changed();
     return null;
   }
@@ -315,7 +392,7 @@ class AppStore extends ChangeNotifier {
   String? addExpense({required String category, required double amount, required DateTime date, String note = ''}) {
     if (amount <= 0 || amount > 100000) return 'Enter an amount above £0.';
     expenses.add(Expense(id: newId(), date: dateOnly(date), category: category, amount: amount, note: note.trim()));
-    _changed('Added ${gbp(amount)} to $category');
+    _changed('Added ${money(amount)} to $category');
     return null;
   }
 
@@ -327,7 +404,7 @@ class AppStore extends ChangeNotifier {
   void setBudget(double v) {
     if (v <= 0) return;
     profile.monthlyBudget = v;
-    _changed('Budget set to ${gbp(v)}');
+    _changed('Budget set to ${money(v)}');
   }
 
   // ------------------------------------------------------------------ deadlines
@@ -399,3 +476,5 @@ String gbp(double v) {
 }
 
 String fmtHours(double v) => '${v % 1 == 0 ? v.toInt() : v.toStringAsFixed(1)}h';
+
+String fmtDays(double v) => '${v % 1 == 0 ? v.toInt() : v.toStringAsFixed(1)} day${v == 1 ? '' : 's'}';

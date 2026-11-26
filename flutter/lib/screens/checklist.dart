@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/models.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
+import '../l10n/l10n.dart' as l10n show t;
 import '../theme.dart';
 import '../widgets.dart';
 
@@ -14,18 +16,18 @@ class ChecklistScreen extends StatelessWidget {
     final s = store;
     final pct = (s.arrivalProgress * 100).round();
     return ListView(padding: pagePad, children: [
-      ScreenTitle('Arrival checklist', 'Your first weeks in the UK, in the right order. Each task earns 10 XP.',
+      ScreenTitle(t('Arrival checklist'), '${s.pack.flag} ${t('Your first weeks, in the right order. Each task earns 10 XP.')}',
           trailing: PopupMenuButton<String>(
-            tooltip: 'More',
+            tooltip: t('More'),
             onSelected: (v) async {
               if (v == 'add') _addTask(context, s);
-              if (v == 'reset' && await confirm(context, 'Reset checklist?', 'This restores the default tasks and clears ticks.', yes: 'Reset')) {
+              if (v == 'reset' && await confirm(context, t('Reset checklist?'), t('This restores the default tasks for your study country and clears ticks.'), yes: t('Reset'))) {
                 s.resetChecklist();
               }
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'add', child: Text('Add your own task')),
-              PopupMenuItem(value: 'reset', child: Text('Reset to default')),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'add', child: Text(t('Add your own task'))),
+              PopupMenuItem(value: 'reset', child: Text(t('Reset to default'))),
             ],
           )),
       SoftCard(
@@ -35,7 +37,7 @@ class ChecklistScreen extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('$pct%', style: bigNumber(color: AppColors.mint)),
               const SizedBox(height: 4),
-              Text(pct == 100 ? 'You’re officially settled!' : '${s.doneCount} of ${s.tasks.length} done, keep going',
+              Text(pct == 100 ? t('You’re officially settled!') : t('{a} of {b} done, keep going', {'a': '${s.doneCount}', 'b': '${s.tasks.length}'}),
                   style: smallText.copyWith(fontWeight: FontWeight.w600)),
             ]),
           ),
@@ -48,7 +50,7 @@ class ChecklistScreen extends StatelessWidget {
         child: TextButton.icon(
           onPressed: () => _addTask(context, s),
           icon: const Icon(Icons.add_rounded),
-          label: const Text('Add your own task'),
+          label: Text(t('Add your own task')),
         ),
       ),
     ]);
@@ -60,11 +62,11 @@ class ChecklistScreen extends StatelessWidget {
     showSheet(context, (c) => Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('New task', style: Theme.of(c).textTheme.titleLarge),
+            Text(t('New task'), style: Theme.of(c).textTheme.titleLarge),
             const SizedBox(height: 14),
-            TextField(controller: title, autofocus: true, textCapitalization: TextCapitalization.sentences, decoration: const InputDecoration(labelText: 'Task')),
+            TextField(controller: title, autofocus: true, textCapitalization: TextCapitalization.sentences, decoration: InputDecoration(labelText: t('Task'))),
             const SizedBox(height: 10),
-            TextField(controller: detail, textCapitalization: TextCapitalization.sentences, decoration: const InputDecoration(labelText: 'Details (optional)')),
+            TextField(controller: detail, textCapitalization: TextCapitalization.sentences, decoration: InputDecoration(labelText: t('Details (optional)'))),
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
@@ -73,13 +75,15 @@ class ChecklistScreen extends StatelessWidget {
                   s.addTask(title.text, detail.text);
                   Navigator.pop(c);
                 },
-                child: const Text('Add task'),
+                child: Text(t('Add task')),
               ),
             ),
           ]),
         ));
   }
 }
+
+String tr(String s) => l10n.t(s);
 
 class _TaskRow extends StatelessWidget {
   const _TaskRow({required this.task, required this.store});
@@ -133,12 +137,12 @@ class _TaskRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(t.detail, style: smallText.copyWith(height: 1.35)),
             ],
-            if (t.url != null) LinkText('Open guide', t.url!),
+            if (t.url != null) LinkText(tr('Open guide'), t.url!),
           ]),
         ),
         if (t.custom)
           IconButton(
-            tooltip: 'Delete task',
+            tooltip: tr('Delete task'),
             onPressed: () => store.removeTask(t),
             icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.mute),
           )

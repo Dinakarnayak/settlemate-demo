@@ -13,7 +13,7 @@ void main() {
     await tester.pump();
     expect(find.text('Welcome to Landed'), findsOneWidget);
 
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 5; i++) {
       await tester.tap(find.byKey(const ValueKey('onboarding-next')));
       await tester.pumpAndSettle();
     }

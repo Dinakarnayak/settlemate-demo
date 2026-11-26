@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'data/store.dart';
 import 'data/vault.dart';
+import 'l10n/l10n.dart';
 import 'screens/assistant.dart';
 import 'screens/checklist.dart';
 import 'screens/explore.dart';
@@ -41,19 +43,29 @@ class LandedApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Landed',
-      debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
-      home: ListenableBuilder(
-        listenable: store,
-        builder: (context, _) {
+    return ListenableBuilder(
+      listenable: store,
+      builder: (context, _) {
+        setCurrentLanguage(store.profile.language);
+        return MaterialApp(
+          title: 'Landed',
+          debugShowCheckedModeBanner: false,
+          theme: buildTheme(),
+          locale: Locale(currentLanguage),
+          supportedLocales: [for (final l in appLanguages) Locale(l.code)],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Builder(builder: (context) {
           if (!store.loaded) return const _Splash();
           if (store.loadError != null) return _Recovery(store: store);
           if (!store.profile.onboarded) return OnboardingScreen(store: store);
           return LockGate(store: store, child: Shell(store: store, auth: auth));
-        },
-      ),
+          }),
+        );
+      },
     );
   }
 }
@@ -81,18 +93,18 @@ class _Recovery extends StatelessWidget {
             child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               const Icon(Icons.lock_reset_rounded, size: 64, color: AppColors.coral),
               const SizedBox(height: 16),
-              Text('Your saved data can’t be opened', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center),
+              Text(t('Your saved data can’t be opened'), style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center),
               const SizedBox(height: 10),
-              Text('${store.loadError}\n\nIf you have an encrypted backup, start fresh and then restore it from Settings.',
+              Text('${store.loadError}\n\n${t('If you have an encrypted backup, start fresh and then restore it from Settings.')}',
                   textAlign: TextAlign.center, style: const TextStyle(color: AppColors.mute, height: 1.4)),
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () async {
-                  if (await confirm(context, 'Start fresh?', 'The unreadable data will be deleted.', yes: 'Start fresh')) {
+                  if (await confirm(context, t('Start fresh?'), t('The unreadable data will be deleted.'), yes: t('Start fresh'))) {
                     await store.startFresh();
                   }
                 },
-                child: const Text('Start fresh'),
+                child: Text(t('Start fresh')),
               ),
             ]),
           ),
@@ -147,7 +159,7 @@ class _LockGateState extends State<LockGate> with WidgetsBindingObserver {
   Future<void> _unlock() async {
     if (_authing) return;
     _authing = true;
-    final ok = await DeviceAuth.unlock('Unlock Landed');
+    final ok = await DeviceAuth.unlock(t('Unlock Landed'));
     _authing = false;
     if (ok && mounted) setState(() => locked = false);
   }
@@ -162,11 +174,11 @@ class _LockGateState extends State<LockGate> with WidgetsBindingObserver {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.lock_rounded, color: Colors.white, size: 56),
             const SizedBox(height: 16),
-            Text('Landed is locked', style: bigNumber(size: 26, color: Colors.white)),
+            Text(t('Landed is locked'), style: bigNumber(size: 26, color: Colors.white)),
             const SizedBox(height: 8),
-            const Text('Your data is encrypted on this phone.', style: TextStyle(color: Colors.white70)),
+            Text(t('Your data is encrypted on this phone.'), style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 24),
-            FilledButton.icon(onPressed: _unlock, icon: const Icon(Icons.fingerprint_rounded), label: const Text('Unlock')),
+            FilledButton.icon(onPressed: _unlock, icon: const Icon(Icons.fingerprint_rounded), label: Text(t('Unlock'))),
           ]),
         ),
       ),
@@ -255,7 +267,7 @@ class _ShellState extends State<Shell> {
             backgroundColor: AppColors.blue,
             foregroundColor: Colors.white,
             icon: const Icon(Icons.auto_awesome_rounded),
-            label: const Text('Ask', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(t('Ask'), style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
         ),
         bottomNavigationBar: SafeArea(
@@ -273,7 +285,7 @@ class _ShellState extends State<Shell> {
                   child: Semantics(
                     button: true,
                     selected: tab == i,
-                    label: _tabs[i].$2,
+                    label: t(_tabs[i].$2),
                     child: GestureDetector(
                       key: ValueKey('tab-${_tabs[i].$2}'),
                       onTap: () => go(i),
@@ -286,7 +298,7 @@ class _ShellState extends State<Shell> {
                         ),
                         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                           Icon(_tabs[i].$1, size: 22, color: tab == i ? Colors.white : const Color(0xFFB9BCD2)),
-                          Text(_tabs[i].$2,
+                          Text(t(_tabs[i].$2),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,

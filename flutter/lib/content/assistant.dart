@@ -12,7 +12,7 @@ class Answer {
   final String? guideId;
 }
 
-const answers = <Answer>[
+const ukAnswers = <Answer>[
   // ---------------- visa
   Answer('How do I get a share code?', ['share code', 'prove status', 'prove my status', 'right to work', 'right to rent'],
       'Sign in to your UKVI account on GOV.UK, choose why you need it (work, renting or other), and it gives you a code valid for 90 days.',
@@ -208,12 +208,12 @@ class AnswerMatch {
 String _norm(String s) => ' ${s.toLowerCase().replaceAll(RegExp(r'[^a-z0-9£ ]+'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim()} ';
 
 /// Returns the best answers for [query], best first.
-List<AnswerMatch> searchAnswers(String query, {int limit = 3}) {
+List<AnswerMatch> searchAnswers(String query, List<Answer> pool, {int limit = 3}) {
   final q = _norm(query);
   if (q.trim().isEmpty) return const [];
   final words = q.trim().split(' ').where((w) => w.length > 2).toSet();
   final results = <AnswerMatch>[];
-  for (final a in answers) {
+  for (final a in pool) {
     var score = 0;
     for (final k in a.keywords) {
       final nk = _norm(k);

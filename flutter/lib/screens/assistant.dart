@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../content/assistant.dart';
+import '../content/countries/general.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'guide.dart';
+import 'work.dart';
 
 class _Msg {
   _Msg.user(this.text)
@@ -22,43 +25,46 @@ class _Msg {
 
 /// Answers questions about the student's own data first, then built-in answers.
 _Msg answerFor(String q, AppStore s) {
-  final t = q.toLowerCase();
-  bool has(List<String> ws) => ws.any(t.contains);
+  final lower = q.toLowerCase();
+  bool has(List<String> ws) => ws.any(lower.contains);
 
-  if (has(['hours left', 'how many hours have i', 'my hours', 'hours this week', 'worked this week'])) {
-    final h = s.hoursThisWeek;
-    final left = s.profile.weeklyLimit - h;
+  if (has(['hours left', 'how many hours have i', 'my hours', 'hours this week', 'worked this week', 'days left', 'how many days have i'])) {
+    final used = s.usedNow;
+    final left = s.workLeftNow;
+    final p = periodWordFor(s);
     return _Msg.bot(left >= 0
-        ? 'You’ve logged ${fmtHours(h)} this week, so you have ${fmtHours(left)} left of your ${s.profile.weeklyLimit}h term-time limit.'
-        : 'You’ve logged ${fmtHours(h)} this week: ${fmtHours(-left)} over your ${s.profile.weeklyLimit}h limit. If it’s term time, talk to your international student team.');
+        ? t('You’ve used {x} {p}, so you have {y} left of your limit.', {'x': s.units(used), 'p': p, 'y': s.units(left)})
+        : t('You’ve used {x} {p}: {y} over your limit. If it’s term time, talk to your international student office.', {'x': s.units(used), 'p': p, 'y': s.units(-left)}),
+        url: s.rule.officialUrl, linkLabel: t('Official rules'), guideId: 'work');
   }
   if (has(['money left', 'budget left', 'how much can i spend', 'my budget', 'spent this month'])) {
     return _Msg.bot(s.leftThisMonth >= 0
-        ? 'You’ve spent ${gbp(s.spentThisMonth)} this month and have ${gbp(s.leftThisMonth)} left: about ${gbp(s.dailyAllowance.floorToDouble())} a day.'
-        : 'You’re ${gbp(-s.leftThisMonth)} over your ${gbp(s.profile.monthlyBudget)} budget this month.');
+        ? t('You’ve spent {x} this month and have {y} left: about {z} a day.', {'x': s.money(s.spentThisMonth), 'y': s.money(s.leftThisMonth), 'z': s.money(s.dailyAllowance.floorToDouble())})
+        : t('You’re {x} over your {y} budget this month.', {'x': s.money(-s.leftThisMonth), 'y': s.money(s.profile.monthlyBudget)}));
   }
   if (has(['my visa', 'visa expire', 'visa expiry', 'days left on my visa'])) {
     final d = s.visaDaysLeft;
     if (d != null) {
-      return _Msg.bot('Your visa expiry is set to ${fmtDate(s.profile.visaExpiry!, year: true)}, ${daysLeftText(d)}. Check it in your UKVI account.',
-          url: 'https://www.gov.uk/view-prove-immigration-status', linkLabel: 'View your eVisa', guideId: 'visa');
+      return _Msg.bot(t('Your visa expiry is set to {d}, {when}.', {'d': fmtDate(s.profile.visaExpiry!, year: true), 'when': daysLeftText(d)}), guideId: 'visa');
     }
   }
   if (has(['next deadline', 'what is due', 'what’s due', "what's due", 'my deadlines'])) {
     final up = s.upcoming;
-    if (up.isEmpty) return _Msg.bot('You have no upcoming deadlines saved. Add them in Explore → Deadlines.');
+    if (up.isEmpty) return _Msg.bot(t('You have no upcoming deadlines saved. Add them in Explore → Deadlines.'));
     final d = up.first;
-    return _Msg.bot('Next up: ${d.title}, ${fmtDate(d.date, weekday: true)} (${daysLeftText(d.daysLeft(s.now))}). You have ${up.length} upcoming in total.');
+    return _Msg.bot(t('Next up: {x}, {d} ({when}). You have {n} upcoming in total.',
+        {'x': d.title, 'd': fmtDate(d.date, weekday: true), 'when': daysLeftText(d.daysLeft(s.now)), 'n': '${up.length}'}));
   }
 
-  final m = searchAnswers(q, limit: 1);
+  final m = searchAnswers(q, s.pack.answers, limit: 1);
   if (m.isEmpty) {
-    return _Msg.bot(
-        'I don’t have an answer for that yet. Try different words, browse Explore → Guides, or ask your university’s student advice team. They’re free and confidential.');
+    return _Msg.bot(t('I don’t have an answer for that yet. Try different words, browse Explore → Guides, or ask your university’s student advice team. They’re free and confidential.'));
   }
   final a = m.first.answer;
   return _Msg.bot(a.text, url: a.url, linkLabel: a.linkLabel.isEmpty ? null : a.linkLabel, guideId: a.guideId);
 }
+
+String periodWordFor(AppStore s) => periodWord(s.rule);
 
 void showAssistant(BuildContext context, AppStore store, {String? initial}) {
   showSheet(context, (c) => SizedBox(height: MediaQuery.of(c).size.height * .8, child: _AssistantSheet(store: store, initial: initial)));
@@ -77,7 +83,7 @@ class _AssistantSheetState extends State<_AssistantSheet> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   final _msgs = <_Msg>[
-    _Msg.bot('Hi! Ask me about visas, work hours, money, housing, health and more. I work offline, so your questions never leave this phone.'),
+    _Msg.bot(t('Hi! Ask me about visas, work hours, money, housing, health and more. I work offline, so your questions never leave this phone.')),
   ];
 
   @override
@@ -117,8 +123,8 @@ class _AssistantSheetState extends State<_AssistantSheet> {
           const SizedBox(width: 10),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Ask Landed', style: Theme.of(context).textTheme.titleLarge),
-              const Text('Offline helper · answers link to official sources', style: smallText),
+              Text(t('Ask Landed'), style: Theme.of(context).textTheme.titleLarge),
+              Text('${widget.store.pack.flag} ${t('Offline helper · answers link to official sources')}', style: smallText),
             ]),
           ),
         ]),
@@ -129,7 +135,7 @@ class _AssistantSheetState extends State<_AssistantSheet> {
             if (_msgs.length == 1) ...[
               const SizedBox(height: 6),
               Wrap(spacing: 6, runSpacing: 6, children: [
-                for (final q in const ['How many hours have I worked this week?', 'How much money is left?', ...suggestedQuestions])
+                for (final q in [t('How many hours have I worked this week?'), t('How much money is left?'), ...generalSuggestedQuestions])
                   ActionChip(label: Text(q), onPressed: () => _ask(q)),
               ]),
             ],
@@ -143,12 +149,12 @@ class _AssistantSheetState extends State<_AssistantSheet> {
               textInputAction: TextInputAction.send,
               textCapitalization: TextCapitalization.sentences,
               onSubmitted: _ask,
-              decoration: const InputDecoration(hintText: 'Type a question…'),
+              decoration: InputDecoration(hintText: t('Type a question…')),
             ),
           ),
           const SizedBox(width: 8),
           IconButton.filled(
-            tooltip: 'Send',
+            tooltip: t('Send'),
             style: IconButton.styleFrom(backgroundColor: AppColors.blue, foregroundColor: Colors.white),
             onPressed: () => _ask(_input.text),
             icon: const Icon(Icons.send_rounded),
@@ -159,7 +165,7 @@ class _AssistantSheetState extends State<_AssistantSheet> {
   }
 
   Widget _bubble(BuildContext context, _Msg m) => Align(
-        alignment: m.fromUser ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: m.fromUser ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
         child: Container(
           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * .8),
           margin: const EdgeInsets.only(bottom: 8),
@@ -176,13 +182,13 @@ class _AssistantSheetState extends State<_AssistantSheet> {
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(m.text, style: TextStyle(color: m.fromUser ? Colors.white : AppColors.ink, height: 1.35, fontSize: 15)),
-            if (m.url != null) LinkText(m.linkLabel ?? 'Official guidance', m.url!),
+            if (m.url != null) LinkText(m.linkLabel ?? t('Official guidance'), m.url!),
             if (m.guideId != null)
               InkWell(
                 onTap: () => openGuide(context, widget.store, m.guideId!),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4),
-                  child: Text('Read the full guide →', style: TextStyle(color: AppColors.coral, fontWeight: FontWeight.w700, fontSize: 14)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(t('Read the full guide →'), style: const TextStyle(color: AppColors.coral, fontWeight: FontWeight.w700, fontSize: 14)),
                 ),
               ),
           ]),

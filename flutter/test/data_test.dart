@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:landed/content/assistant.dart';
+import 'package:landed/content/countries/countries.dart';
 import 'package:landed/data/models.dart';
 import 'package:landed/data/store.dart';
 import 'package:landed/data/vault.dart';
@@ -138,16 +139,16 @@ void main() {
 
   group('Offline helper', () {
     test('finds the right answers', () {
-      expect(searchAnswers('how many hours can I work in term time').first.answer.guideId, 'work');
-      expect(searchAnswers('how do I get a share code for my landlord').first.answer.question, contains('share code'));
-      expect(searchAnswers('register with a doctor').first.answer.guideId, 'health');
-      expect(searchAnswers('landlord wants 6 months rent upfront').first.answer.guideId, 'housing');
-      expect(searchAnswers('xyzzy plugh'), isEmpty);
+      expect(searchAnswers('how many hours can I work in term time', ukAnswers).first.answer.guideId, 'work');
+      expect(searchAnswers('how do I get a share code for my landlord', ukAnswers).first.answer.question, contains('share code'));
+      expect(searchAnswers('register with a doctor', ukAnswers).first.answer.guideId, 'health');
+      expect(searchAnswers('landlord wants 6 months rent upfront', ukAnswers).first.answer.guideId, 'housing');
+      expect(searchAnswers('xyzzy plugh', ukAnswers), isEmpty);
     });
 
     test('every answer has keywords and text', () {
-      expect(answers.length, greaterThanOrEqualTo(50));
-      for (final a in answers) {
+      expect(ukAnswers.length, greaterThanOrEqualTo(50));
+      for (final a in ukAnswers) {
         expect(a.keywords, isNotEmpty);
         expect(a.text, isNotEmpty);
       }
@@ -192,6 +193,89 @@ void main() {
       final q = PlacesService.buildQuery(52.62, -1.12, 1500);
       expect(q, contains('around:1500,52.62,-1.12'));
       expect(q, contains('restaurant|cafe|fast_food'));
+    });
+  });
+
+  group('Country packs', () {
+    test('every pack is complete and consistent', () {
+      expect(countryPacks.length, 9);
+      for (final p in countryPacks) {
+        final ids = p.guides.map((g) => g.id).toSet();
+        expect(ids.length, p.guides.length, reason: '${p.code} has duplicate guide ids');
+        for (final need in ['visa', 'work', 'money', 'housing', 'health', 'emergency']) {
+          expect(ids, contains(need), reason: '${p.code} missing $need guide');
+        }
+        for (final a in p.answers) {
+          if (a.guideId != null) expect(ids, contains(a.guideId), reason: '${p.code}: "${a.question}" links to missing guide ${a.guideId}');
+        }
+        final tasks = p.arrivalTasks();
+        expect(tasks, isNotEmpty);
+        expect(tasks.map((t) => t.id).toSet().length, tasks.length, reason: '${p.code} has duplicate task ids');
+        expect(p.emergency.where((e) => e.primary).length, 1, reason: '${p.code} needs one primary emergency number');
+        expect(searchAnswers('how many hours can I work', p.answers), isNotEmpty, reason: '${p.code} answers work hours');
+        expect(searchAnswers('is my data private', p.answers), isNotEmpty);
+        for (final g in p.guides) {
+          for (final sec in g.sections) {
+            for (final l in sec.links) {
+              expect(l.url.startsWith('https://'), isTrue, reason: '${p.code} link ${l.url}');
+            }
+          }
+        }
+      }
+    });
+
+    test('currency formatting', () {
+      expect(packFor('US').money(12.5), '\$12.50');
+      expect(packFor('DE').money(800), '800 €');
+      expect(packFor('GB').money(-3), '−£3');
+      expect(packFor('ZZ').code, 'XX');
+    });
+
+    final now = DateTime(2026, 11, 26, 10); // Thursday
+    AppStore make(String country) {
+      final s = AppStore(Vault(MemoryKeyStore(), MemoryBlobStore()), clock: () => now);
+      s.profile.studyCountry = country;
+      s.profile.weeklyLimit = s.defaultLimit(packFor(country), true);
+      return s;
+    }
+
+    test('Australia counts a fortnight (last week + this week)', () {
+      final s = make('AU');
+      expect(s.workLimit, 48);
+      s.addShift(job: 'A', date: DateTime(2026, 11, 17), hours: 20); // last week
+      s.addShift(job: 'A', date: DateTime(2026, 11, 24), hours: 20); // this week
+      s.addShift(job: 'A', date: DateTime(2026, 11, 10), hours: 20); // two weeks ago, not counted
+      expect(s.usedNow, 40);
+      expect(s.hoursLeftAfter(now, 10), -2);
+    });
+
+    test('Germany counts days: up to 4 hours is half a day', () {
+      final s = make('DE');
+      expect(s.workLimit, 140);
+      s.addShift(job: 'A', date: DateTime(2026, 1, 5), hours: 3); // half
+      s.addShift(job: 'A', date: DateTime(2026, 1, 6), hours: 8); // full
+      s.addShift(job: 'A', date: DateTime(2026, 1, 7), hours: 2); // same day becomes 6h => full
+      s.addShift(job: 'A', date: DateTime(2026, 1, 7), hours: 4);
+      s.addShift(job: 'A', date: DateTime(2025, 12, 30), hours: 8); // last year
+      expect(s.usedNow, 2.5);
+      expect(s.units(2.5), '2.5 days');
+    });
+
+    test('France counts hours per year', () {
+      final s = make('FR');
+      expect(s.workLimit, 964);
+      s.addShift(job: 'A', date: DateTime(2026, 3, 1), hours: 10);
+      s.addShift(job: 'A', date: DateTime(2026, 11, 2), hours: 5);
+      expect(s.usedNow, 15);
+    });
+
+    test('switching country updates limit and checklist', () {
+      final s = make('GB');
+      s.setStudyCountry('CA');
+      expect(s.pack.code, 'CA');
+      expect(s.workLimit, 24);
+      expect(s.tasks.first.id, startsWith('ca-'));
+      expect(s.money(10), 'CA\$10');
     });
   });
 }

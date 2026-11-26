@@ -1,7 +1,7 @@
 import '../data/models.dart';
 
 /// The default arrival checklist, roughly in the order most students need it.
-List<TaskItem> defaultArrivalTasks() => [
+List<TaskItem> ukArrivalTasks() => [
       TaskItem(
         id: 'evisa',
         title: 'Check your eVisa and save a share code',

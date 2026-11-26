@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'l10n/l10n.dart';
 import 'theme.dart';
 
 const pagePad = EdgeInsets.fromLTRB(18, 8, 18, 140);
@@ -281,20 +282,20 @@ const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 
 const _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 String fmtDate(DateTime d, {bool weekday = false, bool year = false}) =>
-    '${weekday ? '${_days[d.weekday - 1]} ' : ''}${d.day} ${_months[d.month - 1]}${year ? ' ${d.year}' : ''}';
+    '${weekday ? '${t(_days[d.weekday - 1])} ' : ''}${d.day} ${t(_months[d.month - 1])}${year ? ' ${d.year}' : ''}';
 
-String fmtMonth(DateTime d) => '${const [
+String fmtMonth(DateTime d) => '${t(const [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
-    ][d.month - 1]} ${d.year}';
+    ][d.month - 1])} ${d.year}';
 
-String dayName(DateTime d) => _days[d.weekday - 1];
+String dayName(DateTime d) => t(_days[d.weekday - 1]);
 
 String daysLeftText(int days) => switch (days) {
-      < 0 => '${-days} day${days == -1 ? '' : 's'} ago',
-      0 => 'Today',
-      1 => 'Tomorrow',
-      _ => 'in $days days',
+      < 0 => t('{n} days ago', {'n': '${-days}'}),
+      0 => t('Today'),
+      1 => t('Tomorrow'),
+      _ => t('in {n} days', {'n': '$days'}),
     };
 
 Future<DateTime?> pickDate(BuildContext context, {DateTime? initial, DateTime? first, DateTime? last}) {
@@ -314,7 +315,7 @@ Future<bool> confirm(BuildContext context, String title, String body, {String ye
       title: Text(title),
       content: Text(body),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t('Cancel'))),
         FilledButton(
           style: danger ? FilledButton.styleFrom(backgroundColor: AppColors.coral) : null,
           onPressed: () => Navigator.pop(c, true),

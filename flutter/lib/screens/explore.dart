@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../content/guides.dart';
 import '../content/referrals.dart';
 import '../data/models.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'deadlines.dart';
@@ -31,21 +31,26 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     final s = widget.store;
+    final pack = s.pack;
+    final guides = pack.guides;
     final query = q.trim().toLowerCase();
     final shown = query.isEmpty ? guides : guides.where((g) => g.searchText.contains(query)).toList();
     final saved = guides.where((g) => s.isSaved(g.id)).toList();
 
     return ListView(padding: pagePad, children: [
-      const ScreenTitle('Explore', 'Guides, tools and help for life in the UK'),
+      ScreenTitle(t('Explore'), t('Guides, tools and help for life in {c}', {'c': pack.fullySupported ? pack.name : t('your new country')})),
+      if (!pack.fullySupported)
+        Banner2(t('Landed doesn’t have checked rules for your country yet, so guides here are general. Always confirm with your university.')),
       TextField(
         controller: _search,
         onChanged: (v) => setState(() => q = v),
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search_rounded),
-          hintText: 'Search guides: deposit, GP, tax…',
+          hintText: t('Search guides: deposit, doctor, tax…'),
           suffixIcon: q.isEmpty
               ? null
               : IconButton(
+                  tooltip: t('Clear'),
                   onPressed: () => setState(() {
                     _search.clear();
                     q = '';
@@ -55,13 +60,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ),
       const SizedBox(height: 14),
       if (query.isEmpty) ...[
-        const SectionHeader('Your tools'),
+        SectionHeader(t('Your tools')),
         Row(children: [
           Expanded(
             child: _ToolCard(
               icon: Icons.event_note_rounded,
-              title: 'Deadlines',
-              subtitle: '${s.upcoming.length} coming up',
+              title: t('Deadlines'),
+              subtitle: t('{n} coming up', {'n': '${s.upcoming.length}'}),
               bg: AppColors.coralSoft,
               fg: AppColors.coral,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DeadlinesScreen(store: s))),
@@ -71,8 +76,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Expanded(
             child: _ToolCard(
               icon: Icons.sticky_note_2_rounded,
-              title: 'Private notes',
-              subtitle: '${s.notes.length} saved',
+              title: t('Private notes'),
+              subtitle: t('{n} saved', {'n': '${s.notes.length}'}),
               bg: AppColors.blueSoft,
               fg: AppColors.blue,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => NotesScreen(store: s))),
@@ -82,8 +87,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Expanded(
             child: _ToolCard(
               icon: Icons.sos_rounded,
-              title: 'Emergency',
-              subtitle: '999 · 111 · 101',
+              title: t('Emergency'),
+              subtitle: pack.emergency.map((e) => e.number).where((n) => n.length <= 4).take(3).join(' · '),
               bg: AppColors.pinkSoft,
               fg: AppColors.pink,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => EmergencyScreen(store: s))),
@@ -92,9 +97,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ]),
         const SizedBox(height: 14),
       ],
-      SectionHeader(query.isEmpty ? 'Guides' : '${shown.length} guide${shown.length == 1 ? '' : 's'} found'),
+      SectionHeader(query.isEmpty ? t('Guides') : t('{n} found', {'n': '${shown.length}'})),
       if (shown.isEmpty)
-        const SoftCard(child: EmptyState(Icons.search_off_rounded, 'No guide matches. Try the Ask button for quick answers.'))
+        SoftCard(child: EmptyState(Icons.search_off_rounded, t('No guide matches. Try the Ask button for quick answers.')))
       else
         GridView.count(
           crossAxisCount: 3,
@@ -107,7 +112,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
       if (query.isEmpty && saved.isNotEmpty) ...[
         const SizedBox(height: 14),
-        const SectionHeader('Saved'),
+        SectionHeader(t('Saved')),
         SoftCard(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Column(children: [
@@ -123,7 +128,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ],
       if (query.isEmpty) ...[
         const SizedBox(height: 14),
-        const SectionHeader('Nearby'),
+        SectionHeader(t('Nearby')),
         SoftCard(
           color: AppColors.coral,
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => FoodNearScreen(store: s))),
@@ -132,18 +137,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Food near me', style: bigNumber(size: 20, color: Colors.white)),
+                Text(t('Food near me'), style: bigNumber(size: 20, color: Colors.white)),
                 const SizedBox(height: 4),
-                const Text('Restaurants, cafés and grocers by distance, cuisine, halal and veggie. New places flagged.',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, height: 1.3)),
+                Text(t('Restaurants, cafés and grocers by distance, cuisine, halal and veggie. New places flagged.'),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, height: 1.3)),
               ]),
             ),
             const Icon(Icons.chevron_right_rounded, color: Colors.white),
           ]),
         ),
-        _NearbyCard(profile: s.profile),
-        const SectionHeader('Set up: banks & SIMs'),
-        const _ProvidersCard(),
+        _NearbyCard(profile: s.profile, place: s.placeName),
+        if (pack.providers.isNotEmpty) ...[
+          SectionHeader(t('Set up: banks & SIMs')),
+          _ProvidersCard(list: pack.providers),
+        ],
       ],
     ]);
   }
@@ -170,7 +177,7 @@ class _ToolCard extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Icon(icon, color: fg, size: 26),
               const SizedBox(height: 14),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5), maxLines: 1, overflow: TextOverflow.ellipsis),
               Text(subtitle, style: smallText.copyWith(fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
             ]),
           ),
@@ -179,26 +186,27 @@ class _ToolCard extends StatelessWidget {
 }
 
 class _NearbyCard extends StatelessWidget {
-  const _NearbyCard({required this.profile});
+  const _NearbyCard({required this.profile, required this.place});
   final Profile profile;
+  final String place;
 
   @override
   Widget build(BuildContext context) {
-    final city = profile.cityOrUk;
+    final near = place.isEmpty ? 'near me' : 'near $place';
     final home = profile.homeCountry.trim();
     final items = <(IconData, String, String)>[
-      if (home.isNotEmpty) (Icons.storefront_rounded, '$home groceries', '$home grocery store near $city'),
-      (Icons.shopping_basket_rounded, 'World food shops', 'international grocery store near $city'),
-      (Icons.local_pharmacy_rounded, 'Pharmacies', 'pharmacy near $city'),
-      (Icons.local_hospital_rounded, 'GP surgeries', 'GP surgery near $city'),
-      (Icons.account_balance_rounded, 'Bank branches', 'bank branch near $city'),
-      (Icons.fitness_center_rounded, 'Cheap gyms', 'gym near $city'),
-      (Icons.place_rounded, 'Places of worship', 'places of worship near $city'),
-      (Icons.local_library_rounded, 'Libraries', 'public library near $city'),
+      if (home.isNotEmpty) (Icons.storefront_rounded, t('{c} groceries', {'c': home}), '$home grocery store $near'),
+      (Icons.shopping_basket_rounded, t('World food shops'), 'international grocery store $near'),
+      (Icons.local_pharmacy_rounded, t('Pharmacies'), 'pharmacy $near'),
+      (Icons.local_hospital_rounded, t('Doctors'), 'doctor clinic $near'),
+      (Icons.account_balance_rounded, t('Banks'), 'bank $near'),
+      (Icons.fitness_center_rounded, t('Gyms'), 'gym $near'),
+      (Icons.place_rounded, t('Places of worship'), 'places of worship $near'),
+      (Icons.local_library_rounded, t('Libraries'), 'public library $near'),
     ];
     return SoftCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Opens your maps app. Landed never sees your location.', style: smallText.copyWith(fontWeight: FontWeight.w600)),
+        Text(t('Opens your maps app. Landed never sees your location.'), style: smallText.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (final i in items)
@@ -210,20 +218,21 @@ class _NearbyCard extends StatelessWidget {
 }
 
 class _ProvidersCard extends StatelessWidget {
-  const _ProvidersCard();
+  const _ProvidersCard({required this.list});
+  final List<Provider> list;
 
   @override
   Widget build(BuildContext context) {
-    final anyReferral = providers.any((p) => p.isReferral);
+    final anyReferral = list.any((p) => p.isReferral);
     return SoftCard(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         for (final kind in ['Bank', 'SIM']) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 6, 8, 2),
-            child: Text(kind == 'Bank' ? 'Banks' : 'SIM cards', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.mute)),
+            child: Text(kind == 'Bank' ? t('Banks') : t('SIM cards'), style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.mute)),
           ),
-          for (final p in providers.where((p) => p.kind == kind))
+          for (final p in list.where((p) => p.kind == kind))
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 8),
               leading: IconBubble(kind == 'Bank' ? Icons.account_balance_rounded : Icons.sim_card_rounded,
@@ -232,7 +241,7 @@ class _ProvidersCard extends StatelessWidget {
                 Flexible(child: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w700))),
                 if (p.isReferral) ...[
                   const SizedBox(width: 6),
-                  const Pill('Referral', bg: AppColors.sunSoft, fg: AppColors.sunText),
+                  Pill(t('Referral'), bg: AppColors.sunSoft, fg: AppColors.sunText),
                 ],
               ]),
               subtitle: Text(p.blurb),
@@ -243,7 +252,7 @@ class _ProvidersCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
           child: Text(
-            '${anyReferral ? '$referralDisclosure ' : ''}These are examples, not recommendations. Compare plans and check any provider is FCA-regulated (banks) before signing up.',
+            '${anyReferral ? '$referralDisclosure ' : ''}${t('These are examples, not recommendations. Compare plans and check any bank is properly regulated before signing up.')}',
             style: smallText.copyWith(fontSize: 12),
           ),
         ),
@@ -257,41 +266,46 @@ class EmergencyScreen extends StatelessWidget {
   const EmergencyScreen({super.key, required this.store});
   final AppStore store;
 
+  static const _colours = [
+    (AppColors.coral, Colors.white),
+    (AppColors.blue, Colors.white),
+    (AppColors.ink, Colors.white),
+    (AppColors.mint, Colors.white),
+    (AppColors.sun, AppColors.ink),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final calls = <(String, String, String, Color, Color)>[
-      ('999', 'Emergency', 'Police, ambulance, fire', AppColors.coral, Colors.white),
-      ('111', 'NHS 111', 'Urgent medical advice', AppColors.blue, Colors.white),
-      ('101', 'Police', 'Non-emergency', AppColors.ink, Colors.white),
-      ('116123', 'Samaritans', 'Free, 24/7 support', AppColors.mint, Colors.white),
-      ('03001232040', 'Report Fraud', 'Scams and fraud', AppColors.sun, AppColors.ink),
-    ];
+    final pack = store.pack;
+    final home = store.profile.homeCountry.trim();
     return Scaffold(
-      appBar: AppBar(title: const Text('Emergency')),
+      appBar: AppBar(title: Text('${t('Emergency')} ${pack.flag}')),
       body: ListView(padding: const EdgeInsets.fromLTRB(18, 4, 18, 40), children: [
-        const Banner2('In danger right now? Call 999.', bg: AppColors.coralSoft, fg: AppColors.coral, icon: Icons.warning_rounded),
-        for (final c in calls)
+        Banner2(t('In danger right now? Call {n}.', {'n': pack.mainEmergency.number}), bg: AppColors.coralSoft, fg: AppColors.coral, icon: Icons.warning_rounded),
+        if (!pack.fullySupported)
+          Banner2(t('112 works in many countries, but not all. Check your local emergency number and save it in Private notes.')),
+        for (var i = 0; i < pack.emergency.length; i++)
           Container(
             margin: const EdgeInsets.only(bottom: 10),
             child: Material(
-              color: c.$4,
+              color: _colours[i % _colours.length].$1,
               borderRadius: BorderRadius.circular(20),
               child: InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap: () => openUrl('tel:${c.$1}'),
+                onTap: () => openUrl('tel:${pack.emergency[i].number}'),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(children: [
-                    Icon(Icons.call_rounded, color: c.$5),
+                    Icon(Icons.call_rounded, color: _colours[i % _colours.length].$2),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(c.$2, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: c.$5)),
-                        Text(c.$3, style: TextStyle(color: c.$5.withValues(alpha: .8))),
+                        Text(pack.emergency[i].title,
+                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: _colours[i % _colours.length].$2)),
+                        Text(pack.emergency[i].subtitle, style: TextStyle(color: _colours[i % _colours.length].$2.withValues(alpha: .8))),
                       ]),
                     ),
-                    Text(c.$1 == '03001232040' ? '0300 123 2040' : c.$1 == '116123' ? '116 123' : c.$1,
-                        style: bigNumber(size: 20, color: c.$5)),
+                    Text(pack.emergency[i].number, style: bigNumber(size: 18, color: _colours[i % _colours.length].$2)),
                   ]),
                 ),
               ),
@@ -300,15 +314,15 @@ class EmergencyScreen extends StatelessWidget {
         const SizedBox(height: 6),
         SoftCard(
           onTap: () => openGuide(context, store, 'emergency'),
-          child: const Row(children: [
-            Icon(Icons.menu_book_rounded, color: AppColors.coral),
-            SizedBox(width: 12),
-            Expanded(child: Text('Lost passport, stolen phone, victim of crime: what to do', style: TextStyle(fontWeight: FontWeight.w700))),
-            Icon(Icons.chevron_right_rounded),
+          child: Row(children: [
+            const Icon(Icons.menu_book_rounded, color: AppColors.coral),
+            const SizedBox(width: 12),
+            Expanded(child: Text(t('Lost passport, stolen phone, crime: what to do'), style: const TextStyle(fontWeight: FontWeight.w700))),
+            const Icon(Icons.chevron_right_rounded),
           ]),
         ),
-        const LinkText('Find your embassy or high commission', 'https://www.gov.uk/government/publications/foreign-embassies-in-the-uk'),
-        const LinkText('Register for emergency SMS (if you can’t speak)', 'https://www.emergencysms.org.uk/'),
+        LinkText(t('Find your embassy or consulate'),
+            mapsUrl('${home.isEmpty ? '' : '$home '}embassy ${pack.fullySupported ? pack.name : ''}'.trim())),
       ]),
     );
   }
@@ -324,34 +338,34 @@ class NotesScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: store,
       builder: (context, _) => Scaffold(
-        appBar: AppBar(title: const Text('Private notes')),
+        appBar: AppBar(title: Text(t('Private notes'))),
         floatingActionButton: FloatingActionButton(
-          tooltip: 'New note',
+          tooltip: t('New note'),
           backgroundColor: AppColors.blue,
           foregroundColor: Colors.white,
           onPressed: () => _edit(context, null),
           child: const Icon(Icons.add_rounded),
         ),
         body: ListView(padding: const EdgeInsets.fromLTRB(18, 4, 18, 100), children: [
-          const Banner2(
-            'Notes are encrypted on this phone. Don’t store passwords, bank or passport numbers here; use your bank app or a password manager for those.',
+          Banner2(
+            t('Notes are encrypted on this phone. Don’t store passwords, bank or passport numbers here; use your bank app or a password manager for those.'),
             bg: AppColors.blueSoft,
             fg: AppColors.blue,
             icon: Icons.lock_rounded,
           ),
           if (store.notes.isEmpty)
-            const SoftCard(child: EmptyState(Icons.sticky_note_2_outlined, 'Keep things like your landlord’s contact, course codes or questions for your adviser.')),
+            SoftCard(child: EmptyState(Icons.sticky_note_2_outlined, t('Keep things like your landlord’s contact, course codes or questions for your adviser.'))),
           for (final n in store.notes)
             SoftCard(
               onTap: () => _edit(context, n),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(n.title.isEmpty ? 'Untitled' : n.title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                Text(n.title.isEmpty ? t('Untitled') : n.title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
                 if (n.body.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(n.body, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(height: 1.35)),
                 ],
                 const SizedBox(height: 6),
-                Text('Edited ${fmtDate(n.updated, year: true)}', style: smallText.copyWith(fontSize: 12)),
+                Text(t('Edited {d}', {'d': fmtDate(n.updated, year: true)}), style: smallText.copyWith(fontSize: 12)),
               ]),
             ),
         ]),
@@ -370,7 +384,7 @@ class NotesScreen extends StatelessWidget {
               autofocus: existing == null,
               textCapitalization: TextCapitalization.sentences,
               style: Theme.of(c).textTheme.titleMedium,
-              decoration: const InputDecoration(hintText: 'Title'),
+              decoration: InputDecoration(hintText: t('Title')),
             ),
             const SizedBox(height: 10),
             TextField(
@@ -378,7 +392,7 @@ class NotesScreen extends StatelessWidget {
               minLines: 5,
               maxLines: 12,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(hintText: 'Write anything…'),
+              decoration: InputDecoration(hintText: t('Write anything…')),
             ),
             const SizedBox(height: 12),
             Row(children: [
@@ -390,7 +404,7 @@ class NotesScreen extends StatelessWidget {
                   },
                   style: TextButton.styleFrom(foregroundColor: AppColors.coral),
                   icon: const Icon(Icons.delete_rounded),
-                  label: const Text('Delete'),
+                  label: Text(t('Delete')),
                 ),
               const Spacer(),
               FilledButton(
@@ -405,7 +419,7 @@ class NotesScreen extends StatelessWidget {
                   store.saveNote(n);
                   Navigator.pop(c);
                 },
-                child: const Text('Save'),
+                child: Text(t('Save')),
               ),
             ]),
           ]),

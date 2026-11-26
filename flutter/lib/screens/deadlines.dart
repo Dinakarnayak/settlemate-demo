@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/models.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
@@ -42,7 +43,7 @@ class DeadlineTile extends StatelessWidget {
             decoration: d.done ? TextDecoration.lineThrough : null,
             color: d.done ? AppColors.mute : AppColors.ink,
           )),
-      subtitle: Text('${d.kind} · ${fmtDate(d.date, weekday: true, year: true)}'),
+      subtitle: Text('${t(d.kind)} · ${fmtDate(d.date, weekday: true, year: true)}'),
       trailing: compact
           ? Pill(daysLeftText(days), bg: bg, fg: fg)
           : Checkbox(
@@ -77,8 +78,8 @@ class DeadlinesScreen extends StatelessWidget {
                       key: ValueKey(d.id),
                       direction: DismissDirection.endToStart,
                       background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 16),
+                        alignment: AlignmentDirectional.centerEnd,
+                        padding: const EdgeInsetsDirectional.only(end: 16),
                         child: const Icon(Icons.delete_rounded, color: AppColors.coral),
                       ),
                       onDismissed: (_) => s.removeDeadline(d),
@@ -88,27 +89,27 @@ class DeadlinesScreen extends StatelessWidget {
               ),
             ]);
         return Scaffold(
-          appBar: AppBar(title: const Text('Deadlines')),
+          appBar: AppBar(title: Text(t('Deadlines'))),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => showAddDeadline(context, s),
             backgroundColor: AppColors.coral,
             foregroundColor: Colors.white,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Add deadline', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(t('Add deadline'), style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
           body: ListView(padding: const EdgeInsets.fromLTRB(18, 4, 18, 100), children: [
-            const Banner2(
-              'Visa expiry, tuition, rent and assignment dates in one place. They’re stored only on this phone.',
+            Banner2(
+              t('Visa expiry, tuition, rent and assignment dates in one place. They’re stored only on this phone.'),
               bg: AppColors.blueSoft,
               fg: AppColors.blue,
               icon: Icons.lock_rounded,
             ),
-            if (late.isNotEmpty) group('Overdue', late),
-            if (up.isNotEmpty) group('Coming up', up),
+            if (late.isNotEmpty) group(t('Overdue'), late),
+            if (up.isNotEmpty) group(t('Coming up'), up),
             if (up.isEmpty && late.isEmpty)
-              const SoftCard(child: EmptyState(Icons.event_available_rounded, 'No deadlines yet. Add your visa expiry, tuition instalments and assignments.')),
-            if (done.isNotEmpty) group('Done', done),
-            const Text('Swipe left to delete.', style: smallText, textAlign: TextAlign.center),
+              SoftCard(child: EmptyState(Icons.event_available_rounded, t('No deadlines yet. Add your visa expiry, tuition dates and assignments.'))),
+            if (done.isNotEmpty) group(t('Done'), done),
+            Text(t('Swipe to delete.'), style: smallText, textAlign: TextAlign.center),
           ]),
         );
       },
@@ -125,20 +126,20 @@ Future<void> showAddDeadline(BuildContext context, AppStore s) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Add a deadline', style: Theme.of(c).textTheme.titleLarge),
+            Text(t('Add a deadline'), style: Theme.of(c).textTheme.titleLarge),
             const SizedBox(height: 14),
             TextField(
               controller: title,
               autofocus: true,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(labelText: 'What’s due?', hintText: 'e.g. CO7091 report'),
+              decoration: InputDecoration(labelText: t('What’s due?'), hintText: t('e.g. Essay, tuition fee')),
             ),
             const SizedBox(height: 12),
             Wrap(spacing: 6, runSpacing: 6, children: [
               for (final k in deadlineKinds)
                 ChoiceChip(
                   avatar: Icon(deadlineIcons[k], size: 16),
-                  label: Text(k),
+                  label: Text(t(k)),
                   selected: kind == k,
                   onSelected: (_) => set(() => kind = k),
                 ),
@@ -150,7 +151,7 @@ Future<void> showAddDeadline(BuildContext context, AppStore s) {
                 if (d != null) set(() => date = d);
               },
               icon: const Icon(Icons.event_rounded),
-              label: Text(date == null ? 'Choose date' : fmtDate(date!, weekday: true, year: true)),
+              label: Text(date == null ? t('Choose date') : fmtDate(date!, weekday: true, year: true)),
             ),
             if (error != null) ...[
               const SizedBox(height: 8),
@@ -162,13 +163,13 @@ Future<void> showAddDeadline(BuildContext context, AppStore s) {
               child: FilledButton(
                 onPressed: () {
                   if (title.text.trim().isEmpty || date == null) {
-                    set(() => error = 'Add a title and a date.');
+                    set(() => error = t('Add a title and a date.'));
                     return;
                   }
                   s.addDeadline(title.text, date!, kind);
                   Navigator.pop(c);
                 },
-                child: const Text('Save deadline'),
+                child: Text(t('Save deadline')),
               ),
             ),
           ]),

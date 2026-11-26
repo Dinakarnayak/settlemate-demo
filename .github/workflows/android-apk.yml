@@ -2,7 +2,7 @@ name: Android APK
 
 on:
   push:
-    branches: [main, feat/settlemate-android-apk]
+    branches: [main, feat/settlemate-android-apk, feat/landed-worldwide]
     paths:
       - "flutter/**"
       - ".github/workflows/android-apk.yml"

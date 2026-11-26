@@ -27,21 +27,35 @@ class Profile {
     this.visaExpiry,
     this.courseEnd,
     this.onboarded = false,
+    this.studyCountry = 'GB',
+    this.language = 'en',
+    this.currency = '',
   });
 
   String name;
   String university;
   String city;
   String homeCountry;
-  bool degreeLevel; // degree level or above: 20h; below degree: 10h
+  bool degreeLevel; // degree level or above (some countries set a lower limit below it)
+
+  /// Work limit in the study country's unit: hours per week/fortnight/year, or days per year.
   int weeklyLimit;
   double monthlyBudget;
   DateTime? visaExpiry;
   DateTime? courseEnd;
   bool onboarded;
 
+  /// ISO code of the country they study in ('XX' for one without a pack).
+  String studyCountry;
+
+  /// App language code: en, hi, zh, es, ar, fr.
+  String language;
+
+  /// Currency symbol chosen by the student when studying in an unsupported country.
+  String currency;
+
   String get firstName => name.trim().split(RegExp(r'\s+')).first;
-  String get cityOrUk => city.trim().isEmpty ? 'UK' : city.trim();
+  String get cityOrUk => city.trim();
 
   Map<String, Object?> toJson() => {
         'name': name,
@@ -54,6 +68,9 @@ class Profile {
         'visaExpiry': visaExpiry == null ? null : isoDate(visaExpiry!),
         'courseEnd': courseEnd == null ? null : isoDate(courseEnd!),
         'onboarded': onboarded,
+        'studyCountry': studyCountry,
+        'language': language,
+        'currency': currency,
       };
 
   factory Profile.fromJson(Map<String, Object?> j) => Profile(
@@ -67,6 +84,9 @@ class Profile {
         visaExpiry: parseDate(j['visaExpiry']),
         courseEnd: parseDate(j['courseEnd']),
         onboarded: j['onboarded'] as bool? ?? false,
+        studyCountry: j['studyCountry'] as String? ?? 'GB',
+        language: j['language'] as String? ?? 'en',
+        currency: j['currency'] as String? ?? '',
       );
 }
 

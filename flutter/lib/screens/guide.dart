@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../content/guides.dart';
 import '../data/store.dart';
+import '../l10n/l10n.dart';
 import '../theme.dart';
 import '../widgets.dart';
 
@@ -23,9 +24,13 @@ const guideStyle = <String, (IconData, Color, Color)>{
 (IconData, Color, Color) styleForGuide(String id) => guideStyle[id] ?? (Icons.article_rounded, AppColors.line, AppColors.mute);
 
 void openGuide(BuildContext context, AppStore store, String id) {
-  final g = guideById(id);
+  Guide? g;
+  for (final x in store.pack.guides) {
+    if (x.id == id) g = x;
+  }
   if (g == null) return;
-  Navigator.of(context).push(MaterialPageRoute(builder: (_) => GuideScreen(guide: g, store: store)));
+  final guide = g;
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => GuideScreen(guide: guide, store: store)));
 }
 
 class GuideScreen extends StatelessWidget {
@@ -43,7 +48,7 @@ class GuideScreen extends StatelessWidget {
           title: Text(guide.title),
           actions: [
             IconButton(
-              tooltip: store.isSaved(guide.id) ? 'Remove from saved' : 'Save guide',
+              tooltip: store.isSaved(guide.id) ? t('Remove from saved') : t('Save guide'),
               onPressed: () {
                 store.toggleSaved(guide.id);
                 final m = store.takeMessage();
@@ -82,7 +87,9 @@ class GuideScreen extends StatelessWidget {
                 for (final l in sec.links) LinkText(l.label, l.url),
               ]),
             ),
-          const Text('Last checked $guidesLastChecked. Rules change, so always confirm on the official site.',
+          if (currentLanguage != 'en')
+            Banner2(t('Guides are in English for now. Translations are coming.'), bg: AppColors.blueSoft, fg: AppColors.blue, icon: Icons.translate_rounded),
+          Text(t('Last checked {d}. Rules change, so always confirm on the official site.', {'d': guidesLastChecked}),
               style: smallText, textAlign: TextAlign.center),
         ]),
       ),

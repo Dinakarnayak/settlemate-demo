@@ -36,7 +36,7 @@ class Guide {
       [title, summary, for (final s in sections) ...[s.heading, ...s.points]].join(' ').toLowerCase();
 }
 
-const guides = <Guide>[
+const ukGuides = <Guide>[
   // ------------------------------------------------------------------ Visa
   Guide(
     id: 'visa',
@@ -403,10 +403,3 @@ const guides = <Guide>[
     ],
   ),
 ];
-
-Guide? guideById(String id) {
-  for (final g in guides) {
-    if (g.id == id) return g;
-  }
-  return null;
-}
