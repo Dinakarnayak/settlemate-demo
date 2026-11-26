@@ -131,6 +131,8 @@ void main() {
     await pause(t, 800);
 
     // ---------------------------------------------------------------- worldwide: switch to Canada
+    await t.scrollUntilVisible(find.text('Study country'), -250, scrollable: find.byType(Scrollable).last);
+    await pause(t, 800);
     await tap(t, find.text('Study country'), 1500);
     await tap(t, find.text('Canada'), 1200);
     await tap(t, find.text('Replace checklist'), 1500);
@@ -142,6 +144,7 @@ void main() {
 
     // ---------------------------------------------------------------- worldwide: Arabic, right-to-left
     await tap(t, find.byTooltip('Settings'), 1200);
+    await t.scrollUntilVisible(find.text('Language'), 250, scrollable: find.byType(Scrollable).last);
     await tap(t, find.text('Language'), 1200);
     await tap(t, find.text('العربية'), 2000);
     await t.pageBack();
