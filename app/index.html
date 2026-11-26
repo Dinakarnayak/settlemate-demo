@@ -276,6 +276,7 @@ html,body{height:100%}body{background:var(--app)}
   </div>
 </div>
 
+<script src="../core.js"></script>
 <script>
 {
 /* ---------- icons ---------- */
@@ -400,8 +401,7 @@ const fresh = {
   uni:'University of Leicester', course:'MSc Artificial Intelligence with Industry', email:'', emName:'', emPhone:''
 };
 const KEY='settlemate-demo-v3';
-let S;
-try{ S = Object.assign(JSON.parse(JSON.stringify(fresh)), JSON.parse(localStorage.getItem(KEY)) || {}); }catch(e){ S = JSON.parse(JSON.stringify(fresh)); }
+let S = window.SettleMateCore.normaliseState(fresh, (()=>{ try{return localStorage.getItem(KEY)}catch(e){return null} })());
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
 
 /* ---------- content ---------- */
@@ -521,7 +521,7 @@ const country = () => countries.find(c=>c.c===S.country) || countries[0];
 const gbp = n => (n<0?'−':'') + '£' + (Math.round(Math.abs(n)*100)/100).toFixed(Math.abs(n) % 1 ? 2 : 0);
 const homeMoney = n => { const c=country(); if(!c.rate) return ''; const v=Math.round(n*c.rate); return '≈ ' + c.sym + v.toLocaleString('en-GB'); };
 const rateUrl = c => gsearch('1 GBP to '+c.cur);
-const hours = () => S.shifts.reduce((a,s)=>a+s.h,0);
+const hours = () => window.SettleMateCore.weeklyHours(S.shifts);
 const spent = () => S.spend.reduce((a,s)=>a+s.a,0);
 const doneCount = () => S.tasks.filter(t=>t.done).length;
 const level = () => Math.floor(S.xp/50)+1;
@@ -578,7 +578,7 @@ const views = {
       <div style="flex:1"><b>${esc(t.t)}</b><div class="small">${esc(t.d)}</div>${l?(l[0]==='#'?`<button class="copy go" data-go="${l.slice(1)}">Open Scam Shield →</button>`:ext(l,'Open guide ↗')):''}</div><span class="xp">+10</span></div>`}).join('')}`;
   },
   work(){
-    const h=hours(), over=h>S.limit, near=!over&&h>=S.limit-3;
+    const weekShifts=window.SettleMateCore.currentWeekShifts(S.shifts), h=hours(), over=h>S.limit, near=!over&&h>=S.limit-3;
     const col = over?'var(--coral)':near?'var(--sun)':'var(--blue)';
     const ti=termInfo();
     return `${head('Work hours', ti.vac?'This week · university vacation':'This week, Monday to Sunday · term time')}
@@ -587,7 +587,7 @@ const views = {
     <div class="card"><div class="gauge"><div class="ring">${ring(h/S.limit*100,col,'var(--line)',12)}<b>${h}h<span>of ${S.limit}h</span></b></div>
       <div><div class="small" style="font-weight:600">Weekly limit</div>
       <div class="chips" style="padding:4px 0">${[20,10].map(v=>`<button data-limit="${v}" aria-pressed="${S.limit===v}">${v}h</button>`).join('')}</div>
-      <div class="small">${S.shifts.length} shift${S.shifts.length===1?'':'s'} logged</div></div></div>
+      <div class="small">${weekShifts.length} shift${weekShifts.length===1?'':'s'} logged</div></div></div>
       ${ti.vac?'':over?`<div class="alert r">You're ${h-S.limit}h over your limit. Working over it can breach your visa conditions.</div>`:
         near?`<div class="alert y">Only ${S.limit-h}h left this week. Plan your next shift carefully.</div>`:
         `<div class="alert g">You're safely within your limit.</div>`}${ti.vac?'':''}
@@ -595,7 +595,7 @@ const views = {
     <div class="card"><h3>Log a shift</h3>
       <form class="add" id="shiftForm"><input id="job" placeholder="Job" value="Warehouse" aria-label="Job name">
       <input id="hrs" type="number" min="0.5" max="12" step="0.5" value="4" aria-label="Hours"><button class="btn">Add</button></form>
-      <ul class="list" style="margin-top:8px">${S.shifts.map((s,i)=>`<li><span class="group"><span class="gav" style="background:${s.j.toLowerCase().includes('caf')?'#ffe08a':'#c9d6ff'};width:36px;height:36px;border-radius:12px;font-size:13px">${esc(s.day)}</span><b>${esc(s.j)}</b></span>
+      <ul class="list" style="margin-top:8px">${weekShifts.map(s=>{const i=S.shifts.indexOf(s);return `<li><span class="group"><span class="gav" style="background:${s.j.toLowerCase().includes('caf')?'#ffe08a':'#c9d6ff'};width:36px;height:36px;border-radius:12px;font-size:13px">${esc(s.day)}</span><b>${esc(s.j)}</b></span>
         <span class="row"><span class="num">${s.h}h</span><button class="del" data-delshift="${i}" aria-label="Remove shift">✕</button></span></li>`).join('')}</ul>
     </div>
     <div class="card" style="background:var(--coralsoft);border:0"><h3 style="color:var(--coral)">Job offer looks too good?</h3><div class="small">Real employers never charge you a fee or ask you to move money through your account.</div><button class="copy go" data-go="safe">Check it in Scam Shield →</button></div>
@@ -823,7 +823,7 @@ screen.addEventListener('submit', e=>{
   e.preventDefault();
   if(e.target.id==='shiftForm'){
     const h=parseFloat(document.getElementById('hrs').value), j=document.getElementById('job').value.trim()||'Shift';
-    if(h>0){ const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; S.shifts.push({j,h,day:days[S.shifts.length%7]}); addXp(2,'shift logged'); keepScroll(); }
+    if(h>0 && h<=12){ const date=document.getElementById('shiftDate').value || window.SettleMateCore.localISO(new Date()); if(!window.SettleMateCore.validDate(date)){ toast('Choose a valid shift date'); return; } const d=new Date(date+'T00:00:00'); S.shifts.push({j,h,date,day:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]}); addXp(2,'shift logged'); keepScroll(); }
   }
   if(e.target.id==='spendForm'){
     const a=parseFloat(document.getElementById('amt').value), c=document.getElementById('cat').value;

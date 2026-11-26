@@ -1,0 +1,13 @@
+{
+  "name": "settlemate-demo",
+  "private": true,
+  "version": "0.4.0",
+  "description": "Landed / SettleMate international student support prototype",
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
