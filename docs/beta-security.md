@@ -6,7 +6,7 @@ Each tester has an independent account and private personal workspace. A user's 
 ## Provisioned infrastructure (26 November 2026)
 - Neon project: `settlemate-beta` (`divine-feather-82800549`), AWS London region.
 - PostgreSQL 17, database `settlemate`, default branch `main`.
-- Neon Auth is provisioned with Better Auth. Email/password sign-in and sign-up are enabled; email OTP verification is required on sign-up and sign-in, and sessions are revoked on password reset.
+- Neon Auth is provisioned with Better Auth. Email/password sign-in is enabled. New sign-ups are deliberately disabled until the app's account UI and invite flow are ready. Email OTP verification is required on sign-in; sessions are revoked on password reset.
 - Trusted web origin: `https://dinakarnayak.github.io`. Localhost is currently allowed for development and must be disabled before production.
 - Neon Data API is active for the `settlemate` database, uses Neon Auth JWT verification and exposes only the `public` schema. CORS is restricted to the GitHub Pages origin.
 - Auth and Data API URLs are recorded in `docs/neon-beta-setup.md`. No database password, server key or secret is stored in the repository.
